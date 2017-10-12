@@ -11,7 +11,7 @@ set rnu
 
 syntax on
 syntax enable
-set syntax
+
 set showcmd
 
 filetype indent on
@@ -22,11 +22,23 @@ set showmatch
 set incsearch
 set hlsearch
 
-set foldlevelstart=20
+set foldlevelstart=99
 set foldmethod=syntax
 
 set backup
 set writebackup
+
+set autoindent
+set background=dark
+set hidden
+set history=200
+set lazyredraw
+set nrformats=bin,hex
+set ruler
+set undofile
+set window=500
+set backspace=indent,eol,start
+set foldmethod=syntax
 
 nnoremap j gj
 nnoremap k gk
