@@ -1,0 +1,82 @@
+$include /etc/inputrc
+
+set editing-mode vi
+set show-mode-in-prompt on
+
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set visible-stats on
+
+set menu-complete-display-prefix on
+
+set keymap vi-command
+"\C-k": history-search-backward
+"\C-j": history-search-forward
+#Visual mode surround emulation
+"V": "mm"
+"s(": "d`mi()\ePllxP"
+"s[": "d`mi[]\ePllxP"
+"s\"": "d`mi\"\"\ePllxP"
+#Yank/change/delete inside commands
+"yiw": "byw"
+"diw": "bdw"
+"ciw": "bcw"
+"yi(": "f)%lyt)" 
+"yi)": "f)%lyt)"
+"yi[": "f]%lyt]"
+"yi]": "f]%lyt]"
+"yi}": "f}%lyt}"
+"yi{": "f}%lyt}"
+"yi\"": "f\"%lyt\""
+"ci(": "f)%lct)"
+"ci)": "f)%lct)"
+"ci[": "f]%lct]"
+"ci]": "f]%lct]"
+"ci}": "f}%lct}"
+"ci{": "f}%lct}"
+"ci\"": "f\"%lct\""
+"di(": "f)%ldt)"
+"di)": "f)%ldt)"
+"di[": "f]%ldt]"
+"di]": "f]%ldt]"
+"di}": "f}%ldt}"
+"di{": "f}%ldt}"
+"di\"": "f\"%ldt\""
+
+#Yank/change/delete inside commands
+#"yaw": "byw" Non-functioning
+#"daw": "bdw" Non-functioning
+#"caw": "bcw" Non-functioning
+"ya(": "f)%yf)" 
+"ya)": "f)%yf)"
+"ya[": "f]%yf]"
+"ya]": "f]%yf]"
+"ya}": "f}%yf}"
+"ya{": "f}%yf}"
+"ya\"": "f\"%yf\""
+"ca(": "f)%cf)"
+"ca)": "f)%cf)"
+"ca[": "f]%cf]"
+"ca]": "f]%cf]"
+"ca}": "f}%cf}"
+"ca{": "f}%cf}"
+"ca\"": "f\"%cf\"
+"da(": "f)%df)"
+"da)": "f)%df)"
+"da[": "f]%df]"
+"da]": "f]%df]"
+"da}": "f}%df}"
+"da{": "f}%df}"
+"da\"": "f\"%df\"
+
+#delete yank entire lines
+"dd": "0d$"
+"yy": "0y$"
+
+set keymap vi-insert
+TAB: menu-complete
+"\C-k": history-search-backward
+"\C-j": history-search-forward
+"jk": "\e"
+"\C-r0": "\C-y"
