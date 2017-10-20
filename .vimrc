@@ -1,19 +1,24 @@
-execute pathogen#infect()
-let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-set statusline+=%#warningmsg#
-let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Syntax Checking and Linter
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+try
+  execute pathogen#infect()
+  let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
+  set statusline+=%#warningmsg#
+  let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+  set statusline+=%{SyntasticStatuslineFlag()}
+  set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-"When set to 2 the error window will be automatically closed when no errors are
-"detected, but not opened automatically.
-let g:syntastic_auto_loc_list = 2
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+  let g:syntastic_always_populate_loc_list = 1
+  "When set to 2 the error window will be automatically closed when no errors are
+  "detected, but not opened automatically.
+  let g:syntastic_auto_loc_list = 2
+  let g:syntastic_check_on_open = 1
+  let g:syntastic_check_on_wq = 0
 
-"Syntastic check ignore
-"let g:syntastic_quiet_messages = { "regex": "file not found"}
+  "Syntastic check ignore
+  "let g:syntastic_quiet_messages = { "regex": "file not found"}
+endtry
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Indentation
@@ -58,6 +63,7 @@ set backspace=indent,eol,start
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+set timeout timeoutlen=1000 ttimeoutlen=200
 let mapleader = '\'
 imap jk <esc>
 imap {<CR> {}<Left><CR><CR><Up>
@@ -88,17 +94,17 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Comment()
   if (&filetype ==? "c") || (&filetype ==? "cpp") 
-    s;^;//;
+    s;^;//;e
   elseif (&filetype ==? "msp")
-    s/^/;/
+    s/^/;/e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Uncomment()
   if (&filetype ==? "c") || (&filetype ==? "cpp") 
-    s;^//;;
+    s;^//;;e
   elseif (&filetype ==? "msp")
-    s/^;//
+    s/^;//e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -106,4 +112,4 @@ endfunction
 
 let g:onedark_termcolors=16
 set background=dark
-colorscheme onedark
+silent! colorscheme onedark
