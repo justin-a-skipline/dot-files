@@ -13,15 +13,16 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
 "Syntastic check ignore
-"let g:syntastic_quiet_messages = { "regex": "c++11"}
+"let g:syntastic_quiet_messages = { "regex": "file not found"}
 
-"Tabs, spaces, etc.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Indentation
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 set expandtab
 set shiftwidth=2
 set tabstop=2
 set softtabstop=2
 
-"Indentation
 set autoindent
 filetype plugin indent on
 syntax enable
@@ -34,7 +35,9 @@ set splitbelow
 
 set showcmd
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 set showmatch
 set incsearch
 set hlsearch
@@ -52,15 +55,54 @@ set history=200
 set nrformats=bin,hex
 set backspace=indent,eol,start
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
-inoremap jk <esc>
-inoremap {<CR> {}<Left><CR><CR><Up>
-vnoremap s( di()<ESC>P
-nnoremap j gj
-nnoremap k gk
-nnoremap <c-j> :lnext<CR>
-nnoremap <c-k> :lprevious<CR>
-nnoremap <SPACE> za
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+let mapleader = '\'
+imap jk <esc>
+imap {<CR> {}<Left><CR><CR><Up>
+vmap s( di()<ESC>P
+vmap s" di""<ESC>P
+nmap j gj
+nmap k gk
+nmap <c-j> :lnext<CR>
+nmap <c-k> :lprevious<CR>
+nmap <SPACE> za
+nmap <leader>l :call LocationListToggle()<CR>
+vmap <leader>/ :call Comment()<CR>
+vmap <leader>\ :call Uncomment()<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:location_list_open = 0
+function! LocationListToggle()
+  if s:location_list_open
+    lclose
+    let s:location_list_open = 0
+  else
+    lopen
+    let s:location_list_open = 1
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! Comment()
+  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+    s;^;//;
+  elseif (&filetype ==? "msp")
+    s/^/;/
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! Uncomment()
+  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+    s;^//;;
+  elseif (&filetype ==? "msp")
+    s/^;//
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 let g:onedark_termcolors=16
 set background=dark
