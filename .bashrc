@@ -138,4 +138,4 @@ google() {
 export QSYS_ROOTDIR="~/intelFPGA_lite/17.0/quartus/sopc_builder/bin"
 
 set -o vi
-bind -f "~/.inputrc"
+bind -f "./.inputrc"
