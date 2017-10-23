@@ -58,12 +58,12 @@ fi
 
 if [ "$color_prompt" = yes ]; then
     if [[ ${EUID} == 0 ]] ; then
-        PS1='[\A]\[\033[01;32m\]\u\[\033[01;34m\]\w\$\[\033[00m\] '
+        PS1='[\A]\[\033[01;32m\]\u:\[\033[01;34m\]\w \$\[\033[00m\] '
     else
-        PS1='[\A]\[\033[01;32m\]\u\[\033[01;34m\]\w\$\[\033[00m\] '
+        PS1='[\A]\[\033[01;32m\]\u:\[\033[01;34m\]\w \$\[\033[00m\] '
     fi
 else
-    PS1='[\A]\u:\w\$ '
+    PS1='[\A]\u:\w \$ '
 fi
 unset color_prompt force_color_prompt
 
