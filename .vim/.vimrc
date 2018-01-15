@@ -1,26 +1,4 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-"Syntax Checking and Linter
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-try
-  execute pathogen#infect()
-  let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-  set statusline+=%#warningmsg#
-  let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
-  set statusline+=%{SyntasticStatuslineFlag()}
-  set statusline+=%*
-
-  let g:syntastic_always_populate_loc_list = 1
-  "When set to 2 the error window will be automatically closed when no errors are
-  "detected, but not opened automatically.
-  let g:syntastic_auto_loc_list = 2
-  let g:syntastic_check_on_open = 1
-  let g:syntastic_check_on_wq = 0
-
-  "Syntastic check ignore
-  "let g:syntastic_quiet_messages = { "regex": "file not found"}
-endtry
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Indentation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set expandtab
@@ -32,8 +10,11 @@ set autoindent
 filetype plugin indent on
 syntax enable
 
+"things after case labels aren't indented
+"so I can add braces in case statements
+set cino==0
+
 set nu
-set rnu
 
 set splitright
 set splitbelow
@@ -43,6 +24,10 @@ set showcmd
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+if has('nvim-0.1.5')
+	set termguicolors
+endif
+
 set showmatch
 set incsearch
 set hlsearch
@@ -60,35 +45,86 @@ set history=200
 set nrformats=bin,hex
 set backspace=indent,eol,start
 
+set autoread
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set timeout timeoutlen=1000 ttimeoutlen=200
 let mapleader = '\'
 imap jk <esc>
-imap {<CR> {}<Left><CR><CR><Up>
 vmap s( di()<ESC>P
+vmap s{ di{}<ESC>P
 vmap s" di""<ESC>P
+vmap s` di``<ESC>P
+vmap <leader>bs c{<CR>}<ESC>P
+vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
 nmap <c-j> :lnext<CR>
 nmap <c-k> :lprevious<CR>
+nmap <a-j> :lolder<CR>
+nmap <a-k> :lnewer<CR>
 nmap <SPACE> za
+nmap <a-.> 10<c-w>>
+nmap <a-,> 10<c-w><
+nmap <a--> 10<c-w>-
+nmap <a-=> 10<c-w>+
+nmap <leader>u g-
+nmap <leader>r g+
 nmap <leader>l :call LocationListToggle()<CR>
 vmap <leader>/ :call Comment()<CR>
 vmap <leader>\ :call Uncomment()<CR>
+nmap <leader>] :call TogglePreview()<CR>
+nmap <leader>n :call VerticalSplitNoteToggle()<CR>
+nmap <leader>i =i{
+nmap <leader>j :call JupyterToggle()<CR>
 
+"ag search hotkeys
+nmap <leader>s yiw:call EasyAgSearch('<c-R>0')<CR>
+nmap <leader>S :call EasyAgSearch('')<LEFT><LEFT>
+vmap <leader>s y<Leader>S<c-R>0<CR>
+
+"lvimgrep search hotkeys
+nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
+nmap <leader>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
+vmap <leader>vs y<Leader>vS<c-R>0<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:location_list_open = 0
+function! EasylvimgrepSearch(term)
+  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+    execute('lvimgrep `' . a:term . '`j **/*.c **/*.h **/*.cpp **/*.hpp')
+  elseif (&filetype ==? "msp")
+    execute('lvimgrep `' . a:term . '`j **/*.s43 **/*.h **/*.inc')
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! EasyAgSearch(term)
+  if (&filetype ==? "c")
+    execute('lex system(''ag --cc --ignore=external "' . a:term . '"'')')
+  elseif (&filetype ==? "msp")
+"still searches *.s43~ files~ ARGH~
+    execute('lex system(''ag "' . a:term . '" **.s43 **.h'')')
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! EasyCtags()
+  if (&filetype ==? "c")
+    execute('!ctags --langmap=C:.c.h.C --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/d,definition/" -R .')
+  elseif (&filetype ==? "msp")
+"still searches *.s43~ files~ ARGH~
+    execute('!ctags --langmap=Asm:.s43.h -R .')
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! LocationListToggle()
-  if s:location_list_open
+  if exists("w:location_list_open")
+    unlet w:location_list_open
     lclose
-    let s:location_list_open = 0
   else
     lopen
-    let s:location_list_open = 1
+    let w:location_list_open = 1
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -97,8 +133,6 @@ function! Comment()
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
-  elseif (&filetype ==? "py")
-    s/^/#/e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -107,22 +141,57 @@ function! Uncomment()
     s;^//;;e
   elseif (&filetype ==? "msp")
     s/^;//e
-  elseif (&filetype ==? "py")
-    s/^#//e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+function! PwinOpen()
+  let w:pwin = 1
+  wincmd }
+endfunction
 
+function! PwinClose()
+  unlet w:pwin
+  pclose
+endfunction
+
+function! TogglePreview()
+  if exists("w:pwin")
+    call PwinClose()
+  else
+    call PwinOpen()
+  endif
+endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-"Auto Commands
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-augroup vimrc
-  augroup! vimrc
-  au BufRead,BufEnter,BufNewFile *.s43 :set filetype=msp
-augroup END
+function! VerticalSplitNoteToggle()
+  if exists("t:notes_buf_number")
+    call VerticalSplitNoteClose()
+  else
+    call VerticalSplitNoteOpen()
+  endif
+endfunction
+
+function! VerticalSplitNoteOpen()
+  execute "vsplit NOTES.md"
+  let t:notes_buf_number = bufnr("%")
+  wincmd L "move window all the way to the right
+  65wincmd | "set window width to notes_width
+endfunction
+
+function! VerticalSplitNoteClose()
+  100wincmd l
+  100wincmd k
+  close
+  unlet t:notes_buf_number
+endfunction
   
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Auto Functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+augroup vimrc
+  autocmd! vimrc
+  au BufNewFile,BufRead *.s43 set ft=msp
+augroup END
 
-let g:onedark_termcolors=16
-set background=dark
 silent! colorscheme onedark
+
