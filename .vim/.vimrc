@@ -118,6 +118,10 @@ function! EasyCtags()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+function! EasyLinuxCtags()
+    execute('!ctags --langmap=C:.c.h.C -R . && ctags -Ra /lib/modules/$(uname -r)')
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! LocationListToggle()
   if exists("w:location_list_open")
     unlet w:location_list_open
