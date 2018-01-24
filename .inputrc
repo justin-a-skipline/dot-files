@@ -22,6 +22,7 @@ set keymap vi-command
 "yiw": "byw"
 "diw": "bdw"
 "ciw": "bcw"
+"yi'": "F'lyt'" 
 "yi(": "f)%lyt)" 
 "yi)": "f)%lyt)"
 "yi[": "f]%lyt]"
@@ -29,6 +30,7 @@ set keymap vi-command
 "yi}": "f}%lyt}"
 "yi{": "f}%lyt}"
 "yi\"": "f\"%lyt\""
+"ci'": "F'lct'"
 "ci(": "f)%lct)"
 "ci)": "f)%lct)"
 "ci[": "f]%lct]"
@@ -36,6 +38,7 @@ set keymap vi-command
 "ci}": "f}%lct}"
 "ci{": "f}%lct}"
 "ci\"": "f\"%lct\""
+"di'": "F'ldt'"
 "di(": "f)%ldt)"
 "di)": "f)%ldt)"
 "di[": "f]%ldt]"
@@ -48,6 +51,7 @@ set keymap vi-command
 #"yaw": "byw" Non-functioning
 #"daw": "bdw" Non-functioning
 #"caw": "bcw" Non-functioning
+"ya'": "F'yf'" 
 "ya(": "f)%yf)" 
 "ya)": "f)%yf)"
 "ya[": "f]%yf]"
@@ -55,6 +59,7 @@ set keymap vi-command
 "ya}": "f}%yf}"
 "ya{": "f}%yf}"
 "ya\"": "f\"%yf\""
+"ca'": "F'cf'"
 "ca(": "f)%cf)"
 "ca)": "f)%cf)"
 "ca[": "f]%cf]"
@@ -62,6 +67,7 @@ set keymap vi-command
 "ca}": "f}%cf}"
 "ca{": "f}%cf}"
 "ca\"": "f\"%cf\"
+"da'": "F'df'"
 "da(": "f)%df)"
 "da)": "f)%df)"
 "da[": "f]%df]"
