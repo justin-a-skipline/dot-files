@@ -131,6 +131,19 @@ google() {
   return 0
 }
 
+psvrffmpeg() {
+  if [ -z "$1" ]
+  then
+    ffmpeg -i "$1" -c:v libx264 -b:a 192k -ac 2 -ar 48000 -pix_fmt yuv420p -b:v 15000k -bf 0 -refs 1 -threads 0 -slices 24 -x264opts "no-cabac:aq-mode=1:aq-strength=0.7:slices=24:direct=spatial:me=tesa:subme=8:trellis=1" -flags +global_header $(basename "$1" .mp4)_180_sbs.mp4
+
+    MP4Box -inter 1000 $(basename "$1" .mp4)_180_sbs.mp4
+  else
+    echo "Error: Pass in mp4 file for encoding"
+  fi
+
+  return 0
+}
+
 alias pdfmerge='gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile=gsout.pdf'
 
 export QSYS_ROOTDIR="~/intelFPGA_lite/17.0/quartus/sopc_builder/bin"
