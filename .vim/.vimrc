@@ -206,5 +206,7 @@ let g:onedark_termcolors=16
 set background=dark
 silent! colorscheme onedark
 
-silent! set guifont=Consolas
+if has('win32')
+  silent! set guifont=Consolas:h10
+endif
 
