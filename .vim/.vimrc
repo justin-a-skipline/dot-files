@@ -207,6 +207,6 @@ set background=dark
 silent! colorscheme onedark
 
 if has('win32')
-  silent! set guifont=Consolas:h10
+  silent! set guifont=Consolas:h11
 endif
 
