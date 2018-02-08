@@ -21,11 +21,13 @@ set splitbelow
 
 set showcmd
 
+let g:markdown_folding = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 if has('nvim-0.1.5')
 	set termguicolors
+  set shada="NONE"
 endif
 
 set showmatch
@@ -57,6 +59,7 @@ vmap s( di()<ESC>P
 vmap s{ di{}<ESC>P
 vmap s" di""<ESC>P
 vmap s` di``<ESC>P
+vmap s' di''<ESC>P
 vmap <leader>bs c{<CR>}<ESC>P
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
@@ -78,17 +81,18 @@ vmap <leader>\ :call Uncomment()<CR>
 nmap <leader>] :call TogglePreview()<CR>
 nmap <leader>n :call VerticalSplitNoteToggle()<CR>
 nmap <leader>i =i{
-nmap <leader>j :call JupyterToggle()<CR>
 
 "ag search hotkeys
 nmap <leader>s yiw:call EasyAgSearch('<c-R>0')<CR>
 nmap <leader>S :call EasyAgSearch('')<LEFT><LEFT>
 vmap <leader>s y<Leader>S<c-R>0<CR>
+vmap <leader>S y<Leader>S<c-R>0
 
 "lvimgrep search hotkeys
 nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
 nmap <leader>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
 vmap <leader>vs y<Leader>vS<c-R>0<CR>
+vmap <leader>vS y<leader>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -195,7 +199,12 @@ endfunction
 augroup vimrc
   autocmd! vimrc
   au BufNewFile,BufRead *.s43 set ft=msp
+  au BufNewFile,BufRead *.au3 set ft=autoit
 augroup END
 
+let g:onedark_termcolors=16
+set background=dark
 silent! colorscheme onedark
+
+silent! set guifont=Consolas
 
