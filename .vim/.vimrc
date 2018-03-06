@@ -106,7 +106,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyAgSearch(term)
   if (&filetype ==? "c")
-    execute('lex system(''ag --cc --ignore=external "' . a:term . '" ' . fnamemodify(getcwd(), ':p') . "')")
+    execute('lex system(''ag --cc --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
     execute('lex system(''ag "' . a:term . '" **.s43 **.h'')')
