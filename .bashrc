@@ -146,7 +146,8 @@ psvrffmpeg() {
 
 alias pdfmerge='gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile=gsout.pdf'
 
-export QSYS_ROOTDIR="~/intelFPGA_lite/17.0/quartus/sopc_builder/bin"
+export QSYS_ROOTDIR="/home/justin/intelFPGA_lite/17.1/quartus/sopc_builder/bin"
 
 set -o vi
-bind -f "./.inputrc"
+bind -f "/home/justin/.inputrc"
+alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0'

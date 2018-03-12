@@ -137,6 +137,10 @@ function! Comment()
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
+  elseif (&filetype ==? "sh") || (&filetype ==? "pov")
+    s/^/# /e
+  elseif (&filetype ==? "vim")
+    s/^/"/e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -145,6 +149,10 @@ function! Uncomment()
     s;^//;;e
   elseif (&filetype ==? "msp")
     s/^;//e
+  elseif (&filetype ==? "sh") || (&filetype ==? "pov")
+    s/^# //e
+  elseif (&filetype ==? "vim")
+    s/^"//e
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
