@@ -21,11 +21,13 @@ set splitbelow
 
 set showcmd
 
+let g:markdown_folding = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 if has('nvim-0.1.5')
 	set termguicolors
+  set shada="NONE"
 endif
 
 set showmatch
@@ -53,10 +55,11 @@ set autoread
 set timeout timeoutlen=1000 ttimeoutlen=200
 let mapleader = '\'
 imap jk <esc>
-vmap s( di()<ESC>P
-vmap s{ di{}<ESC>P
-vmap s" di""<ESC>P
-vmap s` di``<ESC>P
+vmap s( c()<ESC>P
+vmap s{ c{}<ESC>P
+vmap s" c""<ESC>P
+vmap s` c``<ESC>P
+vmap s' c''<ESC>P
 vmap <leader>bs c{<CR>}<ESC>P
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
@@ -78,31 +81,32 @@ vmap <leader>\ :call Uncomment()<CR>
 nmap <leader>] :call TogglePreview()<CR>
 nmap <leader>n :call VerticalSplitNoteToggle()<CR>
 nmap <leader>i =i{
-nmap <leader>j :call JupyterToggle()<CR>
 
 "ag search hotkeys
 nmap <leader>s yiw:call EasyAgSearch('<c-R>0')<CR>
 nmap <leader>S :call EasyAgSearch('')<LEFT><LEFT>
 vmap <leader>s y<Leader>S<c-R>0<CR>
+vmap <leader>S y<Leader>S<c-R>0
 
 "lvimgrep search hotkeys
 nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
 nmap <leader>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
 vmap <leader>vs y<Leader>vS<c-R>0<CR>
+vmap <leader>vS y<leader>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasylvimgrepSearch(term)
   if (&filetype ==? "c") || (&filetype ==? "cpp") 
-    execute('lvimgrep `' . a:term . '`j **/*.c **/*.h **/*.cpp **/*.hpp')
+    execute('lvimgrep `' . a:term . '` **/*.c **/*.h **/*.cpp **/*.hpp')
   elseif (&filetype ==? "msp")
-    execute('lvimgrep `' . a:term . '`j **/*.s43 **/*.h **/*.inc')
+    execute('lvimgrep `' . a:term . '` **/*.s43 **/*.h **/*.inc')
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyAgSearch(term)
   if (&filetype ==? "c")
-    execute('lex system(''ag --cc --ignore=external "' . a:term . '"'')')
+    execute('lex system(''ag --cc --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
     execute('lex system(''ag "' . a:term . '" **.s43 **.h'')')
@@ -203,7 +207,19 @@ endfunction
 augroup vimrc
   autocmd! vimrc
   au BufNewFile,BufRead *.s43 set ft=msp
+  au BufNewFile,BufRead *.au3 set ft=autoit
+"  au BufNewFile,BufRead *     syn keyword Todo NOTE
 augroup END
 
+let g:onedark_termcolors=16
+set background=dark
 silent! colorscheme onedark
+
+"syn keyword MyHighlightGroup NOTE
+"hi MyHighlightGroup guifg=Blue ctermfg=Blue term=bold
+"hi link MyHighlightGroup Todo
+
+if has('win32')
+  silent! set guifont=Consolas:h11
+endif
 
