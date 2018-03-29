@@ -105,7 +105,7 @@ function! EasylvimgrepSearch(term)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyAgSearch(term)
-  if (&filetype ==? "c")
+  if ((&filetype ==? "c") || (&filetype ==? "cpp"))
     execute('lex system(''ag --cc --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
@@ -114,7 +114,7 @@ function! EasyAgSearch(term)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyCtags()
-  if (&filetype ==? "c")
+  if ((&filetype ==? "c") || (&filetype ==? "cpp"))
     execute('!ctags --langmap=C:.c.h.C --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/d,definition/" -R .')
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
