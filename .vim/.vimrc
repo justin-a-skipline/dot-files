@@ -60,7 +60,12 @@ vmap s{ c{}<ESC>P
 vmap s" c""<ESC>P
 vmap s` c``<ESC>P
 vmap s' c''<ESC>P
-vmap <leader>bs c{<CR>}<ESC>P
+nmap ds( %x<c-o>x
+nmap ds{ %x<c-o>x
+nmap ds" %x<c-o>x
+nmap ds` %x<c-o>x
+nmap ds' %x<c-o>x
+vmap <leader>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
@@ -81,6 +86,7 @@ vmap <leader>\ :call Uncomment()<CR>
 nmap <leader>] :call TogglePreview()<CR>
 nmap <leader>n :call VerticalSplitNoteToggle()<CR>
 nmap <leader>i =i{
+nmap <leader>wq ggVG"+d:q!<CR>
 
 "ag search hotkeys
 nmap <leader>s yiw:call EasyAgSearch('<c-R>0')<CR>
@@ -98,14 +104,14 @@ vmap <leader>vS y<leader>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasylvimgrepSearch(term)
   if (&filetype ==? "c") || (&filetype ==? "cpp") 
-    execute('lvimgrep `' . a:term . '` **/*.c **/*.h **/*.cpp **/*.hpp')
+    execute('lvimgrep `' . a:term . '` **/*.c **/*.C **/*.h **/*.cpp **/*.hpp')
   elseif (&filetype ==? "msp")
     execute('lvimgrep `' . a:term . '` **/*.s43 **/*.h **/*.inc')
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyAgSearch(term)
-  if (&filetype ==? "c")
+  if ((&filetype ==? "c") || (&filetype ==? "cpp"))
     execute('lex system(''ag --cc --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
@@ -114,7 +120,7 @@ function! EasyAgSearch(term)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyCtags()
-  if (&filetype ==? "c")
+  if ((&filetype ==? "c") || (&filetype ==? "cpp"))
     execute('!ctags --langmap=C:.c.h.C --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/d,definition/" -R .')
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
