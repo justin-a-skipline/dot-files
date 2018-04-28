@@ -141,7 +141,7 @@ function! Comment()
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
-  elseif (&filetype ==? "sh") || (&filetype ==? "pov")
+  elseif (&filetype ==? "sh") || (&filetype ==? "pov") || (&filetype ==? "nim")
     s/^/# /e
   elseif (&filetype ==? "vim")
     s/^/"/e
@@ -153,7 +153,7 @@ function! Uncomment()
     s;^//;;e
   elseif (&filetype ==? "msp")
     s/^;//e
-  elseif (&filetype ==? "sh") || (&filetype ==? "pov")
+  elseif (&filetype ==? "sh") || (&filetype ==? "pov") || (&filetype ==? "nim")
     s/^# //e
   elseif (&filetype ==? "vim")
     s/^"//e
