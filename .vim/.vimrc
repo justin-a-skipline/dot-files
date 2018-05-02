@@ -115,6 +115,8 @@ endfunction
 function! EasyAgSearch(term)
   if ((&filetype ==? "c") || (&filetype ==? "cpp"))
     execute('lex system(''ag --cc --vimgrep --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
+  elseif (&filetype ==? "cs")
+    execute('lex system(''ag --cs --vimgrep --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   elseif (&filetype ==? "msp")
 "still searches *.s43~ files~ ARGH~
     execute('lex system(''ag --vimgrep "' . a:term . '" **.s43$ **.h$'')')
@@ -126,9 +128,11 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute('!ctags --langmap=C:.c.h.C --langmap=Asm:.s43.h --languages=Asm,C,C++ --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/t,definition/" -R .')
+    execute('!ctags --langmap=C:.c.h.C --langmap=Asm:.s43.h --languages=Asm,C,C++ --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/t,definition/" -R --exclude=*Examples* .')
   elseif (&filetype ==? "nim")
     execute('!ctags --langdef=nim --langmap=nim:.nim --regex-nim="/(\w+)\*?\s*=\s*object/\1/t,class/" --regex-nim="/(\w+)\*?\s*=\s*enum/\1/t,enum/" --regex-nim="/(\w+)\*?\s*=\s*tuple/\1/t,tuple/" --regex-nim="/(\w+)\*?\s*=\s*range/\1/t,subrange/" --regex-nim="/(\w+)\*?\s*=\s*proc/\1/t,proctype/" --regex-nim="/proc\s+(\w+)/\1/f,procedure/" --regex-nim="/method\s+(\w+)/\1/f,method/" --regex-nim="/template\s+(\w+)/\1/t,template/" --regex-nim="/macro\s+(\w+)/\1/m,macro/" --languages=nim -R .')
+  else
+    execute('!ctags -R .')
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -147,7 +151,7 @@ function! LocationListToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Comment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs")
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
