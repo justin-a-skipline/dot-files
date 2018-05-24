@@ -65,6 +65,8 @@ nmap ds{ %x<c-o>x
 nmap ds" %x<c-o>x
 nmap ds` %x<c-o>x
 nmap ds' %x<c-o>x
+nmap dif viwl%d
+nmap yif viwl%y
 vmap <leader>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
