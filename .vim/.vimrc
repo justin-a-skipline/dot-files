@@ -49,6 +49,10 @@ set backspace=indent,eol,start
 
 set autoread
 
+if executable("ag")
+  set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
+  set grepformat=%f:%l:%c:%m,%f:%l:%m
+endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -147,11 +151,11 @@ function! LocationListToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Comment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+  if (&filetype ==? "c")||(&filetype ==? "cpp") 
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
-  elseif (&filetype ==? "sh") || (&filetype ==? "pov") || (&filetype ==? "nim")
+  elseif (&filetype ==? "sh")||(&filetype ==? "pov")||(&filetype ==? "nim")||(&filetype ==? "make")
     s/^/# /e
   elseif (&filetype ==? "vim")
     s/^/"/e
