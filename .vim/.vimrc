@@ -49,7 +49,10 @@ set backspace=indent,eol,start
 
 set autoread
 
-if executable("ag")
+if executable('rg')
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43
+  set grepformat=%f:%l:%c:%m,%f:%l:%m
+elseif executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 endif
@@ -95,10 +98,9 @@ nmap <leader>i =i{
 nmap <leader>wq ggVG"+d:q!<CR>
 
 "ag search hotkeys
-nmap <leader>s yiw:call EasyAgSearch('<c-R>0')<CR>
-nmap <leader>S :call EasyAgSearch('')<LEFT><LEFT>
-vmap <leader>s y<Leader>S<c-R>0<CR>
-vmap <leader>S y<Leader>S<c-R>0
+nmap <leader>s yiwq:ilgrep "<c-R>0"<SPACE>
+nmap <leader>S :lgrep<SPACE>
+vmap <leader>s y<Leader>S<c-R>0<SPACE>
 
 "lvimgrep search hotkeys
 nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
@@ -115,20 +117,6 @@ function! EasylvimgrepSearch(term)
     execute('lvimgrep `' . a:term . '` **/*.s43 **/*.h **/*.inc')
   elseif (&filetype ==? "nim")
     execute('lvimgrep `' . a:term . '` **/*.nim')
-  endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! EasyAgSearch(term)
-  if ((&filetype ==? "c") || (&filetype ==? "cpp"))
-    execute('lex system(''ag --cc --vimgrep --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
-  elseif (&filetype ==? "cs")
-    execute('lex system(''ag --cs --vimgrep --ignore=external "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
-  elseif (&filetype ==? "msp")
-"still searches *.s43~ files~ ARGH~
-    execute('lex system(''ag --vimgrep "' . a:term . '" **.s43$ **.h$'')')
-  elseif (&filetype ==? "nim")
-"still searches *.s43~ files~ ARGH~
-    execute('lex system(''ag --nim --vimgrep "' . a:term . '" "' . fnamemodify(getcwd(), ':p:h') . "\" ')")
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -169,11 +157,11 @@ function! Comment()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Uncomment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") 
+  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs")
     s;^//;;e
   elseif (&filetype ==? "msp")
     s/^;//e
-  elseif (&filetype ==? "sh") || (&filetype ==? "pov") || (&filetype ==? "nim")
+  elseif (&filetype ==? "sh")||(&filetype ==? "pov")||(&filetype ==? "nim")||(&filetype ==? "make")
     s/^# //e
   elseif (&filetype ==? "vim")
     s/^"//e
@@ -228,16 +216,11 @@ augroup vimrc
   autocmd! vimrc
   au BufNewFile,BufRead *.s43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
-"  au BufNewFile,BufRead *     syn keyword Todo NOTE
 augroup END
 
 let g:onedark_termcolors=16
 set background=dark
 silent! colorscheme onedark
-
-"syn keyword MyHighlightGroup NOTE
-"hi MyHighlightGroup guifg=Blue ctermfg=Blue term=bold
-"hi link MyHighlightGroup Todo
 
 if has('win32')
   silent! set guifont=Consolas:h11
