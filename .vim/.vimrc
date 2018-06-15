@@ -78,8 +78,8 @@ vmap <leader>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
-nmap <c-j> :lnext<CR>
-nmap <c-k> :lprevious<CR>
+nmap <c-j> :lnext<CR>zz
+nmap <c-k> :lprevious<CR>zz
 nmap <a-j> :lolder<CR>
 nmap <a-k> :lnewer<CR>
 nmap <SPACE> za
@@ -100,7 +100,7 @@ nmap <leader>wq ggVG"+d:q!<CR>
 "ag search hotkeys
 nmap <leader>s yiwq:ilgrep "<c-R>0"<SPACE>
 nmap <leader>S :lgrep<SPACE>
-vmap <leader>s y<Leader>S<c-R>0<SPACE>
+vmap <leader>s y<Leader>S"<c-R>0"<SPACE>
 
 "lvimgrep search hotkeys
 nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
