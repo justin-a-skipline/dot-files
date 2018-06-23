@@ -97,8 +97,8 @@ nmap <leader>n :call VerticalSplitNoteToggle()<CR>
 nmap <leader>i =i{
 nmap <leader>wq ggVG"+d:q!<CR>
 
-"ag search hotkeys
-nmap <leader>s yiwq:ilgrep "<c-R>0"<SPACE>
+"lgrep search hotkeys
+nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
 nmap <leader>S :lgrep<SPACE>
 vmap <leader>s y<Leader>S"<c-R>0"<SPACE>
 
