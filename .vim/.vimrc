@@ -50,7 +50,7 @@ set backspace=indent,eol,start
 set autoread
 
 if executable('rg')
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 elseif executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
@@ -123,8 +123,6 @@ endfunction
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
     execute('!ctags --langmap=Asm:.s43.h --langmap=C:.c.h.C --languages=Asm,C,C++ --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/t,definition/" -R --exclude=*Examples* .')
-  elseif (&filetype ==? "nim")
-    execute('!ctags --langdef=nim --langmap=nim:.nim --regex-nim="/(\w+)\*?\s*=\s*object/\1/t,class/" --regex-nim="/(\w+)\*?\s*=\s*enum/\1/t,enum/" --regex-nim="/(\w+)\*?\s*=\s*tuple/\1/t,tuple/" --regex-nim="/(\w+)\*?\s*=\s*range/\1/t,subrange/" --regex-nim="/(\w+)\*?\s*=\s*proc/\1/t,proctype/" --regex-nim="/proc\s+(\w+)/\1/f,procedure/" --regex-nim="/method\s+(\w+)/\1/f,method/" --regex-nim="/template\s+(\w+)/\1/t,template/" --regex-nim="/macro\s+(\w+)/\1/m,macro/" --languages=nim -R .')
   else
     execute('!ctags -R .')
   endif
@@ -145,7 +143,7 @@ function! LocationListToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Comment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs")
+  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs") || (&filetype ==? "zig")
     s;^;//;e
   elseif (&filetype ==? "msp")
     s/^/;/e
@@ -157,7 +155,7 @@ function! Comment()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! Uncomment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs")
+  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs") || (&filetype ==? "zig")
     s;^//;;e
   elseif (&filetype ==? "msp")
     s/^;//e

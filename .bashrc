@@ -151,4 +151,9 @@ export QSYS_ROOTDIR="/home/justin/intelFPGA_lite/17.1/quartus/sopc_builder/bin"
 set -o vi
 bind -f "/home/justin/.inputrc"
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0'
-PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:~/.nimble/bin
+
+alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:cpp,c,asm --type-add work:*.s43 --type-add zig:*.zig'
+
+alias clbin="curl -F 'clbin=<-' https://clbin.com"
+
+PATH+=:~/dot-files/bin
