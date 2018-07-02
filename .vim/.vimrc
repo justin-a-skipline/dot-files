@@ -26,7 +26,7 @@ let g:markdown_folding = 1
 "Code Navigation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 if has('nvim-0.1.5')
-	set termguicolors
+  set termguicolors
   set shada="NONE"
 endif
 
@@ -36,7 +36,7 @@ set hlsearch
 set ruler
 
 set foldlevelstart=99
-set foldmethod=syntax
+set foldmethod=indent
 
 set backup
 set writebackup
@@ -45,16 +45,40 @@ set undofile
 set hidden
 set history=200
 set nrformats=bin,hex
-set backspace=indent,eol,start
+set backspace=indent,eol,start " be able to backspace over these chars
 
 set autoread
+
+set wildmode=longest,list " tab complete to longest match, second tab lists all matches
+set wildignorecase " ignore case when completing file and dir names
+
+set virtualedit=block " allow visual mode block editing to extend past EOL
+
+set laststatus=2    " always display statusline
+set statusline=%<%f " file name and path
+set statusline+=\ %m%r " modified, read-only flags
+set statusline+=\ %y  " filetype according to vim
+set statusline+=%=
+set statusline+=\ [0x\%02.2B] " hex value under cursor
+set statusline+=\ [%{v:register}] " active register
+set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg')
   set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
+"lgrep search hotkeys
+  nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
+  nmap <leader>S :lgrep<SPACE>
+  vmap <leader>s y<Leader>S"<c-R>0"<SPACE>-F<SPACE>
+
 elseif executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
   set grepformat=%f:%l:%c:%m,%f:%l:%m
+"lgrep search hotkeys
+  nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
+  nmap <leader>S :lgrep<SPACE>
+  vmap <leader>s y<Leader>S"<c-R>0"<SPACE>
+
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
@@ -96,11 +120,6 @@ nmap <leader>] :call TogglePreview()<CR>
 nmap <leader>n :call VerticalSplitNoteToggle()<CR>
 nmap <leader>i =i{
 nmap <leader>wq ggVG"+d:q!<CR>
-
-"lgrep search hotkeys
-nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
-nmap <leader>S :lgrep<SPACE>
-vmap <leader>s y<Leader>S"<c-R>0"<SPACE>
 
 "lvimgrep search hotkeys
 nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
