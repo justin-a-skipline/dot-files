@@ -49,7 +49,7 @@ set backspace=indent,eol,start " be able to backspace over these chars
 
 set autoread
 
-set wildmode=longest,list " tab complete to longest match, second tab lists all matches
+set wildmode=list:longest,full " tab complete to longest match, second tab lists all matches
 set wildignorecase " ignore case when completing file and dir names
 
 set virtualedit=block " allow visual mode block editing to extend past EOL
