@@ -42,6 +42,20 @@ set backup
 set writebackup
 set undofile
 
+if has("win32")
+  set backupdir=~/vimfiles
+  set backupskip=~/vimfiles/*
+  set directory=~/vimfiles
+elseif has("unix")
+  set backupdir=/temp
+  set backupskip=/temp/*
+  set directory=/temp
+endif
+
+if has("gui_running")
+  set lines=30 columns=120
+endif
+
 set hidden
 set history=200
 set nrformats=bin,hex
