@@ -48,9 +48,9 @@ if has("win32")
   set backupskip=~/vimfiles/*
   set directory=~/vimfiles
 elseif has("unix")
-  set backupdir=/temp
-  set backupskip=/temp/*
-  set directory=/temp
+  set backupdir=/tmp
+  set backupskip=/tmp/*
+  set directory=/tmp
 endif
 
 if has("gui_running")
@@ -248,6 +248,7 @@ augroup vimrc
   autocmd! vimrc
   au BufNewFile,BufRead *.s43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
+  au BufNewFile,BufRead *.md set textwidth=80
 augroup END
 
 let g:onedark_termcolors=16
