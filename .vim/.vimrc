@@ -69,6 +69,8 @@ set wildignorecase " ignore case when completing file and dir names
 
 set virtualedit=block " allow visual mode block editing to extend past EOL
 
+set path+=**
+
 set laststatus=2    " always display statusline
 set statusline=%<%f " file name and path
 set statusline+=\ %m%r " modified, read-only flags
