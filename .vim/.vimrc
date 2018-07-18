@@ -84,24 +84,24 @@ if executable('rg')
   set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 "lgrep search hotkeys
-  nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
-  nmap <leader>S :lgrep<SPACE>
-  vmap <leader>s y<Leader>S"<c-R>0"<SPACE>-F<SPACE>
+  nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
+  nmap <Bslash>S :lgrep<SPACE>
+  vmap <Bslash>s y<Leader>S"<c-R>0"<SPACE>-F<SPACE>
 
 elseif executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 "lgrep search hotkeys
-  nmap <leader>s yiw:lgrep "<c-R>0"<SPACE>
-  nmap <leader>S :lgrep<SPACE>
-  vmap <leader>s y<Leader>S"<c-R>0"<SPACE>
+  nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
+  nmap <Bslash>S :lgrep<SPACE>
+  vmap <Bslash>s y<Leader>S"<c-R>0"<SPACE>
 
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set timeout timeoutlen=1000 ttimeoutlen=200
-let mapleader = '\'
+let mapleader = ','
 imap jk <esc>
 vmap s( c()<ESC>P
 vmap s{ c{}<ESC>P
@@ -115,34 +115,34 @@ nmap ds` %x<c-o>x
 nmap ds' %x<c-o>x
 nmap dif viwl%d
 nmap yif viwl%y
-vmap <leader>bs c{<CR>}<ESC>P=i{
+vmap <Bslash>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
 nmap <c-j> :lnext<CR>zz
 nmap <c-k> :lprevious<CR>zz
-nmap <a-j> :lolder<CR>
-nmap <a-k> :lnewer<CR>
+nmap <c-n> :lnewer<CR>
+nmap <c-m> :lolder<CR>
 nmap <SPACE> za
 nmap <a-.> 10<c-w>>
 nmap <a-,> 10<c-w><
 nmap <a--> 10<c-w>-
 nmap <a-=> 10<c-w>+
-nmap <leader>u g-
-nmap <leader>r g+
-nmap <leader>l :call LocationListToggle()<CR>
-vmap <leader>/ :call Comment()<CR>
-vmap <leader>\ :call Uncomment()<CR>
-nmap <leader>] :call TogglePreview()<CR>
-nmap <leader>n :call VerticalSplitNoteToggle()<CR>
-nmap <leader>i =i{
-nmap <leader>wq ggVG"+d:q!<CR>
+nmap <Bslash>u g-
+nmap <Bslash>r g+
+nmap <Bslash>l :call LocationListToggle()<CR>
+vmap <Bslash>/ :call Comment()<CR>
+vmap <Bslash>\ :call Uncomment()<CR>
+nmap <Bslash>] :call TogglePreview()<CR>
+nmap <Bslash>n :call VerticalSplitNoteToggle()<CR>
+nmap <Bslash>i =i{
+nmap <Bslash>wq ggVG"+d:q!<CR>
 
 "lvimgrep search hotkeys
-nmap <leader>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
-nmap <leader>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
-vmap <leader>vs y<Leader>vS<c-R>0<CR>
-vmap <leader>vS y<leader>vS<c-R>0
+nmap <Bslash>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
+nmap <Bslash>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
+vmap <Bslash>vs y<Leader>vS<c-R>0<CR>
+vmap <Bslash>vS y<Bslash>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -241,8 +241,30 @@ function! VerticalSplitNoteClose()
   close
   unlet t:notes_buf_number
 endfunction
-  
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! SvnDiff()
+  if exists("t:svn_head_buf_number")
+    call SvnDiffClose()
+  else
+    call SvnDiffOpen()
+  endif
+endfunction
 
+function! SvnDiffOpen()
+  let t:diff_file_name = expand('%')
+  execute "vert new"
+  execute "read !svn cat " . t:diff_file_name
+  let t:svn_head_buf_number = bufnr('%')
+  execute "windo diffthis"
+  execute "normal gg"
+endfunction
+
+function! SvnDiffClose()
+  execute "windo diffoff"
+  execute "bd! " . t:svn_head_buf_number
+  unlet t:svn_head_buf_number
+endfunction
+  
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
