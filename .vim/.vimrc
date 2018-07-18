@@ -47,10 +47,12 @@ if has("win32")
   set backupdir=~/vimfiles
   set backupskip=~/vimfiles/*
   set directory=~/vimfiles
+  set undodir=~/vimfiles
 elseif has("unix")
   set backupdir=/tmp
   set backupskip=/tmp/*
   set directory=/tmp
+  set undodir=/tmp
 endif
 
 if has("gui_running")
