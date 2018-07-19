@@ -35,6 +35,7 @@ set incsearch
 set hlsearch
 set ruler
 set tagcase=smart "smart case sensitivity with :tag command
+set ignorecase=smart
 
 set foldlevelstart=99
 set foldmethod=indent
