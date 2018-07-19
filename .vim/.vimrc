@@ -124,8 +124,8 @@ nmap j gj
 nmap k gk
 nmap <c-j> :lnext<CR>zz
 nmap <c-k> :lprevious<CR>zz
-nmap <c-n> :lnewer<CR>
-nmap <c-m> :lolder<CR>
+nmap <Bslash>j :lnewer<CR>
+nmap <Bslash>k :lolder<CR>
 nmap <SPACE> za
 nmap <a-.> 10<c-w>>
 nmap <a-,> 10<c-w><
