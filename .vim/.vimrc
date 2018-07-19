@@ -35,7 +35,8 @@ set incsearch
 set hlsearch
 set ruler
 set tagcase=smart "smart case sensitivity with :tag command
-set ignorecase=smart
+set ignorecase
+set smartcase
 
 set foldlevelstart=99
 set foldmethod=indent
@@ -89,7 +90,7 @@ if executable('rg')
 "lgrep search hotkeys
   nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
   nmap <Bslash>S :lgrep<SPACE>
-  vmap <Bslash>s y<Leader>S"<c-R>0"<SPACE>-F<SPACE>
+  vmap <Bslash>s y<Bslash>S"<c-R>0"<SPACE>-F<SPACE>
 
 elseif executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
@@ -97,7 +98,7 @@ elseif executable("ag")
 "lgrep search hotkeys
   nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
   nmap <Bslash>S :lgrep<SPACE>
-  vmap <Bslash>s y<Leader>S"<c-R>0"<SPACE>
+  vmap <Bslash>s y<Bslash>S"<c-R>0"<SPACE>
 
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -144,7 +145,7 @@ nmap <Bslash>wq ggVG"+d:q!<CR>
 "lvimgrep search hotkeys
 nmap <Bslash>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
 nmap <Bslash>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
-vmap <Bslash>vs y<Leader>vS<c-R>0<CR>
+vmap <Bslash>vs y<Bslash>vS<c-R>0<CR>
 vmap <Bslash>vS y<Bslash>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
