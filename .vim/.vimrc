@@ -123,8 +123,8 @@ vmap <Bslash>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
-nmap <c-j> :lnext<CR>zz
-nmap <c-k> :lprevious<CR>zz
+nmap <c-j> :lnext<CR>z.
+nmap <c-k> :lprevious<CR>z.
 nmap <Bslash>j :lnewer<CR>
 nmap <Bslash>k :lolder<CR>
 nmap <SPACE> za
@@ -140,7 +140,9 @@ vmap <Bslash>\ :call Uncomment()<CR>
 nmap <Bslash>] :call TogglePreview()<CR>
 nmap <Bslash>n :call VerticalSplitNoteToggle()<CR>
 nmap <Bslash>i =i{
-nmap <Bslash>wq ggVG"+d:q!<CR>
+" Svn directory diff hotkeys
+nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
+nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
 
 "lvimgrep search hotkeys
 nmap <Bslash>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
@@ -266,10 +268,37 @@ endfunction
 
 function! SvnDiffClose()
   execute "windo diffoff"
-  execute "bd! " . t:svn_head_buf_number
-  unlet t:svn_head_buf_number
+  if exists("t:svn_head_buf_number")
+    execute "bd! " . t:svn_head_buf_number
+    unlet t:svn_head_buf_number
+  endif
 endfunction
   
+function! SvnBeginDirDiff()
+  execute "copen"
+  execute "set modifiable"
+  execute "normal ggVGdd"
+  execute "read !svn diff --summarize"
+  execute "normal ggdd"
+  execute "%normal dw"
+  execute "%normal A|1 col 1|"
+  execute "setlocal errorformat=%f\\|%l\\ col\\ %c\\|"
+  execute "cgetbuffer"
+  execute "cclose"
+  let qflist = getqflist()
+  if len(qflist)
+    execute "cfirst"
+    call SvnDiffOpen()
+  else
+    echo "No modified files found."
+  endif
+endfunction
+
+function! SvnEndDirDiff()
+  call SvnDiffClose()
+endfunction
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
