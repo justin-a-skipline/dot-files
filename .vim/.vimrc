@@ -298,7 +298,47 @@ function! SvnEndDirDiff()
   call SvnDiffClose()
 endfunction
 
+function! SvnBlameLine()
+  let g:blame_file_name = expand('%')
+  let g:blame_line_no = line('.')
+  let g:blame_cwd = getcwd()
+  execute "normal yy"
+  execute "tab new"
+  "retain working directory information
+  execute "normal :lcd ". g:blame_cwd .""
+  let g:svn_prev_buf_number = bufnr('%')
+  execute "vert new"
+  let g:svn_head_buf_number = bufnr('%')
+  execute "read !svn blame " . g:blame_file_name
+  execute "normal ggdd"
+  execute "normal ".g:blame_line_no."ggeyiw"
+  execute "normal :let g:blameno=\""
+  execute "normal :let g:blameprevno=\"-1"
+  normal ggVGd
+  "read in revision on right
+  execute "read !svn cat " . g:blame_file_name . " -r " . g:blameno
+  execute "normal ggi" . g:blame_file_name.":" . g:blameno . ""
+  "read in prev revision on left
+  wincmd h
+  execute "read !svn cat " . g:blame_file_name . " -r " . g:blameprevno
+  "diff
+  execute "windo diffthis"
+  execute "normal gg"
+endfunction
 
+function! SvnBlameClose()
+  execute "windo diffoff"
+  tabprevious
+  if exists("g:svn_head_buf_number")
+    execute "bd! " . g:svn_head_buf_number
+  endif
+  if exists("g:svn_prev_buf_number")
+    execute "bd! " . g:svn_prev_buf_number
+  endif
+  if exists("g:blame_line_no")
+    execute "normal ".g:blame_line_no."gg"
+  endif
+endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
