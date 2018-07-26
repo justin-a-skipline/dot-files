@@ -248,7 +248,7 @@ function! VerticalSplitNoteClose()
   unlet t:notes_buf_number
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-set diffexpr="git diff --histogram"
+set diffexpr=git\ diff\ --histogram
 function! SvnDiff()
   if exists("t:svn_head_buf_number")
     call SvnDiffClose()
