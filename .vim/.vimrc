@@ -125,6 +125,10 @@ nmap j gj
 nmap k gk
 nmap <c-j> :lnext<CR>z.
 nmap <c-k> :lprevious<CR>z.
+nmap [[ [[zt<c-y><c-y><c-y>
+nmap ]] ]]zt<c-y><c-y><c-y>
+nmap [] []zb<c-e>
+nmap ][ ][zb<c-e>
 nmap <Bslash>j :lnewer<CR>
 nmap <Bslash>k :lolder<CR>
 nmap <SPACE> za
