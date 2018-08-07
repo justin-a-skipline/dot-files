@@ -85,7 +85,7 @@ set statusline+=\ [%{v:register}] " active register
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg')
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ zig:*.zig
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 "lgrep search hotkeys
   nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
@@ -168,7 +168,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute('!ctags --langmap=Asm:.s43.h --langmap=C:.c.h.C --languages=Asm,C,C++ --regex-C="/^(DEFCW\|DEFC\|DEFW)\(\s*([a-zA-Z0-9_]+)/\2/t,definition/" -R --exclude=*Examples* .')
+    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.h --exclude=*Examples* .')
   else
     execute('!ctags -R .')
   endif
@@ -263,10 +263,14 @@ endfunction
 
 function! SvnDiffOpen()
   let t:diff_file_name = expand('%')
+  let t:diff_win_num = winnr()
   execute "vert new"
   execute "read !svn cat " . t:diff_file_name
   let t:svn_head_buf_number = bufnr('%')
-  execute "windo diffthis"
+  execute "diffthis"
+  execute "normal gg"
+  wincmd h
+  execute "diffthis"
   execute "normal gg"
 endfunction
 
@@ -275,6 +279,10 @@ function! SvnDiffClose()
   if exists("t:svn_head_buf_number")
     execute "bd! " . t:svn_head_buf_number
     unlet t:svn_head_buf_number
+  endif
+  if exists("t:diff_win_num")
+    execute t:diff_win_num . "wincmd w"
+    unlet t:diff_win_num
   endif
 endfunction
   
