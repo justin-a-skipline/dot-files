@@ -144,6 +144,7 @@ vmap <Bslash>\ :call Uncomment()<CR>
 nmap <Bslash>] :call TogglePreview()<CR>
 nmap <Bslash>n :call VerticalSplitNoteToggle()<CR>
 nmap <Bslash>i =i{
+nmap <Bslash>t :call TerminalToggle()<CR>
 " Svn directory diff hotkeys
 nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
@@ -250,6 +251,33 @@ function! VerticalSplitNoteClose()
   100wincmd k
   close
   unlet t:notes_buf_number
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! TerminalToggle()
+  if exists("t:terminal_win_num")
+    call TerminalClose()
+  else
+    call TerminalOpen()
+  endif
+endfunction
+
+function! TerminalOpen()
+  vnew
+  wincmd J "all the way to bottom, use whole screen width
+  resize 16 "16 lines tall
+  let t:terminal_win_num = winnr()
+  if exists("t:terminal_buf_num")
+    execute "buf ".t:terminal_buf_num
+  else
+    terminal ++curwin
+    let t:terminal_buf_num = bufnr("%")
+  endif
+endfunction
+
+function! TerminalClose()
+  execute t:terminal_win_num."wincmd w"
+  hide
+  unlet t:terminal_win_num
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set diffexpr="git diff --histogram"
