@@ -82,19 +82,19 @@ syn match   mspRegister         "P[1-5]DIR"
 syn match   mspRegister         "P[1-5]OUT"
 syn match   mspRegister         "P[1-5]IN"
 " USART
-syn keyword mspRegister         UCTL[0-1] UCTL[0-1]_ U[0-1]CTL U[0-1]CTL_
+syn match   mspRegister           "UCTL[0-1]" "UCTL[0-1]_" "U[0-1]CTL" "U[0-1]CTL_"
 syn keyword mspRegisterPart     PENA PEV SPB CHAR LISTEN SYNC MM SWRST
-syn keyword mspRegister         UTCTL[0-1] UTCTL[0-1]_ U[0-1]TCTL  U[0-1]TCTL_ 
+syn match   mspRegister         "UTCTL[0-1]" "UTCTL[0-1]_" "U[0-1]TCTL"  "U[0-1]TCTL_" 
 syn keyword mspRegisterPart     CKPH CEPL SSEL1 SSEL0 URXSE TXWAKE STC TXEPT
-syn keyword mspRegister         URCTL[0-1] URCTL[0-1]_ U[0-1]RCTL U[0-1]RCTL_
+syn match   mspRegister         "URCTL[0-1]" "URCTL[0-1]_" "U[0-1]RCTL" "U[0-1]RCTL_"
 syn keyword mspRegisterPart     FE PE OE BRK URXEIE URXWIE RXWAKE RXERR
-syn keyword mspRegister         UBR[0-1][0-1] U[0-1]BR[0-1]
-syn keyword mspRegister         UTXBUF[0-1] U[0-1]TXBUF
-syn keyword mspRegister         URXBUF[0-1] U[0-1]RXBUF
-syn keyword mspRegister         UMCTL[0-1] U[0-1]MCTL
+syn match   mspRegister         "UBR[0-1][0-1]" "U[0-1]BR[0-1]"
+syn match   mspRegister         "UTXBUF[0-1]" "U[0-1]TXBUF"
+syn match   mspRegister         "URXBUF[0-1]" "U[0-1]RXBUF"
+syn match   mspRegister         "UMCTL[0-1]" "U[0-1]MCTL"
 " Timers
-syn keyword mspRegister         T[A-B]IV T[A-B]CTL TACCTL[0-2] TBCCTL[0-6] 
-syn keyword mspRegister         T[A-B]R TACCR[0-2] TBCCR[0-6]
+syn match   mspRegister         "T[A-B]IV" "T[A-B]CTL" "TACCTL[0-2]" "TBCCTL[0-6]" 
+syn match   mspRegister         "T[A-B]R" "TACCR[0-2]" "TBCCR[0-6]"
 syn keyword mspRegister         CCTL[0-2] CCR[0-2]
 syn keyword mspRegisterPart     TASSEL[0-2] ID[0-1] MC[0-1] TACLR TAIE TAIFG
 syn keyword mspRegisterPart     TASSEL_[0-3] ID_[0-1] MC_[0-3]
@@ -127,7 +127,7 @@ syn keyword mspRegister         ADC12CTL[0-1] ADC12IFG ADC12IE ADC12IV ADC12MEM
 syn keyword mspRegister         ADC12MEM ADC12MEM[0-9] ADC12MEM1[0-5]
 syn keyword mspRegister         ADC12MCTL[0-9] ADC12MCTL1[0-5]
 syn keyword mspRegisterPart     ADC12SC ENC ADC12TOVIE ADC12OVIE ADC12ON REFON REF2_5V MSH MSC
-syn keyword mspRegisterPart     SHT[0-1]_[0-9] SHT[0-1]_1[0-5]
+syn match   mspRegisterPart     "SHT[0-1]_[0-9]" "SHT[0-1]_1[0-5]"
 syn keyword mspRegisterPart     ADC12BUSY CONSEQ_[0-3] ADC12SSEL_[0-3] ADC12DIV_[0-7]
 syn keyword mspRegisterPart     ISSH SHP SHS_[0-3]
 syn keyword mspRegisterPart     CSTARTADD_[0-9] CSTARTADD_1[0-5]
