@@ -41,20 +41,16 @@ set smartcase
 set foldlevelstart=99
 set foldmethod=indent
 
-set backup
-set writebackup
+set nobackup
+set nowritebackup
 set undofile
 
 if has("win32")
-  set backupdir=~/vimfiles
-  set backupskip=~/vimfiles/*
-  set directory=~/vimfiles
-  set undodir=~/vimfiles
+  set directory=~/dot-files/.vim/swap//
+  set undodir=~/dot-files/.vim/undo//
 elseif has("unix")
-  set backupdir=/tmp
-  set backupskip=/tmp/*
-  set directory=/tmp
-  set undodir=/tmp
+  set directory=~/.vim/swap//
+  set undodir=~/.vim/swap//
 endif
 
 if has("gui_running")

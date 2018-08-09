@@ -85,3 +85,5 @@ Session.vim
 
 .subversion/*
 !.subversion/config
+.vim/swap/*
+.vim/undo/*
