@@ -77,6 +77,7 @@ set laststatus=2    " always display statusline
 set statusline=%<%f " file name and path
 set statusline+=\ %m%r " modified, read-only flags
 set statusline+=\ %y  " filetype according to vim
+set statusline+=\ [%{&ff}] " show detected line endings for file
 set statusline+=%=
 set statusline+=\ [0x\%02.2B] " hex value under cursor
 set statusline+=\ [%{v:register}] " active register
@@ -292,7 +293,7 @@ function! SvnDiffOpen()
   let t:diff_win_num = winnr()
   let t:diff_ft = &filetype
   execute "vert new"
-  execute "read !svn cat " . t:diff_file_name
+  execute "read !svn cat \"" . t:diff_file_name . "\""
   let t:svn_head_buf_number = bufnr('%')
   execute "set ft=".t:diff_ft
   execute "diffthis"
