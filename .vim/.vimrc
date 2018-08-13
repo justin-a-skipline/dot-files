@@ -231,7 +231,7 @@ function! TogglePreview()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! VerticalSplitNoteToggle()
-  if exists("t:notes_buf_number")
+  if exists("t:notes_win_number")
     call VerticalSplitNoteClose()
   else
     call VerticalSplitNoteOpen()
@@ -240,16 +240,14 @@ endfunction
 
 function! VerticalSplitNoteOpen()
   execute "vsplit NOTES.md"
-  let t:notes_buf_number = bufnr("%")
+  let t:notes_win_number = winnr()
   wincmd L "move window all the way to the right
-  65wincmd | "set window width to notes_width
+  vertical resize 85
 endfunction
 
 function! VerticalSplitNoteClose()
-  100wincmd l
-  100wincmd k
-  close
-  unlet t:notes_buf_number
+  execute t:notes_win_number."close!"
+  unlet t:notes_win_number
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! TerminalToggle()
