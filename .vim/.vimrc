@@ -21,6 +21,8 @@ set splitbelow
 
 set showcmd
 
+set nostartofline
+
 let g:markdown_folding = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
