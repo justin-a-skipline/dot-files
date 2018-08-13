@@ -210,17 +210,17 @@ function! Uncomment()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! PwinOpen()
-  let w:pwin = 1
+  let t:pwin = 1
   wincmd }
 endfunction
 
 function! PwinClose()
-  unlet w:pwin
+  unlet t:pwin
   pclose
 endfunction
 
 function! TogglePreview()
-  if exists("w:pwin")
+  if exists("t:pwin")
     call PwinClose()
   else
     call PwinOpen()
@@ -288,9 +288,11 @@ endfunction
 function! SvnDiffOpen()
   let t:diff_file_name = expand('%')
   let t:diff_win_num = winnr()
+  let t:diff_ft = &filetype
   execute "vert new"
   execute "read !svn cat " . t:diff_file_name
   let t:svn_head_buf_number = bufnr('%')
+  execute "set ft=".t:diff_ft
   execute "diffthis"
   execute "normal gg"
   wincmd h
