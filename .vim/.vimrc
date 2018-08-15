@@ -179,12 +179,21 @@ function! EasyLinuxCtags()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! LocationListToggle()
-  if exists("w:location_list_open")
-    unlet w:location_list_open
+  if exists("w:location_list_orig") "we are in location list
+    execute w:location_list_orig."wincmd w"
+    unlet w:location_list_winnr
+    lclose
+  elseif exists("w:location_list_winnr") "we are in original window
+    unlet w:location_list_winnr
     lclose
   else
+    let t:temp1 = winnr() "original window number
     lopen
-    let w:location_list_open = 1
+    let t:temp2 = winnr() "location list window number tied to previous window
+    let w:location_list_orig = t:temp1
+    execute w:location_list_orig."wincmd w"
+    let w:location_list_winnr = t:temp2
+    execute w:location_list_winnr."wincmd w"
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
