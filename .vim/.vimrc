@@ -234,11 +234,10 @@ function! TerminalToggle()
     endif
     unlet t:terminal_win_num
   else
-    vnew
-    wincmd J "all the way to bottom, use whole screen width
+    botright new
     resize 16 "16 lines tall
     let t:terminal_win_num = win_getid(winnr())
-    if bufexists(t:terminal_buf_num)
+    if exists("t:terminal_buf_num") && bufexists(t:terminal_buf_num)
       execute "buf ".t:terminal_buf_num
     else
       terminal ++curwin ++norestore
