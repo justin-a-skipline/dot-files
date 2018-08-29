@@ -5,6 +5,7 @@ set expandtab
 set shiftwidth=2
 set tabstop=2
 set softtabstop=2
+set textwidth=0
 
 set autoindent
 filetype plugin indent on
@@ -34,7 +35,6 @@ endif
 
 set showmatch
 set incsearch
-set hlsearch
 set ruler
 set tagcase=smart "smart case sensitivity with :tag command
 set ignorecase
@@ -84,7 +84,7 @@ set statusline+=\ [%{v:register}] " active register
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg')
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 "lgrep search hotkeys
   nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
@@ -122,19 +122,21 @@ vmap <Bslash>bs c{<CR>}<ESC>P=i{
 vmap s<SPACE> di<SPACE><SPACE><ESC>P
 nmap j gj
 nmap k gk
+vmap j gj
+vmap k gk
 nmap <c-j> :lnext<CR>z.
 nmap <c-k> :lprevious<CR>z.
+nmap <Bslash>j :lnewer<CR>
+nmap <Bslash>k :lolder<CR>
 nmap [[ [[zt3<c-y>
 nmap ]] ]]zt3<c-y>
 nmap [] []zb<c-e>
 nmap ][ ][zb<c-e>
-nmap <Bslash>j :lnewer<CR>
-nmap <Bslash>k :lolder<CR>
 nmap <SPACE> za
-nmap <a-.> 10<c-w>>
-nmap <a-,> 10<c-w><
-nmap <a--> 10<c-w>-
-nmap <a-=> 10<c-w>+
+nmap <Bslash>. 10<c-w>>
+nmap <Bslash>, 10<c-w><
+nmap <Bslash>- 10<c-w>-
+nmap <Bslash>= 10<c-w>+
 nmap <Bslash>u g-
 nmap <Bslash>r g+
 nmap <Bslash>l :call LocationListToggle()<CR>
@@ -142,40 +144,20 @@ vmap <Bslash>/ :call Comment()<CR>
 vmap <Bslash>\ :call Uncomment()<CR>
 nmap <Bslash>] :call TogglePreview()<CR>
 nmap <Bslash>n :call VerticalSplitNoteToggle()<CR>
-nmap <Bslash>i =i{
 nmap <Bslash>t :call TerminalToggle()<CR>
 " Svn directory diff hotkeys
 nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
-
-"lvimgrep search hotkeys
-nmap <Bslash>vs yiw:call EasylvimgrepSearch('<c-R>0')<CR>
-nmap <Bslash>vS :call EasylvimgrepSearch('')<LEFT><LEFT>
-vmap <Bslash>vs y<Bslash>vS<c-R>0<CR>
-vmap <Bslash>vS y<Bslash>vS<c-R>0
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! EasylvimgrepSearch(term)
-  if (&filetype ==? "c") || (&filetype ==? "cpp") 
-    execute('lvimgrep `' . a:term . '` **/*.c **/*.C **/*.h **/*.cpp **/*.hpp')
-  elseif (&filetype ==? "msp")
-    execute('lvimgrep `' . a:term . '` **/*.s43 **/*.h **/*.inc')
-  elseif (&filetype ==? "nim")
-    execute('lvimgrep `' . a:term . '` **/*.nim')
-  endif
-endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.h --exclude=*Examples* .')
+    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h --exclude=*Examples* .')
   else
     execute('!ctags -R .')
   endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! EasyLinuxCtags()
-    execute('!ctags --langmap=C:.c.h.C -R . && ctags -Ra /lib/modules/$(uname -r)')
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! LocationListToggle()
@@ -221,69 +203,48 @@ function! Uncomment()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! PwinOpen()
-  let t:pwin = 1
-  wincmd }
-endfunction
-
-function! PwinClose()
-  unlet t:pwin
-  pclose
-endfunction
-
 function! TogglePreview()
   if exists("t:pwin")
-    call PwinClose()
+    unlet t:pwin
+    pclose
   else
-    call PwinOpen()
+    let t:pwin = 1
+    wincmd }
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! VerticalSplitNoteToggle()
   if exists("t:notes_win_number")
-    call VerticalSplitNoteClose()
+    if win_id2win(t:notes_win_number)
+      execute win_id2win(t:notes_win_number)."close!"
+    endif
+    unlet t:notes_win_number
   else
-    call VerticalSplitNoteOpen()
+    botright vsplit NOTES.md
+    let t:notes_win_number = win_getid(winnr())
+    vertical resize 85
   endif
-endfunction
-
-function! VerticalSplitNoteOpen()
-  execute "vsplit NOTES.md"
-  let t:notes_win_number = winnr()
-  wincmd L "move window all the way to the right
-  vertical resize 85
-endfunction
-
-function! VerticalSplitNoteClose()
-  execute t:notes_win_number."close!"
-  unlet t:notes_win_number
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! TerminalToggle()
   if exists("t:terminal_win_num")
-    call TerminalClose()
+    if win_id2win(t:terminal_win_num)
+      execute win_id2win(t:terminal_win_num)."wincmd w"
+      hide
+    endif
+    unlet t:terminal_win_num
   else
-    call TerminalOpen()
+    vnew
+    wincmd J "all the way to bottom, use whole screen width
+    resize 16 "16 lines tall
+    let t:terminal_win_num = win_getid(winnr())
+    if bufexists(t:terminal_buf_num)
+      execute "buf ".t:terminal_buf_num
+    else
+      terminal ++curwin ++norestore
+      let t:terminal_buf_num = bufnr("%")
+    endif
   endif
-endfunction
-
-function! TerminalOpen()
-  vnew
-  wincmd J "all the way to bottom, use whole screen width
-  resize 16 "16 lines tall
-  let t:terminal_win_num = winnr()
-  if exists("t:terminal_buf_num")
-    execute "buf ".t:terminal_buf_num
-  else
-    terminal ++curwin
-    let t:terminal_buf_num = bufnr("%")
-  endif
-endfunction
-
-function! TerminalClose()
-  execute t:terminal_win_num."wincmd w"
-  hide
-  unlet t:terminal_win_num
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set diffexpr="git diff --histogram"
@@ -323,7 +284,8 @@ function! SvnDiffClose()
 endfunction
   
 function! SvnBeginDirDiff()
-  execute "copen"
+  nohl
+  botright copen
   execute "set modifiable"
   execute "normal ggVGdd"
   execute "read !svn diff --summarize"
@@ -332,7 +294,6 @@ function! SvnBeginDirDiff()
   execute "%normal A|1 col 1|"
   execute "setlocal errorformat=%f\\|%l\\ col\\ %c\\|"
   execute "cgetbuffer"
-  execute "cclose"
   let qflist = getqflist()
   if len(qflist)
     execute "cfirst"
@@ -344,6 +305,7 @@ endfunction
 
 function! SvnEndDirDiff()
   call SvnDiffClose()
+  cclose
 endfunction
 
 function! SvnBlameLine()
@@ -394,7 +356,7 @@ augroup vimrc
   autocmd! vimrc
   au BufNewFile,BufRead *.s43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
-  au BufNewFile,BufRead *.md set textwidth=80
+  au BufNewFile,BufRead *.md setlocal textwidth=80
 augroup END
 
 let g:onedark_termcolors=16
