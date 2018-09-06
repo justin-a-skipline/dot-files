@@ -362,6 +362,8 @@ augroup vimrc
   au BufNewFile,BufRead *.s43,*.S43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
+  " Don't scan include files
+  au BufEnter * set complete-=i
 augroup END
 
 let g:onedark_termcolors=16
