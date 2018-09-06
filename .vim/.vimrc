@@ -359,7 +359,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup vimrc
   autocmd! vimrc
-  au BufNewFile,BufRead *.s43 set ft=msp
+  au BufNewFile,BufRead *.s43,*.S43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
 augroup END
