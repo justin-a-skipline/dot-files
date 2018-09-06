@@ -148,6 +148,12 @@ nmap <Bslash>t :call TerminalToggle()<CR>
 " Svn directory diff hotkeys
 nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
+
+
+tmap <c-\>gt <c-w>:normal gt<CR>
+tmap <c-\>gT <c-w>:normal gT<CR>
+nmap <c-\>gt <c-w>:normal gt<CR>
+nmap <c-\>gT <c-w>:normal gT<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
