@@ -103,8 +103,9 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+"unmap windows visual mode cut to clipboard. Use for decrementing lists
+silent! vunmap <c-x>
 set timeout timeoutlen=1000 ttimeoutlen=200
-let mapleader = ','
 imap jk <esc>
 vmap s( c()<ESC>P
 vmap s{ c{}<ESC>P
@@ -148,6 +149,8 @@ nmap <Bslash>t :call TerminalToggle()<CR>
 " Svn directory diff hotkeys
 nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
+nmap <c-w>] yiw:vert stag! <c-r>"<CR>
+nmap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 
 
 tmap <c-\>gt <c-w>:normal gt<CR>
@@ -364,6 +367,8 @@ augroup vimrc
   au BufNewFile,BufRead *.md setlocal textwidth=80
   " Don't scan include files
   au BufEnter * set complete-=i
+  "turn off cursorline when diffing
+  au BufEnter,BufNew * if &diff | set nocursorline | endif
 augroup END
 
 let g:onedark_termcolors=16
