@@ -292,76 +292,83 @@ function! SvnDiffClose()
   endif
 endfunction
   
-function! SvnBeginDirDiff()
-  nohl
-  botright copen
-  execute "set modifiable"
-  execute "normal ggVGdd"
-  execute "read !svn diff --summarize"
-  execute "normal ggdd"
-  execute "%normal dw"
-  execute "%normal A|1 col 1|"
-  execute "setlocal errorformat=%f\\|%l\\ col\\ %c\\|"
-  execute "cgetbuffer"
-  let qflist = getqflist()
-  if len(qflist)
-    execute "cfirst"
-    call SvnDiffOpen()
+function! SvnDirDiff()
+  if exists("t:svn_dir_diff_in_progress")
+    unlet t:svn_dir_diff_in_progress
+    call SvnDiffClose()
+    cclose
   else
-    echo "No modified files found."
+    let t:svn_dir_diff_in_progress = 1
+    nohl
+    botright copen
+    set modifiable
+    normal! ggVGdd
+    read !svn diff --summarize
+    if line('$') < 2
+      echoerr "No modified files found."
+      quit!
+      return
+    endif
+    normal! ggdd
+    %normal! dw
+    setlocal errorformat=%f
+    cgetbuffer
+    let qflist = getqflist()
+    if len(qflist)
+      cfirst
+      call SvnDiffOpen()
+    endif
   endif
 endfunction
 
-function! SvnEndDirDiff()
-  call SvnDiffClose()
-  cclose
+function! SvnBlame()
+  if exists("g:svn_blame_in_progress")
+    unlet g:svn_blame_in_progress
+    windo diffoff
+    tabprevious
+    if exists("g:svn_head_buf_number")
+      execute "bd! " . g:svn_head_buf_number
+    endif
+    if exists("g:svn_prev_buf_number")
+      execute "bd! " . g:svn_prev_buf_number
+    endif
+    if exists("g:blame_line_no")
+      execute "normal ".g:blame_line_no."gg"
+    endif
+  else
+    let g:svn_blame_in_progress = 1
+    let l:blame_file_name = expand('%')
+    let g:blame_line_no = line('.')
+    let l:blame_cwd = getcwd()
+    "what is yank line for?
+    normal! yy
+    tab new
+    "retain working directory information
+    execute "lcd ". l:blame_cwd
+    let g:svn_prev_buf_number = bufnr('%')
+    vert new
+    let g:svn_head_buf_number = bufnr('%')
+    execute "read !svn blame " . l:blame_file_name
+    normal! ggdd
+    " copy first word (blame revision number for that line)
+    execute "normal ".g:blame_line_no."gg^"
+    let l:blameno = expand("<cword>")
+    let l:blameprevno = l:blameno - 1
+    "delete contents of blame buffer
+    normal! ggVGd
+    "read in revision on right
+    execute "read !svn cat " . l:blame_file_name . " -r " . l:blameno
+    let l:blameinfo = join([l:blame_file_name,":",l:blameno], "")
+    execute "let g:_ = append(0, \"".l:blameinfo."\")"
+    "read in prev revision on left
+    wincmd h
+    execute "read !svn cat " . l:blame_file_name . " -r " . l:blameprevno
+    "diff
+    execute "windo diffthis"
+    execute "normal gg"
+  endif
 endfunction
 
-function! SvnBlameLine()
-  let l:blame_file_name = expand('%')
-  let g:blame_line_no = line('.')
-  let l:blame_cwd = getcwd()
-  "what is yank line for?
-  normal! yy
-  tab new
-  "retain working directory information
-  execute "lcd ". l:blame_cwd
-  let g:svn_prev_buf_number = bufnr('%')
-  vert new
-  let g:svn_head_buf_number = bufnr('%')
-  execute "read !svn blame " . l:blame_file_name
-  normal! ggdd
-  " copy first word (blame revision number for that line)
-  execute "normal ".g:blame_line_no."gg^"
-  let l:blameno = expand("<cword>")
-  let l:blameprevno = l:blameno - 1
-  "delete contents of blame buffer
-  normal! ggVGd
-  "read in revision on right
-  execute "read !svn cat " . l:blame_file_name . " -r " . l:blameno
-  let l:blameinfo = join([l:blame_file_name,":",l:blameno], "")
-  execute "let g:_ = append(0, \"".l:blameinfo."\")"
-  "read in prev revision on left
-  wincmd h
-  execute "read !svn cat " . l:blame_file_name . " -r " . l:blameprevno
-  "diff
-  execute "windo diffthis"
-  execute "normal gg"
-endfunction
-
-function! SvnBlameClose()
-  windo diffoff
-  tabprevious
-  if exists("g:svn_head_buf_number")
-    execute "bd! " . g:svn_head_buf_number
-  endif
-  if exists("g:svn_prev_buf_number")
-    execute "bd! " . g:svn_prev_buf_number
-  endif
-  if exists("g:blame_line_no")
-    execute "normal ".g:blame_line_no."gg"
-  endif
-endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
