@@ -39,6 +39,7 @@ set ruler
 set tagcase=smart "smart case sensitivity with :tag command
 set ignorecase
 set smartcase
+set lazyredraw
 
 set foldlevelstart=99
 set foldmethod=indent
@@ -317,35 +318,39 @@ function! SvnEndDirDiff()
 endfunction
 
 function! SvnBlameLine()
-  let g:blame_file_name = expand('%')
+  let l:blame_file_name = expand('%')
   let g:blame_line_no = line('.')
-  let g:blame_cwd = getcwd()
-  execute "normal yy"
-  execute "tab new"
+  let l:blame_cwd = getcwd()
+  "what is yank line for?
+  normal! yy
+  tab new
   "retain working directory information
-  execute "normal :lcd ". g:blame_cwd .""
+  execute "lcd ". l:blame_cwd
   let g:svn_prev_buf_number = bufnr('%')
-  execute "vert new"
+  vert new
   let g:svn_head_buf_number = bufnr('%')
-  execute "read !svn blame " . g:blame_file_name
-  execute "normal ggdd"
-  execute "normal ".g:blame_line_no."ggeyiw"
-  execute "normal :let g:blameno=\""
-  execute "normal :let g:blameprevno=\"-1"
-  normal ggVGd
+  execute "read !svn blame " . l:blame_file_name
+  normal! ggdd
+  " copy first word (blame revision number for that line)
+  execute "normal ".g:blame_line_no."gg^"
+  let l:blameno = expand("<cword>")
+  let l:blameprevno = l:blameno - 1
+  "delete contents of blame buffer
+  normal! ggVGd
   "read in revision on right
-  execute "read !svn cat " . g:blame_file_name . " -r " . g:blameno
-  execute "normal ggi" . g:blame_file_name.":" . g:blameno . ""
+  execute "read !svn cat " . l:blame_file_name . " -r " . l:blameno
+  let l:blameinfo = join([l:blame_file_name,":",l:blameno], "")
+  execute "let g:_ = append(0, \"".l:blameinfo."\")"
   "read in prev revision on left
   wincmd h
-  execute "read !svn cat " . g:blame_file_name . " -r " . g:blameprevno
+  execute "read !svn cat " . l:blame_file_name . " -r " . l:blameprevno
   "diff
   execute "windo diffthis"
   execute "normal gg"
 endfunction
 
 function! SvnBlameClose()
-  execute "windo diffoff"
+  windo diffoff
   tabprevious
   if exists("g:svn_head_buf_number")
     execute "bd! " . g:svn_head_buf_number
