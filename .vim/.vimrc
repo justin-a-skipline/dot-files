@@ -24,6 +24,8 @@ set showcmd
 
 set nostartofline
 
+set sidescroll=1
+
 let g:markdown_folding = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
@@ -40,6 +42,8 @@ set tagcase=smart "smart case sensitivity with :tag command
 set ignorecase
 set smartcase
 set lazyredraw
+set hlsearch
+nohl
 
 set foldlevelstart=99
 set foldmethod=indent
@@ -58,6 +62,7 @@ endif
 
 if has("gui_running")
   set lines=30 columns=120
+  set guioptions=c
 endif
 
 set hidden
@@ -80,12 +85,12 @@ set statusline+=\ %m%r " modified, read-only flags
 set statusline+=\ %y  " filetype according to vim
 set statusline+=\ [%{&ff}] " show detected line endings for file
 set statusline+=%=
-set statusline+=\ [0x\%02.2B] " hex value under cursor
-set statusline+=\ [%{v:register}] " active register
+set statusline+=\ [0x\%02.4B] " hex value under cursor showing two bytes for unicode
+set statusline+=\ [%{&encoding}] " encoding for file
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg')
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 "lgrep search hotkeys
   nmap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
@@ -128,8 +133,8 @@ vmap j gj
 vmap k gk
 nmap <c-j> :lnext<CR>z.
 nmap <c-k> :lprevious<CR>z.
-nmap <Bslash>j :lnewer<CR>
-nmap <Bslash>k :lolder<CR>
+nmap <Bslash>j :lnewer<CR><CR>
+nmap <Bslash>k :lolder<CR><CR>
 nmap [[ [[zt3<c-y>
 nmap ]] ]]zt3<c-y>
 nmap [] []zb<c-e>
@@ -152,7 +157,10 @@ nmap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nmap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
 nmap <c-w>] yiw:vert stag! <c-r>"<CR>
 nmap <c-w>g] yiw:vert stselect! <c-r>"<CR>
-
+" yank inside visual selection, cursor returns to where it was, can specify any register
+" from https://ddrscott.github.io/blog/2016/yank-without-jank/
+vnoremap <expr>y "my\"" . v:register . "y`y"
+vnoremap /  y/<c-R>"<CR>
 
 tmap <c-\>gt <c-w>:normal gt<CR>
 tmap <c-\>gT <c-w>:normal gT<CR>
@@ -162,9 +170,10 @@ nmap <c-\>gT <c-w>:normal gT<CR>
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+command! Ctags call EasyCtags()
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h --exclude=*Examples* .')
+    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc --exclude=*Examples* .')
   else
     execute('!ctags -R .')
   endif
@@ -381,6 +390,7 @@ augroup vimrc
   au BufEnter * set complete-=i
   "turn off cursorline when diffing
   au BufEnter,BufNew * if &diff | set nocursorline | endif
+  au BufNewFile,BufRead *.xaml set ft=xml
 augroup END
 
 let g:onedark_termcolors=16
@@ -388,6 +398,6 @@ set background=dark
 silent! colorscheme onedark
 
 if has('win32')
-  silent! set guifont=Consolas:h11
+  silent! set guifont=Consolas:h10
 endif
 
