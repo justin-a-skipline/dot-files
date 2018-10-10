@@ -379,6 +379,13 @@ function! SvnBlame()
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+"Custom Netrw Functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! SetLocalDir(islocal)
+  return "lcd %:p:h"
+endfunction
+let g:Netrw_UserMaps=[["l","SetLocalDir"]]
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup vimrc
