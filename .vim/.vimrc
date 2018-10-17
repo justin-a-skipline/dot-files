@@ -35,6 +35,7 @@ if has('nvim-0.1.5')
   set shada="NONE"
 endif
 
+set completeopt+=longest
 set showmatch
 set incsearch
 set ruler
@@ -377,7 +378,23 @@ function! SvnBlame()
     execute "normal gg"
   endif
 endfunction
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -nargs=? -complete=tag Match1 call MyMatch1(<q-args>)
+function! MyMatch1(...)
+  if a:1 == ""
+    match none
+  else
+    execute "match wildmenu `\v".a:1."`"
+  endif
+endfunction
+command! -nargs=? -complete=tag Match2 call MyMatch2(<q-args>)
+function! MyMatch2(...)
+  if a:1 == ""
+    2match none
+  else
+    execute "2match statuslineterm `\v".a:1."`"
+  endif
+endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
