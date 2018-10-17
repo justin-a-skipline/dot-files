@@ -384,7 +384,7 @@ function! MyMatch1(...)
   if a:1 == ""
     match none
   else
-    execute "match wildmenu `\v".a:1."`"
+    execute "match wildmenu `\\v".a:1."`"
   endif
 endfunction
 command! -nargs=? -complete=tag Match2 call MyMatch2(<q-args>)
@@ -392,7 +392,7 @@ function! MyMatch2(...)
   if a:1 == ""
     2match none
   else
-    execute "2match statuslineterm `\v".a:1."`"
+    execute "2match statuslineterm `\\v".a:1."`"
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
