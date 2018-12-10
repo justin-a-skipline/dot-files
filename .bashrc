@@ -146,8 +146,6 @@ psvrffmpeg() {
 
 alias pdfmerge='gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile=gsout.pdf'
 
-export QSYS_ROOTDIR="~/intelFPGA_lite/17.1/quartus/sopc_builder/bin"
-
 set -o vi
 bind -f "~/.inputrc"
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0'
@@ -155,7 +153,5 @@ alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0'
 alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:cpp,c,asm --type-add work:*.s43 --type-add zig:*.zig'
 
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
-
-PATH+=:~/dot-files/bin
 
 export EDITOR="vim"
