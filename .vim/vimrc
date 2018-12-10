@@ -140,6 +140,7 @@ nmap [[ [[zt3<c-y>
 nmap ]] ]]zt3<c-y>
 nmap [] []zb<c-e>
 nmap ][ ][zb<c-e>
+nmap <Bslash>h :nohl<CR>
 nmap <SPACE> za
 nmap <Bslash>. 10<c-w>>
 nmap <Bslash>, 10<c-w><
@@ -307,7 +308,9 @@ function! SvnDirDiff()
     unlet t:svn_dir_diff_in_progress
     call SvnDiffClose()
     cclose
+    tabclose
   else
+    tabnew
     let t:svn_dir_diff_in_progress = 1
     nohl
     botright copen
@@ -364,11 +367,13 @@ function! SvnBlame()
     execute "normal ".g:blame_line_no."gg^"
     let l:blameno = expand("<cword>")
     let l:blameprevno = l:blameno - 1
+    exe "normal W"
+    let l:line_author = expand("<cword>")
     "delete contents of blame buffer
     normal! ggVGd
     "read in revision on right
     execute "read !svn cat " . l:blame_file_name . " -r " . l:blameno
-    let l:blameinfo = join([l:blame_file_name,":",l:blameno], "")
+    let l:blameinfo = join([l:blame_file_name,":",l:blameno,":",l:line_author], "")
     execute "let g:_ = append(0, \"".l:blameinfo."\")"
     "read in prev revision on left
     wincmd h
@@ -407,7 +412,7 @@ let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup vimrc
   autocmd! vimrc
-  au BufNewFile,BufRead *.s43,*.S43 set ft=msp
+  au BufNewFile,BufRead,BufEnter *.s43,*.S43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
   " Don't scan include files
@@ -422,6 +427,6 @@ set background=dark
 silent! colorscheme onedark
 
 if has('win32')
-  silent! set guifont=Consolas:h10
+  silent! set guifont=Consolas:h11
 endif
 
