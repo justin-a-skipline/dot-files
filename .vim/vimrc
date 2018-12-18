@@ -91,10 +91,10 @@ set statusline+=\ [%{&encoding}] " encoding for file
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg') "name on windows
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 elseif executable('ripgrep.rg') "name when installed from snap
-  set grepprg=ripgrep.rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ work:*.xcl\ --type-add\ zig:*.zig
+  set grepprg=ripgrep.rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ zig:*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 elseif executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
@@ -173,7 +173,7 @@ vnoremap /  y/<c-R>"<CR>
 "lgrep search hotkeys
 nnoremap <Bslash>s yiw:lgrep "<c-R>0"<SPACE>
 nnoremap <Bslash>S :lgrep<SPACE>
-vnoremap <Bslash>s y<Bslash>S"<c-R>0"<SPACE>
+vnoremap <Bslash>s y:lgrep<SPACE>"<c-R>0"<SPACE>
 
 tnoremap <c-g><c-t> <c-w>:normal gt<CR>
 tnoremap <c-g>t     <c-w>:normal gT<CR>
