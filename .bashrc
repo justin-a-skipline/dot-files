@@ -155,3 +155,5 @@ alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:c
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 
 export EDITOR="vim"
+
+export LS_COLORS="$LS_COLORS:di=1;44:ow=1;44"
