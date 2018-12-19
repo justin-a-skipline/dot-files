@@ -160,7 +160,7 @@ vnoremap <Bslash>/ :call Comment()<CR>
 vnoremap <Bslash>\ :call Uncomment()<CR>
 nnoremap <Bslash>] :call TogglePreview()<CR>
 nnoremap <Bslash>n :call VerticalSplitNoteToggle()<CR>
-nnoremap <Bslash>t :call TerminalToggle()<CR>
+nnoremap <Bslash>t :call GlobalTerminalToggle()<CR>
 " Svn directory diff hotkeys
 nnoremap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
 nnoremap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
@@ -258,6 +258,7 @@ function! VerticalSplitNoteToggle()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+" Toggleable terminal is specific to each tab
 function! TerminalToggle()
   if exists("t:terminal_win_num")
     if win_id2win(t:terminal_win_num)
@@ -278,6 +279,31 @@ function! TerminalToggle()
         terminal ++curwin
       endif
       let t:terminal_buf_num = bufnr("%")
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Toggleable terminal is global and shared amongst all tabs
+function! GlobalTerminalToggle()
+  if exists("t:terminal_win_num")
+    if win_id2win(t:terminal_win_num)
+      execute win_id2win(t:terminal_win_num)."wincmd w"
+      hide
+    endif
+    unlet t:terminal_win_num
+  else
+    botright new
+    resize 16 "16 lines tall
+    let t:terminal_win_num = win_getid(winnr())
+    if exists("g:terminal_buf_num") && bufexists(g:terminal_buf_num)
+      execute "buf ".g:terminal_buf_num
+    else
+      if has("win32")
+        terminal ++curwin ++norestore
+      else
+        terminal ++curwin
+      endif
+      let g:terminal_buf_num = bufnr("%")
     endif
   endif
 endfunction
