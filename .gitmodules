@@ -2,3 +2,6 @@
 	path = .vim/pack/plugins/start/zig.vim
 	url = https://github.com/ziglang/zig.vim
   branch = master
+[submodule ".vim/pack/plugins/start/asyncrun.vim"]
+	path = .vim/pack/plugins/start/asyncrun.vim
+	url = https://github.com/skywind3000/asyncrun.vim
