@@ -191,15 +191,20 @@ nnoremap <c-\>N <c-w>:NewTermTab<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+if exists(':AsyncRun') == 2
+  let s:async_run_mod = "AsyncRun "
+else
+  let s:async_run_mod = "!"
+endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! NewTermTab tabnew|terminal ++curwin
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! Ctags call EasyCtags()
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute('!ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc --exclude=*Examples* .')
+    execute(s:async_run_mod . 'ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc --exclude=*Examples* .')
   else
-    execute('!ctags -R .')
+    execute(s:async_run_mod . 'ctags -R .')
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
