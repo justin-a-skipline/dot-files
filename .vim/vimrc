@@ -101,24 +101,27 @@ elseif executable('ag')
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 endif
 
-set diffexpr=MyDiff()
-function! MyDiff()
-  let opt = ""
-  if &diffopt =~ "icase"
-    let opt = opt . "-i "
-  endif
-  if &diffopt =~ "iwhite"
-    let opt = opt . "-b "
-  endif
-" Vim will include xdiff library with version 8.1 and this won't be necessary
-"  if executable('git')
-"    silent execute "!git diff --diff-algorithm=histogram --text " . opt . v:fname_in . " " . v:fname_new .
-"      \  " > " . v:fname_out
-"  else
-    silent execute "!diff --text --new-file --minimal " . opt . v:fname_in . " " . v:fname_new .
-      \  " > " . v:fname_out
-"  endif
-endfunction
+if has("patch-8.1.0360")
+  set diffopt+=internal,algorithm:patience
+  set diffexpr=""
+elseif executable('diff')
+  set diffexpr=MyDiff()
+  function! MyDiff()
+    let opt = ""
+    if &diffopt =~ "icase"
+      let opt = opt . "-i "
+    endif
+    if &diffopt =~ "iwhite"
+      let opt = opt . "-b "
+    endif
+      silent execute "!diff --text --new-file --minimal " . opt . v:fname_in . " " . v:fname_new .
+        \  " > " . v:fname_out
+    endif
+  endfunction
+else
+  set diffopt=filler
+  set diffexpr=""
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
@@ -129,6 +132,7 @@ set timeout timeoutlen=1000 ttimeoutlen=200
 inoremap jk <esc>
 vnoremap s( c()<ESC>P
 vnoremap s{ c{}<ESC>P
+vnoremap s[ c[]<ESC>P
 vnoremap s" c""<ESC>P
 vnoremap s` c``<ESC>P
 vnoremap s' c''<ESC>P
@@ -181,8 +185,8 @@ tnoremap <c-g>t     <c-w>:normal gT<CR>
 nnoremap <c-g><c-t> <c-w>:normal gt<CR>
 nnoremap <c-g>t     <c-w>:normal gT<CR>
 
-tnoremap <c-\>N :NewTermTab<CR>
-nnoremap <c-\>N :NewTermTab<CR>
+tnoremap <c-\>N <c-w>:NewTermTab<CR>
+nnoremap <c-\>N <c-w>:NewTermTab<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
