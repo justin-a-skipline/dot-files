@@ -479,7 +479,7 @@ augroup vimrc
   au BufNewFile,BufRead *.xaml set ft=xml
 augroup END
 
-let g:onedark_termcolors=16
+let g:onedark_termcolors=256
 set background=dark
 silent! colorscheme onedark
 
