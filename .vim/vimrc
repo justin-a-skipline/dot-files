@@ -460,7 +460,7 @@ endfunction
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SetLocalDir(islocal)
-  return "lcd %:p:h"
+  return "lcd %:p:h|pwd"
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
