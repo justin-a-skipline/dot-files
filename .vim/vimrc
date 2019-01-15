@@ -116,7 +116,6 @@ elseif executable('diff')
     endif
       silent execute "!diff --text --new-file --minimal " . opt . v:fname_in . " " . v:fname_new .
         \  " > " . v:fname_out
-    endif
   endfunction
 else
   set diffopt=filler
