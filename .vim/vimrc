@@ -196,10 +196,17 @@ nnoremap <c-\>N <c-w>:NewTermTab<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-if &rtp =~ '\WAsyncRun\W'
-  let s:async_run_mod = "AsyncRun "
-else
-  let s:async_run_mod = "!"
+function! SetupPlugins()
+"called on autocommand that is triggered after
+"plugins are setup (post vimrc sourcing)
+  if exists(":AsyncRun")
+    let s:async_run_mod = "AsyncRun "
+  else
+    let s:async_run_mod = "!"
+  endif
+endfunction
+if v:vim_did_enter
+  call SetupPlugins()
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! NewTermTab tabnew|terminal ++curwin
@@ -473,6 +480,7 @@ let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup vimrc
   autocmd! vimrc
+  au VimEnter * call SetupPlugins()
   au BufNewFile,BufRead,BufEnter *.s43,*.S43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
