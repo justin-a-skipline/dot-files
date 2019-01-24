@@ -201,6 +201,7 @@ function! SetupPlugins()
 "plugins are setup (post vimrc sourcing)
   if exists(":AsyncRun")
     let s:async_run_mod = "AsyncRun "
+    let s:netrw_set_loc_dir = "lcd %:p:h|pwd|Ctags"
   else
     let s:async_run_mod = "!"
   endif
@@ -504,7 +505,11 @@ endfunction
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SetLocalDir(islocal)
-  return "lcd %:p:h|pwd"
+  if exists("s:netrw_set_loc_dir")
+    return s:netrw_set_loc_dir
+  else
+    return "lcd %:p:h|pwd"
+  endif
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
