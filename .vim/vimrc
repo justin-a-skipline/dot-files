@@ -170,8 +170,8 @@ nnoremap <Bslash>] :call TogglePreview()<CR>
 nnoremap <Bslash>n :call VerticalSplitNoteToggle()<CR>
 nnoremap <Bslash>t :call GlobalTerminalToggle()<CR>
 " Svn directory diff hotkeys
-nnoremap <Bslash>q :call SvnDiffClose()<CR>:cprev<CR>:call SvnDiffOpen()<CR>
-nnoremap <Bslash>w :call SvnDiffClose()<CR>:cnext<CR>:call SvnDiffOpen()<CR>
+nnoremap <Bslash>q :call SvnDirDiffPrevFile()<CR>
+nnoremap <Bslash>w :call SvnDirDiffNextFile()<CR>
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 " yank inside visual selection, cursor returns to where it was, can specify any register
@@ -371,6 +371,36 @@ function! SvnDiffClose()
   endif
 endfunction
   
+function! SvnDirDiffNextFile()
+  if exists("t:svn_dir_diff_in_progress")
+    if exists("t:diff_entry_num") && (t:diff_entry_num < t:num_dir_diff_files)
+      call SvnDiffClose()
+      cnext
+      call SvnDiffOpen()
+      let t:diff_entry_num += 1
+    else
+      echoerr "No more modified files"
+    endif
+  else
+    echoerr "No directory diff in progress."
+  endif
+endfunction
+
+function! SvnDirDiffPrevFile()
+  if exists("t:svn_dir_diff_in_progress")
+    if exists("t:diff_entry_num") && (t:diff_entry_num > 1)
+      call SvnDiffClose()
+      cprev
+      call SvnDiffOpen()
+      let t:diff_entry_num -= 1
+    else
+      echoerr "No more modified files"
+    endif
+  else
+    echoerr "No directory diff in progress."
+  endif
+endfunction
+
 function! SvnDirDiff()
   if exists("t:svn_dir_diff_in_progress")
     unlet t:svn_dir_diff_in_progress
@@ -379,7 +409,6 @@ function! SvnDirDiff()
     tabclose
   else
     tabnew
-    let t:svn_dir_diff_in_progress = 1
     nohl
     botright copen
     set modifiable
@@ -395,8 +424,11 @@ function! SvnDirDiff()
     setlocal errorformat=%f
     cgetbuffer
     let qflist = getqflist()
-    if len(qflist)
+    let t:num_dir_diff_files = len(qflist)
+    if t:num_dir_diff_files
+      let t:svn_dir_diff_in_progress = 1
       cfirst
+      let t:diff_entry_num = 1
       call SvnDiffOpen()
     endif
   endif
