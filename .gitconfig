@@ -1,0 +1,7 @@
+[user]
+	email = justin.b.alexander1@gmail.com
+	name = vegecode
+[diff]
+	algorithm = histogram
+	indentHeuristic = true
+	colorMoved = true
