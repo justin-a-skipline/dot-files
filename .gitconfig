@@ -5,3 +5,5 @@
 	algorithm = histogram
 	indentHeuristic = true
 	colorMoved = true
+[credential]
+	helper = cache --timeout=3600
