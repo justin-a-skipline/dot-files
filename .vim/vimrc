@@ -95,10 +95,10 @@ set statusline+=\ [%{&encoding}] " encoding for file
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg') "name on windows
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ zig:*.zig
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:\\*.s43\ --type-add\ work:\\*.S43\ --type-add\ work:\\*.inc\ --type-add\ zig:\\*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 elseif executable('ripgrep.rg') "name when installed from snap
-  set grepprg=ripgrep.rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:*.s43\ --type-add\ work:*.S43\ --type-add\ work:*.inc\ --type-add\ zig:*.zig
+  set grepprg=ripgrep.rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:\\*.s43\ --type-add\ work:\\*.S43\ --type-add\ work:\\*.inc\ --type-add\ zig:\\*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 elseif executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
@@ -201,7 +201,6 @@ function! SetupPlugins()
 "plugins are setup (post vimrc sourcing)
   if exists(":AsyncRun")
     let s:async_run_mod = "AsyncRun "
-    let s:netrw_set_loc_dir = "lcd %:p:h|pwd|Ctags"
   else
     let s:async_run_mod = "!"
   endif
@@ -215,7 +214,7 @@ command! NewTermTab tabnew|terminal ++curwin
 command! Ctags call EasyCtags()
 function! EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute(s:async_run_mod . 'ctags -R --languages=C,C++ --exclude=*Examples* . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc --exclude=*Examples* .')
+    execute(s:async_run_mod . 'ctags -R --languages=C,C++ . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc .')
   else
     execute(s:async_run_mod . 'ctags -R .')
   endif
@@ -505,11 +504,7 @@ endfunction
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SetLocalDir(islocal)
-  if exists("s:netrw_set_loc_dir")
-    return s:netrw_set_loc_dir
-  else
     return "lcd %:p:h|pwd"
-  endif
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
