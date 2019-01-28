@@ -45,7 +45,7 @@ fi
 alias pdfmerge='gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile=gsout.pdf'
 
 BATTERY_DEVICE='/org/freedesktop/UPower/devices/battery_BAT0'
-alias battery="upower -i ${BATTERY_DEVICE} | grep percentage"
+alias battery="upower -i ${BATTERY_DEVICE} 2> /dev/null | grep percentage"
 
 alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:cpp,c,asm --type-add work:\*.s43 --type-add zig:\*.zig'
 
@@ -150,7 +150,9 @@ function __setprompt
 	PS1+="\[${YELLOW}\][\A]"
 
   # Current battery
-  [ battery ] && PS1+="\[${BLUE}\]{$(battery | awk '{print $2}')}"
+  if battery; then
+    PS1+="\[${BLUE}\]{$(battery | awk '{print $2}')}";
+  fi
 
 	# Current directory
 	PS1+="\[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])-"
