@@ -6,9 +6,12 @@ set show-mode-in-prompt on
 set completion-ignore-case on
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
+set skip-completed-text on
 set visible-stats on
 
 set menu-complete-display-prefix on
+
+
 
 set keymap vi-command
 "\C-k": history-search-backward
@@ -86,3 +89,6 @@ TAB: menu-complete
 "\C-j": history-search-forward
 "jk": "\e"
 "\C-r0": "\C-y"
+$if Bash
+  Space: magic-space
+$endif
