@@ -150,15 +150,22 @@ function __setprompt
 	PS1+="\[${YELLOW}\][\A]"
 
   # Current battery
-  if battery; then
-    PS1+="\[${BLUE}\]{$(battery | awk '{print $2}')}";
+  if battery 2>&1 > /dev/null ; then
+    PS1+=" \[${BLUE}\]{$(battery | awk '{print $2}')}";
   fi
 
 	# Current directory
-	PS1+="\[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])-"
+	PS1+=" \[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])"
+
+	# Git branch
+  local git_branch="$(git status --branch --short 2> /dev/null)"
+  if [[ ${git_branch} ]]; then
+    local git_branch_parsed="$(echo -n ${git_branch} | head -n1 | awk '{print $2}' | cut -d '.' -f 1)"
+    PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${git_branch_parsed}\[${DARKGRAY}\])"
+  fi
 
 	# Skip to the next line
-	#PS1+="\n"
+	PS1+="\n"
 
 	if [[ $EUID -ne 0 ]]; then
 		PS1+="\[${LIGHTBLUE}\]\$\[${NOCOLOR}\] " # Normal user
@@ -178,7 +185,7 @@ function __setprompt
 
 # test for color support and enable colored prompt if possible
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-  PROMPT_COMMAND+='__setprompt;'
+  PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 else
   PS1='[\A]\u:\w \$ '
 fi
