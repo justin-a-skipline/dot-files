@@ -501,13 +501,13 @@ function! MyMatch2(...)
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! BufDeleteEmpty call s:CleanEmptyBuffers()
+command! BufDeleteEmpty call CleanEmptyBuffers()
 function! CleanEmptyBuffers()
   let l:filter = 'buflisted(v:val)
                      \  && empty(bufname(v:val))
                      \  && bufwinnr(v:val)<0
                      \  && !getbufvar(v:val, "&mod")'
-  let l:buffers = l:filter(range(1, bufnr('$')), l:filter)
+  let l:buffers = filter(range(1, bufnr('$')), l:filter)
   if !empty(l:buffers)
     exe 'bd ' . join(l:buffers, ' ')
   endif
