@@ -39,7 +39,7 @@ set completeopt+=longest
 set showmatch
 set incsearch
 set ruler
-set tagcase=smart "smart case sensitivity with :tag command
+set tagcase=ignore
 set ignorecase
 set smartcase
 set lazyredraw
