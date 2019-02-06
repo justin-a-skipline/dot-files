@@ -140,6 +140,8 @@ vnoremap s" c""<ESC>P
 vnoremap s` c``<ESC>P
 vnoremap s' c''<ESC>P
 vnoremap s< c<><ESC>P
+vnoremap s_ c__<ESC>P
+vnoremap s* c**<ESC>P
 nnoremap ds( %x<c-o>x
 nnoremap ds{ %x<c-o>x
 nnoremap ds" %x<c-o>x
