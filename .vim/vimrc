@@ -169,17 +169,17 @@ nnoremap <Bslash>. 10<c-w>>
 nnoremap <Bslash>, 10<c-w><
 nnoremap <Bslash>- 10<c-w>-
 nnoremap <Bslash>= 10<c-w>+
-nnoremap <Bslash>l :call LocationListToggle()<CR>
+nnoremap <Bslash>l :LocationListToggle<CR>
 vnoremap <Bslash>/ :Comment<CR>
 vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
 nnoremap <Bslash>\ :Uncomment<CR>
-nnoremap <Bslash>] :call TogglePreview()<CR>
-nnoremap <Bslash>n :call VerticalSplitNoteToggle()<CR>
-nnoremap <Bslash>t :call GlobalTerminalToggle()<CR>
+nnoremap <Bslash>] :TogglePreview<CR>
+nnoremap <Bslash>n :VerticalSplitNoteToggle<CR>
+nnoremap <Bslash>t :GlobalTerminalToggle<CR>
 " Svn directory diff hotkeys
-nnoremap <Bslash>q :call SvnDirDiffPrevFile()<CR>
-nnoremap <Bslash>w :call SvnDirDiffNextFile()<CR>
+nnoremap <Bslash>q :SvnDirDiffPrevFile<CR>
+nnoremap <Bslash>w :SvnDirDiffNextFile<CR>
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 " yank inside visual selection, cursor returns to where it was, can specify any register
@@ -208,7 +208,7 @@ nnoremap <c-\>N <c-w>:NewTermTab<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! SetupPlugins()
+function! s:SetupPlugins()
 "called on autocommand that is triggered after
 "plugins are setup (post vimrc sourcing)
   if exists(":AsyncRun")
@@ -218,13 +218,13 @@ function! SetupPlugins()
   endif
 endfunction
 if v:vim_did_enter
-  call SetupPlugins()
+  call s:SetupPlugins()
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! NewTermTab tabnew|terminal ++curwin
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! Ctags call EasyCtags()
-function! EasyCtags()
+command! Ctags call s:EasyCtags()
+function! s:EasyCtags()
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
     execute(s:async_run_mod . 'ctags -R --languages=C,C++ . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc .')
   else
@@ -232,7 +232,8 @@ function! EasyCtags()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! LocationListToggle()
+command! LocationListToggle call s:LocationListToggle()
+function! s:LocationListToggle()
   if exists("w:location_list_orig") "we are in location list
     execute w:location_list_orig."wincmd w"
     unlet w:location_list_winnr
@@ -280,7 +281,8 @@ function! s:Uncomment()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! TogglePreview()
+command! TogglePreview call s:TogglePreview()
+function! s:TogglePreview()
   if exists("t:pwin")
     unlet t:pwin
     pclose
@@ -290,7 +292,8 @@ function! TogglePreview()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! VerticalSplitNoteToggle()
+command! VerticalSplitNoteToggle call s:VerticalSplitNoteToggle()
+function! s:VerticalSplitNoteToggle()
   if exists("t:notes_win_number")
     if win_id2win(t:notes_win_number)
       execute win_id2win(t:notes_win_number)."close!"
@@ -304,7 +307,8 @@ function! VerticalSplitNoteToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " Toggleable terminal is specific to each tab
-function! TerminalToggle()
+command! TerminalToggle call s:TerminalToggle()
+function! s:TerminalToggle()
   if exists("t:terminal_win_num")
     if win_id2win(t:terminal_win_num)
       execute win_id2win(t:terminal_win_num)."wincmd w"
@@ -329,7 +333,8 @@ function! TerminalToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " Toggleable terminal is global and shared amongst all tabs
-function! GlobalTerminalToggle()
+command! GlobalTerminalToggle call s:GlobalTerminalToggle()
+function! s:GlobalTerminalToggle()
   if exists("t:terminal_win_num")
     if win_id2win(t:terminal_win_num)
       execute win_id2win(t:terminal_win_num)."wincmd w"
@@ -353,15 +358,8 @@ function! GlobalTerminalToggle()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! SvnDiff()
-  if exists("t:svn_head_buf_number")
-    call SvnDiffClose()
-  else
-    call SvnDiffOpen()
-  endif
-endfunction
-
-function! SvnDiffOpen()
+command! SvnDiffOpen call s:SvnDiffOpen()
+function! s:SvnDiffOpen()
   let t:diff_file_name = expand('%')
   let t:diff_win_num = winnr()
   let t:diff_ft = &filetype
@@ -376,7 +374,8 @@ function! SvnDiffOpen()
   execute "normal gg"
 endfunction
 
-function! SvnDiffClose()
+command! SvnDiffClose call s:SvnDiffClose()
+function! s:SvnDiffClose()
   execute "windo diffoff"
   if exists("t:svn_head_buf_number")
     execute "bd! " . t:svn_head_buf_number
@@ -388,12 +387,13 @@ function! SvnDiffClose()
   endif
 endfunction
   
-function! SvnDirDiffNextFile()
+command! SvnDirDiffNextFile call s:SvnDirDiffNextFile()
+function! s:SvnDirDiffNextFile()
   if exists("t:svn_dir_diff_in_progress")
     if exists("t:diff_entry_num") && (t:diff_entry_num < t:num_dir_diff_files)
-      call SvnDiffClose()
+      call s:SvnDiffClose()
       cnext
-      call SvnDiffOpen()
+      call s:SvnDiffOpen()
       let t:diff_entry_num += 1
     else
       echoerr "No more modified files"
@@ -403,12 +403,13 @@ function! SvnDirDiffNextFile()
   endif
 endfunction
 
-function! SvnDirDiffPrevFile()
+command! SvnDirDiffPrevFile call s:SvnDirDiffPrevFile()
+function! s:SvnDirDiffPrevFile()
   if exists("t:svn_dir_diff_in_progress")
     if exists("t:diff_entry_num") && (t:diff_entry_num > 1)
-      call SvnDiffClose()
+      call s:SvnDiffClose()
       cprev
-      call SvnDiffOpen()
+      call s:SvnDiffOpen()
       let t:diff_entry_num -= 1
     else
       echoerr "No more modified files"
@@ -418,14 +419,19 @@ function! SvnDirDiffPrevFile()
   endif
 endfunction
 
-function! SvnDirDiff()
+command! SvnDirDiff call s:SvnDirDiff()
+function! s:SvnDirDiff()
   if exists("t:svn_dir_diff_in_progress")
     unlet t:svn_dir_diff_in_progress
-    call SvnDiffClose()
+    call s:SvnDiffClose()
     cclose
-    tabclose
+    let l:diff_tab = tabpagenr()
+    execute t:original_tab."tabnext"
+    execute l:diff_tab."tabclose"
   else
-    tabnew
+    let l:original_tab = tabpagenr()
+    $tabnew
+    let t:original_tab = l:original_tab
     nohl
     botright copen
     set modifiable
@@ -446,12 +452,13 @@ function! SvnDirDiff()
       let t:svn_dir_diff_in_progress = 1
       cfirst
       let t:diff_entry_num = 1
-      call SvnDiffOpen()
+      call s:SvnDiffOpen()
     endif
   endif
 endfunction
 
-function! SvnBlame()
+command! SvnBlame call s:SvnBlame()
+function! s:SvnBlame()
   if exists("g:svn_blame_in_progress")
     unlet g:svn_blame_in_progress
     windo diffoff
@@ -501,16 +508,16 @@ function! SvnBlame()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -nargs=? -complete=tag Match1 call MyMatch1(<q-args>)
-function! MyMatch1(...)
+command! -nargs=? -complete=tag Match1 call s:MyMatch1(<q-args>)
+function! s:MyMatch1(...)
   if a:1 == ""
     match none
   else
     execute "match wildmenu `\\v".a:1."`"
   endif
 endfunction
-command! -nargs=? -complete=tag Match2 call MyMatch2(<q-args>)
-function! MyMatch2(...)
+command! -nargs=? -complete=tag Match2 call s:MyMatch2(<q-args>)
+function! s:MyMatch2(...)
   if a:1 == ""
     2match none
   else
@@ -518,8 +525,8 @@ function! MyMatch2(...)
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! BufDeleteEmpty call CleanEmptyBuffers()
-function! CleanEmptyBuffers()
+command! CleanEmptyBuffers call s:CleanEmptyBuffers()
+function! s:CleanEmptyBuffers()
   let l:filter = 'buflisted(v:val)
                      \  && empty(bufname(v:val))
                      \  && bufwinnr(v:val)<0
@@ -541,7 +548,7 @@ let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup vimrc
   autocmd! vimrc
-  au VimEnter * call SetupPlugins()
+  au VimEnter * call s:SetupPlugins()
   au BufNewFile,BufRead,BufEnter *.s43,*.S43 set ft=msp
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
