@@ -1,4 +1,8 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+"Machine
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:work_machine = has("win32") + has("win64")
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Indentation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set expandtab
@@ -182,7 +186,11 @@ vnoremap <expr>y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 
 "lgrep search hotkeys
-command! -nargs=+ -complete=tag Lgrep lgrep <args>
+if s:work_machine
+  command! -nargs=+ -complete=tag Lgrep lgrep -twork <args>
+else
+  command! -nargs=+ -complete=tag Lgrep lgrep <args>
+endif
 nnoremap <Bslash>s yiw:Lgrep "<c-R>0"<SPACE>
 nnoremap <Bslash>S :Lgrep<SPACE>
 vnoremap <Bslash>s y:Lgrep<SPACE>"<c-R>0"<SPACE>
