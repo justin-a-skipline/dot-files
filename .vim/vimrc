@@ -170,8 +170,10 @@ nnoremap <Bslash>, 10<c-w><
 nnoremap <Bslash>- 10<c-w>-
 nnoremap <Bslash>= 10<c-w>+
 nnoremap <Bslash>l :call LocationListToggle()<CR>
-vnoremap <Bslash>/ :call Comment()<CR>
-vnoremap <Bslash>\ :call Uncomment()<CR>
+vnoremap <Bslash>/ :Comment<CR>
+vnoremap <Bslash>\ :Uncomment<CR>
+nnoremap <Bslash>/ :Comment<CR>
+nnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>] :call TogglePreview()<CR>
 nnoremap <Bslash>n :call VerticalSplitNoteToggle()<CR>
 nnoremap <Bslash>t :call GlobalTerminalToggle()<CR>
@@ -249,27 +251,32 @@ function! LocationListToggle()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! Comment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs") || (&filetype ==? "zig")
-    s;^;//;e
-  elseif (&filetype ==? "msp")
-    s/^/;/e
-  elseif (&filetype ==? "sh")||(&filetype ==? "pov")||(&filetype ==? "nim")||(&filetype ==? "make")
-    s/^/# /e
-  elseif (&filetype ==? "vim")
-    s/^/"/e
+let s:comment_characters = {
+      \"c"      : "//",
+      \"cpp"    : "//",
+      \"cs"     : "//",
+      \"zig"    : "//",
+      \"msp"    : ";",
+      \"sh"     : "# ",
+      \"pov"    : "# ",
+      \"nim"    : "# ",
+      \"make"   : "# ",
+      \"vim"    : "\" ",
+      \}
+command! -range Comment <line1>,<line2>call s:Comment()
+function! s:Comment()
+  if (has_key(s:comment_characters,&filetype))
+    execute "s:^:".s:comment_characters[&filetype].":e"
+  else
+    echo "Unknown comment character for filetype, see vimrc"
   endif
 endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! Uncomment()
-  if (&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "cs") || (&filetype ==? "zig")
-    s;^//;;e
-  elseif (&filetype ==? "msp")
-    s/^;//e
-  elseif (&filetype ==? "sh")||(&filetype ==? "pov")||(&filetype ==? "nim")||(&filetype ==? "make")
-    s/^# //e
-  elseif (&filetype ==? "vim")
-    s/^"//e
+command! -range Uncomment <line1>,<line2>call s:Uncomment()
+function! s:Uncomment()
+  if (has_key(s:comment_characters,&filetype))
+    execute "s:^".s:comment_characters[&filetype]."::e"
+  else
+    echo "Unknown comment character for filetype, see vimrc"
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
