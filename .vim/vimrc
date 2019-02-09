@@ -386,7 +386,7 @@ function! s:SvnDiffClose()
     unlet t:diff_win_num
   endif
 endfunction
-  
+
 command! SvnDirDiffNextFile call s:SvnDirDiffNextFile()
 function! s:SvnDirDiffNextFile()
   if exists("t:svn_dir_diff_in_progress")
