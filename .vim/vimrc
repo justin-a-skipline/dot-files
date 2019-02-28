@@ -223,7 +223,7 @@ if v:vim_did_enter
   call s:SetupPlugins()
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! NewTermTab tabnew|terminal ++curwin
+command! NewTermTab $tabnew|terminal ++curwin
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! Ctags call s:EasyCtags()
 function! s:EasyCtags()
