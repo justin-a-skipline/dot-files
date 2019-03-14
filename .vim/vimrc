@@ -188,6 +188,7 @@ vnoremap <expr>y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 " * key doesn't auto jump
 nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>
+vnoremap <silent> * y:let @/=@"<CR>:set hls<CR>
 
 "lgrep search hotkeys
 if s:work_machine
