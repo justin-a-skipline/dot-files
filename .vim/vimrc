@@ -175,8 +175,15 @@ vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
 nnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>] :TogglePreview<CR>
-nnoremap <Bslash>n :VerticalSplitNoteToggle<CR>
-nnoremap <Bslash>t :GlobalTerminalToggle<CR>
+nnoremap <c-Bslash>n :VerticalSplitNoteToggle<CR>
+nnoremap <c-Bslash>t :GlobalTerminalToggle<CR>
+nnoremap <c-Bslash>vt :GlobalVerticalTerminalToggle<CR>
+tnoremap <c-Bslash>t <c-w>:GlobalTerminalToggle<CR>
+tnoremap <c-Bslash>vt <c-w>:GlobalVerticalTerminalToggle<CR>
+nnoremap <c-Bslash>lt :TerminalToggle<CR>
+nnoremap <c-Bslash>lvt :VerticalTerminalToggle<CR>
+tnoremap <c-Bslash>lt <c-w>:TerminalToggle<CR>
+tnoremap <c-Bslash>lvt <c-w>:VerticalTerminalToggle<CR>
 " Svn directory diff hotkeys
 nnoremap <Bslash>q :SvnDirDiffPrevFile<CR>
 nnoremap <Bslash>w :SvnDirDiffNextFile<CR>
@@ -335,28 +342,79 @@ function! s:TerminalToggle()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is global and shared amongst all tabs
-command! GlobalTerminalToggle call s:GlobalTerminalToggle()
-function! s:GlobalTerminalToggle()
-  if exists("t:terminal_win_num")
-    if win_id2win(t:terminal_win_num)
-      execute win_id2win(t:terminal_win_num)."wincmd w"
+" Toggleable terminal is specific to each tab
+command! VerticalTerminalToggle call s:VerticalTerminalToggle()
+function! s:VerticalTerminalToggle()
+  if exists("t:vertical_terminal_win_num")
+    if win_id2win(t:vertical_terminal_win_num)
+      execute win_id2win(t:vertical_terminal_win_num)."wincmd w"
       hide
     endif
-    unlet t:terminal_win_num
+    unlet t:vertical_terminal_win_num
   else
     botright new
     resize 16 "16 lines tall
-    let t:terminal_win_num = win_getid(winnr())
-    if exists("g:terminal_buf_num") && bufexists(g:terminal_buf_num)
-      execute "buf ".g:terminal_buf_num
+    let t:vertical_terminal_win_num = win_getid(winnr())
+    if exists("t:vertical_terminal_buf_num") && bufexists(t:vertical_terminal_buf_num)
+      execute "buf ".t:vertical_terminal_buf_num
     else
       if has("win32")
         terminal ++curwin ++norestore
       else
         terminal ++curwin
       endif
-      let g:terminal_buf_num = bufnr("%")
+      let t:vertical_terminal_buf_num = bufnr("%")
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Toggleable terminal is global and shared amongst all tabs
+command! GlobalTerminalToggle call s:GlobalTerminalToggle()
+function! s:GlobalTerminalToggle()
+  if exists("t:global_terminal_win_num")
+    if win_id2win(t:global_terminal_win_num)
+      execute win_id2win(t:global_terminal_win_num)."wincmd w"
+      hide
+    endif
+    unlet t:global_terminal_win_num
+  else
+    botright new
+    resize 16 "16 lines tall
+    let t:global_terminal_win_num = win_getid(winnr())
+    if exists("g:global_terminal_buf_num") && bufexists(g:global_terminal_buf_num)
+      execute "buf ".g:global_terminal_buf_num
+    else
+      if has("win32")
+        terminal ++curwin ++norestore
+      else
+        terminal ++curwin
+      endif
+      let g:global_terminal_buf_num = bufnr("%")
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Toggleable terminal is global and shared amongst all tabs
+command! GlobalVerticalTerminalToggle call s:GlobalVerticalTerminalToggle()
+function! s:GlobalVerticalTerminalToggle()
+  if exists("t:global_vertical_terminal_win_num")
+    if win_id2win(t:global_vertical_terminal_win_num)
+      execute win_id2win(t:global_vertical_terminal_win_num)."wincmd w"
+      hide
+    endif
+    unlet t:global_vertical_terminal_win_num
+  else
+    botright vnew
+    let t:global_vertical_terminal_win_num = win_getid(winnr())
+    if exists("g:global_vertical_terminal_buf_num") && bufexists(g:global_vertical_terminal_buf_num)
+      execute "buf ".g:global_vertical_terminal_buf_num
+    else
+      if has("win32")
+        terminal ++curwin ++norestore
+      else
+        terminal ++curwin
+      endif
+      let g:global_vertical_terminal_buf_num = bufnr("%")
     endif
   endif
 endfunction
