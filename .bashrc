@@ -69,6 +69,9 @@ alias ..3='cd ../../..'
 alias ..4='cd ../../../..'
 alias ..5='cd ../../../../..'
 
+alias gs='git status --short --branch'
+alias gl='git log --oneline'
+
 extract () {
 	for archive in $*; do
 		if [ -f $archive ] ; then
