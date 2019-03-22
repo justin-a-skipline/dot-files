@@ -298,6 +298,26 @@ function! s:MassReplace(dict)
     endfor
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -complete=file_in_path -nargs=1 FindLine call s:FindLine(<q-args>)
+function! s:FindLine(file_line)
+  let split_path = split(a:file_line,':')
+  let split_path_len = len(split_path)
+  if split_path_len == 0 || split_path_len > 2
+    echo "FindLine - Invalid Parameter"
+  else
+    let found_file = findfile(split_path[0])
+    if filereadable(expand(found_file))
+      exe "edit ".found_file
+      if split_path_len == 2 && !(split_path[1] =~ '\D')
+        exe "silent! normal! ".split_path[1]."gg"
+        normal! z.
+      endif
+    else
+      echo "Findline - File Not Readable"
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! TogglePreview call s:TogglePreview()
 function! s:TogglePreview()
   if exists("t:pwin")
