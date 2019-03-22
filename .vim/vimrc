@@ -291,6 +291,13 @@ function! s:Uncomment()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -range -nargs=1 MassReplace <line1>,<line2>call s:MassReplace(<args>)
+function! s:MassReplace(dict)
+    for [regex,replacement] in items(a:dict)
+        exe "silent! s;\\v".regex.";".replacement.";g"
+    endfor
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! TogglePreview call s:TogglePreview()
 function! s:TogglePreview()
   if exists("t:pwin")
