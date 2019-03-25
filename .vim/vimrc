@@ -268,16 +268,16 @@ let s:comment_characters = {
       \"cs"     : "//",
       \"zig"    : "//",
       \"msp"    : ";",
-      \"sh"     : "# ",
-      \"pov"    : "# ",
-      \"nim"    : "# ",
-      \"make"   : "# ",
-      \"vim"    : "\" ",
+      \"sh"     : "#",
+      \"pov"    : "#",
+      \"nim"    : "#",
+      \"make"   : "#",
+      \"vim"    : "\"",
       \}
 command! -range Comment <line1>,<line2>call s:Comment()
 function! s:Comment()
   if (has_key(s:comment_characters,&filetype))
-    execute "s:^:".s:comment_characters[&filetype].":e"
+    execute "s:\\v(^\\s*)(\\S):\\1".s:comment_characters[&filetype]."\\2:e"
   else
     echo "Unknown comment character for filetype, see vimrc"
   endif
@@ -285,7 +285,7 @@ endfunction
 command! -range Uncomment <line1>,<line2>call s:Uncomment()
 function! s:Uncomment()
   if (has_key(s:comment_characters,&filetype))
-    execute "s:^".s:comment_characters[&filetype]."::e"
+    execute "s:\\v(^\\s*)".s:comment_characters[&filetype].":\\1:e"
   else
     echo "Unknown comment character for filetype, see vimrc"
   endif
