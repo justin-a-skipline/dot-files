@@ -71,6 +71,8 @@ alias ..5='cd ../../../../..'
 
 alias gs='git status --short --branch'
 alias gl='git log --oneline'
+alias gd='git diff'
+alias gdc='git diff --cached'
 
 extract () {
 	for archive in $*; do
