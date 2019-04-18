@@ -4,6 +4,8 @@ case $- in
       *) return;;
 esac
 
+source "${HOME}/dot-files/z/z.sh"
+
 PROMPT_COMMAND=""
 
 ##### VIM Settings ##############

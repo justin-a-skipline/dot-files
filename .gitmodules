@@ -8,3 +8,6 @@
 [submodule "gdb-dashboard"]
 	path = gdb-dashboard
 	url = https://github.com/cyrus-and/gdb-dashboard.git
+[submodule "z"]
+	path = z
+	url = https://github.com/rupa/z.git
