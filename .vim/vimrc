@@ -647,6 +647,7 @@ augroup vimrc
   au BufNewFile,BufRead,BufEnter *.zig set shiftwidth=4 | set tabstop=4 |set softtabstop=4
   " Don't scan include files
   au BufEnter * set complete-=i
+  au BufEnter * set complete-=u
   "turn off cursorline when diffing
   au BufEnter,BufNew * if &diff | set nocursorline | endif
   au BufNewFile,BufRead *.xaml set ft=xml
