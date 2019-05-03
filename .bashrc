@@ -71,7 +71,7 @@ alias ..3='cd ../../..'
 alias ..4='cd ../../../..'
 alias ..5='cd ../../../../..'
 
-alias gs='git status --short --branch'
+alias gs='git status --short --branch && git log --oneline -10'
 alias gl='git log --oneline'
 alias gd='git diff'
 alias gdc='git diff --cached'
