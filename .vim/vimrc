@@ -50,6 +50,10 @@ set lazyredraw
 set hlsearch
 nohl
 
+" Match location/quickfix list error format
+"  for easy use with :lgetbuffer
+set errorformat+=%f\|%l\ col\ %c\|%m
+
 set foldlevelstart=99
 set foldmethod=indent
 
