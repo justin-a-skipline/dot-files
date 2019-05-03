@@ -257,7 +257,7 @@ function! s:LocationListToggle()
     lclose
   else
     let t:temp1 = winnr() "original window number
-    lopen
+    lopen 15
     let t:temp2 = winnr() "location list window number tied to previous window
     let w:location_list_orig = t:temp1
     execute w:location_list_orig."wincmd w"
