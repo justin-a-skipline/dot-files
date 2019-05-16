@@ -383,8 +383,7 @@ function! s:VerticalTerminalToggle()
     endif
     unlet t:vertical_terminal_win_num
   else
-    botright new
-    resize 16 "16 lines tall
+    botright vnew
     let t:vertical_terminal_win_num = win_getid(winnr())
     if exists("t:vertical_terminal_buf_num") && bufexists(t:vertical_terminal_buf_num)
       execute "buf ".t:vertical_terminal_buf_num
