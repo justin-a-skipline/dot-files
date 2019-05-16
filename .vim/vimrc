@@ -135,6 +135,13 @@ else
 endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+"Terminal Settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:local_terminal_name = 'LOCAL'
+let s:global_terminal_name = 'GLOBAL'
+let s:windows_default_term = 'powershell'
+let s:linux_default_term = '/usr/bin/env bash'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "unmap windows visual mode cut to clipboard. Use for decrementing lists
@@ -365,9 +372,9 @@ function! s:TerminalToggle()
       execute "buf ".t:terminal_buf_num
     else
       if has("win32")
-        terminal ++curwin ++norestore
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:local_terminal_name,'norestore':1})
       else
-        terminal ++curwin
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:local_terminal_name})
       endif
       let t:terminal_buf_num = bufnr("%")
     endif
@@ -390,9 +397,9 @@ function! s:VerticalTerminalToggle()
       execute "buf ".t:vertical_terminal_buf_num
     else
       if has("win32")
-        terminal ++curwin ++norestore
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:local_terminal_name,'norestore':1})
       else
-        terminal ++curwin
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:local_terminal_name})
       endif
       let t:vertical_terminal_buf_num = bufnr("%")
     endif
@@ -416,9 +423,9 @@ function! s:GlobalTerminalToggle()
       execute "buf ".g:global_terminal_buf_num
     else
       if has("win32")
-        terminal ++curwin ++norestore
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:global_terminal_name,'norestore':1})
       else
-        terminal ++curwin
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:global_terminal_name})
       endif
       let g:global_terminal_buf_num = bufnr("%")
     endif
@@ -441,9 +448,9 @@ function! s:GlobalVerticalTerminalToggle()
       execute "buf ".g:global_vertical_terminal_buf_num
     else
       if has("win32")
-        terminal ++curwin ++norestore
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:global_terminal_name,'norestore':1})
       else
-        terminal ++curwin
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:global_terminal_name})
       endif
       let g:global_vertical_terminal_buf_num = bufnr("%")
     endif
