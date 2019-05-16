@@ -652,6 +652,7 @@ augroup vimrc
   au BufNewFile,BufRead *.au3 set ft=autoit
   au BufNewFile,BufRead *.md setlocal textwidth=80
   au BufNewFile,BufRead,BufEnter *.zig set shiftwidth=4 | set tabstop=4 |set softtabstop=4
+  au BufNewFile,BufRead,BufEnter *.c set shiftwidth=2 | set tabstop=2 |set softtabstop=2
   " Don't scan include files
   au BufEnter * set complete-=i
   au BufEnter * set complete-=u
