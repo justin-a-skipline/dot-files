@@ -11,7 +11,7 @@ PROMPT_COMMAND=""
 stty -ixon
 ##### VIM Settings ##############
 set -o vi
-bind -f "~/.inputrc"
+bind -f "${HOME}/dot-files/.inputrc"
 
 export EDITOR="vim"
 export VISUAL="vim"
