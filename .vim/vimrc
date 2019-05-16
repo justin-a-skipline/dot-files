@@ -277,6 +277,7 @@ let s:comment_characters = {
       \"nim"    : "#",
       \"make"   : "#",
       \"vim"    : "\"",
+      \"dosbatch": "REM ",
       \}
 command! -range Comment <line1>,<line2>call s:Comment()
 function! s:Comment()
