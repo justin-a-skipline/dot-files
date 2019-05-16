@@ -8,6 +8,7 @@ source "${HOME}/dot-files/z/z.sh"
 
 PROMPT_COMMAND=""
 
+stty -ixon
 ##### VIM Settings ##############
 set -o vi
 bind -f "~/.inputrc"
