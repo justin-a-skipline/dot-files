@@ -244,10 +244,15 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! NewTermTab $tabnew|terminal ++curwin
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! Ctags call s:EasyCtags()
-function! s:EasyCtags()
+command! -nargs=? -complete=dir Ctags call s:EasyCtags(<q-args>)
+function! s:EasyCtags(...)
+  if a:0 > 0
+    let tags_dir = a:1
+  else
+    let tags_dir = "."
+  endif
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute(s:async_run_mod . 'ctags -R --languages=C,C++ . && ctags -Ra --langmap=Asm:+.s43.S43.h.inc .')
+    execute(s:async_run_mod . 'ctags -R --languages=C,C++ '.tags_dir.' && ctags -Ra --langmap=Asm:+.s43.S43.h.inc '.tags_dir)
   else
     execute(s:async_run_mod . 'ctags -R .')
   endif
