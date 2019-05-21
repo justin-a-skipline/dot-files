@@ -90,7 +90,10 @@ set wildignore+=*.lst
 
 set virtualedit=block " allow visual mode block editing to extend past EOL
 
-set path+=** " use :find to search through all files under the current working directory
+" use :find to search through all files under the current working directory
+set path-=. " cwd should take precedence over directory of file
+set path+=**
+set path+=.
 
 set laststatus=2    " always display statusline
 set statusline=%<%F " file name and path
