@@ -95,6 +95,10 @@ set path-=. " cwd should take precedence over directory of file
 set path+=**
 set path+=.
 
+" search for tag file relative to current working directory rather than
+" current file's directory
+set cpoptions+=d
+
 set laststatus=2    " always display statusline
 set statusline=%<%F " file name and path
 set statusline+=\ %m%r " modified, read-only flags
