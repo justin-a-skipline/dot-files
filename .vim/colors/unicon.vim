@@ -24,6 +24,7 @@ if exists("syntax_on")
 endif
 let g:colors_name = "unicon"
 
+set background=light
 " }}}
 
 let s:none = {'gui': 'NONE', 'cterm': 'NONE'}
