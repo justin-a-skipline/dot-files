@@ -251,7 +251,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -nargs=? -complete=dir Ctags call s:EasyCtags(<q-args>)
 function! s:EasyCtags(...)
-  if a:0 > 0
+  if a:0 > 0 && (match(a:000, '^.\+$') == 0)
     let l:tags_dir = a:1
   else
     let l:tags_dir = getcwd(win_getid())
