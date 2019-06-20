@@ -249,8 +249,6 @@ if v:vim_did_enter
   call s:SetupPlugins()
 endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! NewTermTab $tabnew|terminal ++curwin
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -nargs=? -complete=dir Ctags call s:EasyCtags(<q-args>)
 function! s:EasyCtags(...)
   if a:0 > 0
@@ -365,6 +363,23 @@ function! s:VerticalSplitNoteToggle()
     botright vsplit NOTES.md
     let t:notes_win_number = win_getid(winnr())
     vertical resize 85
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -nargs=? NewTermTab call s:MakeNewTermTab(<q-args>)
+let s:term_num = 0
+function! s:MakeNewTermTab(...)
+  if a:0 > 0 && (match(a:000, '^.\+$') == 0)
+    let l:term_name = a:1
+  else
+    let l:term_name = 'Terminal_'.s:term_num
+    let s:term_num += 1
+  endif
+  $tabnew
+  if has("win32")
+    call term_start(s:windows_default_term,{'curwin':1,'term_name':l:term_name,'norestore':1})
+  else
+    call term_start(s:linux_default_term,{'curwin':1,'term_name':l:term_name})
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
