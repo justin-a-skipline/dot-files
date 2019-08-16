@@ -212,8 +212,8 @@ nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 vnoremap <expr>y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 " * key doesn't auto jump
-nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>
-vnoremap <silent> * y:let @/=@"<CR>:set hls<CR>
+nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>:%s///gn<CR>
+vnoremap <silent> * y:let @/=@"<CR>:set hls<CR>:%s///gn<CR>
 
 "lgrep search hotkeys
 if s:work_machine
