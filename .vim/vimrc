@@ -221,9 +221,9 @@ if s:work_machine
 else
   command! -nargs=+ -complete=tag Lgrep lgrep <args>
 endif
-nnoremap <Bslash>s yiw:Lgrep "<c-R>0"<SPACE>
+nnoremap <Bslash>s "myiw:Lgrep "<c-R>m"<SPACE>
 nnoremap <Bslash>S :Lgrep<SPACE>
-vnoremap <Bslash>s y:Lgrep<SPACE>"<c-R>0"<SPACE>
+vnoremap <Bslash>s "my:Lgrep<SPACE>"<c-R>m"<SPACE>
 
 tnoremap <c-g><c-t> <c-w>:normal gt<CR>
 tnoremap <c-g>t     <c-w>:normal gT<CR>
