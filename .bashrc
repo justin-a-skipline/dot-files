@@ -107,8 +107,55 @@ mkdirgo () {
 
 ##### Colors ######################
 # To have colors for ls and all grep commands such as grep, egrep and zgrep
-export CLICOLOR=1
-export LS_COLORS='no=00:fi=00:di=1;44:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:*.xml=00;31:ow=1;44'
+function __set_ls_colors
+{
+	local LIGHTGRAY="0;37"
+	local WHITE="1;37"
+	local BLACK="0;30"
+	local DARKGRAY="1;30"
+	local RED="1;31"
+	local LIGHTRED="0;31"
+	local GREEN="0;32"
+	local LIGHTGREEN="1;32"
+	local LIGHTYELLOW="0;33"
+	local YELLOW="1;33"
+	local BLUE="0;34"
+	local LIGHTBLUE="1;34"
+	local MAGENTA="0;35"
+	local LIGHTMAGENTA="1;35"
+	local CYAN="0;36"
+	local LIGHTCYAN="1;36"
+	local NOCOLOR="0"
+
+  export CLICOLOR=1
+  # default, normal files
+  LS_COLORS="no=${NOCOLOR}:fi=${NOCOLOR}"
+  # directories
+  LS_COLORS+=":di=${LIGHTYELLOW}"
+  # symbolic links - color as item pointed to
+  LS_COLORS+=":ln=target"
+  # named pipe
+  LS_COLORS+=":pi=${LIGHTGREEN}"
+  # socket
+  LS_COLORS+=":so=${LIGHTMAGENTA}"
+  # block device
+  LS_COLORS+=":bd=${LIGHTRED}"
+  # character device
+  LS_COLORS+=":cd=${RED}"
+  # orphan symbolic link (broken)
+  LS_COLORS+=":or=${YELLOW}"
+  # executable file
+  LS_COLORS+=":ex=${LIGHTGREEN}"
+  # extensions
+  LS_COLORS+=":*.tar=${RED}"
+  LS_COLORS+=":*.tgz=${RED}"
+  LS_COLORS+=":*.zip=${RED}"
+  LS_COLORS+=":*.gz=${RED}"
+  LS_COLORS+=":*.bz2=${RED}"
+  export LS_COLORS
+}
+
+__set_ls_colors
 
 # Color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\e[01;32m'
@@ -119,33 +166,29 @@ export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[01;4;31m'
 
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-fi
-
 ##### Custom Prompt ###############
 function __setprompt
 {
 	local LAST_COMMAND=$? # Must come first!
 
 	# Define colors
-	local LIGHTGRAY="\033[0;37m"
-	local WHITE="\033[1;37m"
-	local BLACK="\033[0;30m"
-	local DARKGRAY="\033[1;30m"
-	local RED="\033[0;31m"
-	local LIGHTRED="\033[1;31m"
-	local GREEN="\033[0;32m"
-	local LIGHTGREEN="\033[1;32m"
-	local BROWN="\033[0;33m"
-	local YELLOW="\033[1;33m"
-	local BLUE="\033[0;34m"
-	local LIGHTBLUE="\033[1;34m"
-	local MAGENTA="\033[0;35m"
-	local LIGHTMAGENTA="\033[1;35m"
-	local CYAN="\033[0;36m"
-	local LIGHTCYAN="\033[1;36m"
-	local NOCOLOR="\033[0m"
+	local LIGHTGRAY="\e[0;37m"
+	local WHITE="\e[1;37m"
+	local BLACK="\e[0;30m"
+	local DARKGRAY="\e[1;30m"
+	local RED="\e[1;31m"
+	local LIGHTRED="\e[0;31m"
+	local GREEN="\e[0;32m"
+	local LIGHTGREEN="\e[1;32m"
+	local BROWN="\e[0;33m"
+	local YELLOW="\e[1;33m"
+	local BLUE="\e[1;34m"
+	local LIGHTBLUE="\e[0;34m"
+	local MAGENTA="\e[0;35m"
+	local LIGHTMAGENTA="\e[1;35m"
+	local CYAN="\e[0;36m"
+	local LIGHTCYAN="\e[1;36m"
+	local NOCOLOR="\e[0m"
 
 	# Show error exit code if there is one
 	if [[ $LAST_COMMAND != 0 ]]; then
@@ -159,7 +202,7 @@ function __setprompt
 
   # Current battery
   if battery 2>&1 > /dev/null ; then
-    PS1+=" \[${BLUE}\]{$(battery | awk '{print $2}')}";
+    PS1+=" \[${LIGHTRED}\]{$(battery | awk '{print $2}')}";
   fi
 
 	# Current directory
