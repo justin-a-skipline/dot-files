@@ -257,9 +257,9 @@ function! s:EasyCtags(...)
     let l:tags_dir = getcwd(win_getid())
   endif
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
-    execute(s:async_run_mod . 'ctags -R --tag-relative=always --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative=always --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
+    execute(s:async_run_mod . 'ctags -R --tag-relative=y --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative=y --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
   else
-    execute(s:async_run_mod . 'ctags -R --tag-relative=always '.l:tags_dir)
+    execute(s:async_run_mod . 'ctags -R --tag-relative=y '.l:tags_dir)
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
