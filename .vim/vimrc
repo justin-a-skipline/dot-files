@@ -76,7 +76,7 @@ endif
 
 set hidden
 set history=500
-set nrformats=bin,hex
+set nrformats=bin,hex,alpha
 set backspace=indent,eol,start " be able to backspace over these chars
 
 set autoread
@@ -222,7 +222,7 @@ else
   command! -nargs=+ -complete=tag Lgrep lgrep <args>
 endif
 nnoremap <Bslash>s "myiw:Lgrep "<c-R>m"<SPACE>
-nnoremap <Bslash>S :Lgrep<SPACE>
+nnoremap <Bslash>S "myiw:lgrep "<c-R>m"<SPACE>
 vnoremap <Bslash>s "my:Lgrep<SPACE>"<c-R>m"<SPACE>
 
 tnoremap <c-g><c-t> <c-w>:normal gt<CR>
@@ -256,7 +256,7 @@ function! s:EasyCtags(...)
   else
     let l:tags_dir = getcwd(win_getid())
   endif
-  if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp"))
+  if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp") || (&filetype ==? "asm"))
     execute(s:async_run_mod . 'ctags -R --tag-relative=y --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative=y --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
   else
     execute(s:async_run_mod . 'ctags -R --tag-relative=y '.l:tags_dir)
@@ -288,6 +288,7 @@ let s:comment_characters = {
       \"cpp"    : "//",
       \"cs"     : "//",
       \"zig"    : "//",
+      \"asm"    : "//",
       \"msp"    : ";",
       \"sh"     : "#",
       \"pov"    : "#",
@@ -687,6 +688,7 @@ augroup vimrc
   "turn off cursorline when diffing
   au BufEnter,BufNew * if &diff | set nocursorline | endif
   au BufNewFile,BufRead *.xaml set ft=xml
+  au FileType make setlocal noexpandtab
 augroup END
 
 let g:onedark_termcolors=256
@@ -694,7 +696,7 @@ set background=dark
 silent! colorscheme onedark
 
 if has('win32')
-  silent! set guifont=Consolas:h10.4
+  silent! set guifont=Consolas:h10.2
 else
   silent! set guifont=Inconsolata\ Medium\ 16,\ Monospace\ 12
 endif
