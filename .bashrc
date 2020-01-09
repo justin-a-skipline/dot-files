@@ -117,7 +117,7 @@ function __set_ls_colors
 	local LIGHTRED="0;31"
 	local GREEN="0;32"
 	local LIGHTGREEN="1;32"
-	local LIGHTYELLOW="0;33"
+	local BROWN="0;33"
 	local YELLOW="1;33"
 	local BLUE="0;34"
 	local LIGHTBLUE="1;34"
@@ -131,7 +131,7 @@ function __set_ls_colors
   # default, normal files
   LS_COLORS="no=${NOCOLOR}:fi=${NOCOLOR}"
   # directories
-  LS_COLORS+=":di=${LIGHTYELLOW}"
+  LS_COLORS+=":di=${YELLOW}"
   # symbolic links - color as item pointed to
   LS_COLORS+=":ln=target"
   # named pipe
@@ -143,7 +143,7 @@ function __set_ls_colors
   # character device
   LS_COLORS+=":cd=${RED}"
   # orphan symbolic link (broken)
-  LS_COLORS+=":or=${YELLOW}"
+  LS_COLORS+=":or=${BROWN}"
   # executable file
   LS_COLORS+=":ex=${LIGHTGREEN}"
   # extensions
