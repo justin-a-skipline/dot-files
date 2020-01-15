@@ -202,6 +202,8 @@ nnoremap <c-Bslash>lt :TerminalToggle<CR>
 nnoremap <c-Bslash>lvt :VerticalTerminalToggle<CR>
 tnoremap <c-Bslash>lt <c-w>:TerminalToggle<CR>
 tnoremap <c-Bslash>lvt <c-w>:VerticalTerminalToggle<CR>
+nnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
+tnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
 " Svn directory diff hotkeys
 nnoremap <Bslash>q :SvnDirDiffPrevFile<CR>
 nnoremap <Bslash>w :SvnDirDiffNextFile<CR>
@@ -482,6 +484,31 @@ function! s:GlobalVerticalTerminalToggle()
         call term_start(s:linux_default_term,{'curwin':1,'term_name':s:global_terminal_name})
       endif
       let g:global_vertical_terminal_buf_num = bufnr("%")
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Toggleable terminal is global and shared amongst all tabs
+command! DebuggingTerminalToggle call s:DebuggingTerminalToggle()
+function! s:DebuggingTerminalToggle()
+  if exists("t:debugging_terminal_win_num")
+    if win_id2win(t:debugging_terminal_win_num)
+      execute win_id2win(t:debugging_terminal_win_num)."wincmd w"
+      hide
+    endif
+    unlet t:debugging_terminal_win_num
+  else
+    botright vnew
+    let t:debugging_terminal_win_num = win_getid(winnr())
+    if exists("g:debugging_terminal_buf_num") && bufexists(g:debugging_terminal_buf_num)
+      execute "buf ".g:debugging_terminal_buf_num
+    else
+      if has("win32")
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':'DEBUG','norestore':1})
+      else
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':'DEBUG'})
+      endif
+      let g:debugging_terminal_buf_num = bufnr("%")
     endif
   endif
 endfunction
