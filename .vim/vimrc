@@ -146,7 +146,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:local_terminal_name = 'LOCAL'
 let s:global_terminal_name = 'GLOBAL'
-let s:windows_default_term = 'C:\Users\jalexander\Program Installs\Git\bin\bash.exe'
+let s:windows_default_term = 'C:\opt\msys64\msys2_shell.cmd -mingw64 -defterm -no-start -here -shell bash'
 let s:linux_default_term = '/usr/bin/env bash'
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
