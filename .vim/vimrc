@@ -508,9 +508,9 @@ function! s:DebuggingTerminalToggle()
       execute "buf ".g:debugging_terminal_buf_num
     else
       if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':'DEBUG','norestore':1})
+        call term_start(s:windows_default_term,{'curwin':1,'term_name':'GDB','norestore':1})
       else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':'DEBUG'})
+        call term_start(s:linux_default_term,{'curwin':1,'term_name':'GDB'})
       endif
       let g:debugging_terminal_buf_num = bufnr("%")
     endif
