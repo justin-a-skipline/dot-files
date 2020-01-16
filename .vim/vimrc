@@ -253,15 +253,19 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -nargs=? -complete=dir Ctags call s:EasyCtags(<q-args>)
 function! s:EasyCtags(...)
+  let rel_arg = "y"
+  if has('win32')
+    let rel_arg = "always"
+  endif
   if a:0 > 0 && (match(a:000, '^.\+$') == 0)
     let l:tags_dir = a:1
   else
     let l:tags_dir = getcwd(win_getid())
   endif
   if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp") || (&filetype ==? "asm"))
-    execute(s:async_run_mod . 'ctags -R --tag-relative=y --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative=y --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
+    execute(s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative='.rel_arg.' --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
   else
-    execute(s:async_run_mod . 'ctags -R --tag-relative=y '.l:tags_dir)
+    execute(s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' '.l:tags_dir)
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
