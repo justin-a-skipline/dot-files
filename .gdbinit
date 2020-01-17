@@ -5,10 +5,16 @@ set prompt =====================================================================
 set print entry-values compact
 set print symbol on
 set print pretty on
+set output-radix 0x10
 
-set $SHOW_CONTEXT = 0
-set $listsize = 9
-set listsize $listsize
+# Prevents command file from executing if true on start
+set $_list_on_stop = 0
+
+set $_list_on_next = 1
+set $_list_on_step = 1
+
+set $_listsize = 9
+set listsize $_listsize
 
 define SilenceOn
   set logging off
@@ -116,39 +122,83 @@ Usage: Disassemble [num instructions = 8]
 end
 
 define ListSource
+  if $argc > 0
+    set $_ListSource_offset = 0
+    set $_ListSource_location = $arg0
+    if $argc > 1
+      set $_ListSource_offset = $arg1
+    end
+  end
   SilenceOn
   set listsize 1
-  list *$pc
+  if $argc > 0
+    list *($_ListSource_location + $_ListSource_offset)
+  else
+    frame
+    list
+  end
   SilenceOff
+  printf "-----------------------------------LISTING--------------------------------------\n"
   set listsize 5
   list -
   set listsize 1
-  printf "-------------------------------------------------\n"
+  printf "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n"
   list
-  printf "-------------------------------------------------\n"
-  set listsize 5
+  printf "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n"
+  set listsize 8
   list
-  set listsize $listsize
+  set listsize $_listsize
+  printf "---------------------------------END LISTING------------------------------------\n"
+end
+document ListSource
+Prints listing of code with line being executed highlighted.
+Address offset should be set to zero when examining random addresses or
+before first instruction is executed like in resetHandler.
+Address is offset by four by default to account for pipelining unless the variable is
+overwritten.
+Usage: ListSource [address = (as reported by frame)] [offset = 0]
 end
 
 
 define Context
-  printf "----------------REGISTERS------------------------\n"
+  printf "-----------------------------------REGISTERS------------------------------------\n"
   info registers
-  printf "----------------ARGS-----------------------------\n"
+  printf "-----------------------------------ARGS-----------------------------------------\n"
   info args
-  printf "----------------LOCALS---------------------------\n"
+  printf "-----------------------------------LOCALS---------------------------------------\n"
   info locals
-  printf "----------------LISTING--------------------------\n"
   ListSource
-  printf "-------------------------------------------------\n"
 end
 document Context
 Display various program execution information.
 end
 
 define hook-stop
+  if $_list_on_stop > 0
+    ListSource
+  end
 end
 document hook-stop
 Hook to run when execution stops.
+set $_list_on_stop = 0 to disable
+end
+
+define n
+  next
+  if $_list_on_next > 0
+    ListSource
+  end
+end
+
+define s
+  step
+  if $_list_on_step > 0
+    ListSource
+  end
+end
+
+define si
+  stepi
+  disassemble $pc-(10*4),$pc
+  disassemble $pc,$pc+(10*4)
 end
