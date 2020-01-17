@@ -6,6 +6,7 @@ set print entry-values compact
 set print symbol on
 set print pretty on
 set output-radix 0x10
+set confirm off
 
 # Prevents command file from executing if true on start
 set $_list_on_stop = 0
@@ -113,12 +114,19 @@ define Disassemble
   if $argc == 0
     Disassemble 8
   else
+    printf "-----------------------------------REGISTERS------------------------------------\n"
+    info registers
+    printf "----------------------------------DISASSEMBLY-----------------------------------\n"
     disassemble /sr *$pc,+(4*$arg0)
   end
 end
 document Disassemble
 Disassembles next n chunks of 4 bytes after $pc
 Usage: Disassemble [num instructions = 8]
+end
+
+define _MarkLine
+  printf "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n"
 end
 
 define ListSource
@@ -139,13 +147,13 @@ define ListSource
   end
   SilenceOff
   printf "-----------------------------------LISTING--------------------------------------\n"
-  set listsize 5
+  set listsize 7
   list -
   set listsize 1
-  printf "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n"
+  _MarkLine
   list
-  printf "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n"
-  set listsize 8
+  _MarkLine
+  set listsize 10
   list
   set listsize $_listsize
   printf "---------------------------------END LISTING------------------------------------\n"
@@ -161,8 +169,8 @@ end
 
 
 define Context
-  printf "-----------------------------------REGISTERS------------------------------------\n"
-  info registers
+  printf "-----------------------------------FRAME----------------------------------------\n"
+  frame
   printf "-----------------------------------ARGS-----------------------------------------\n"
   info args
   printf "-----------------------------------LOCALS---------------------------------------\n"
@@ -171,6 +179,26 @@ define Context
 end
 document Context
 Display various program execution information.
+end
+
+define hookpost-up
+  Context
+end
+
+define hookpost-down
+  Context
+end
+
+define hook-finish
+  Context
+end
+
+define hook-until
+  Context
+end
+
+define hook-advance
+  Context
 end
 
 define hook-stop
@@ -199,6 +227,12 @@ end
 
 define si
   stepi
-  disassemble $pc-(10*4),$pc
-  disassemble $pc,$pc+(10*4)
+  printf "-----------------------------------REGISTERS------------------------------------\n"
+  info registers
+  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
+  x/9 $pc - (4 * 9)
+  _MarkLine
+  x/1 $pc
+  _MarkLine
+  x/9 $pc + (4 * 1)
 end
