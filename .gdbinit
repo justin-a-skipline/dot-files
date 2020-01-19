@@ -1,7 +1,9 @@
+source ~/dot-files/gdb/colors.gdb
+
 set history filename ~/.gdb_history
 set history save on
 set pagination off
-set prompt ================================================================================\n(gdb) 
+set prompt \001\033[0;31m\002================================================================================\n(gdb) \001\033[0m\002
 set print entry-values compact
 set print symbol on
 set print pretty on
