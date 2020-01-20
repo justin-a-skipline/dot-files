@@ -1,3 +1,30 @@
+set $ENABLE_COLOR = 0
+
+define SetEnableColor
+  if $argc == 0
+    set $ENABLE_COLOR = 1
+  else
+    set $ENABLE_COLOR = $arg0
+  end
+  if $ENABLE_COLOR > 0
+    set prompt \001\033[0;31m\002================================================================================\n(gdb) \001\033[0m\002
+  else
+    set prompt ================================================================================\n(gdb) 
+  end
+end
+document SetEnableColor
+SetEnableColor - Enables or disables color in outputs
+Usage: SetEnableColor [bool=1]
+end
+
+define ClearEnableColor
+  SetEnableColor 0
+end
+document ClearEnableColor
+ClearEnableColor - Disables color in outputs
+Usage: ClearEnableColor
+end
+
 define Color
   ColorRegular
 end
@@ -34,104 +61,138 @@ define _endTermEscape
 end
 
 define ColorLightGray
-  _startTermEscape
-  echo \033[0;37m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;37m
+    _endTermEscape
+  end
 end
 
 define ColorWhite
-  _startTermEscape
-  echo \033[1;37m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;37m
+    _endTermEscape
+  end
 end
 
 define ColorBlack
-  _startTermEscape
-  echo \033[0;30m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;30m
+    _endTermEscape
+  end
 end
 
 define ColorDarkGray
-  _startTermEscape
-  echo \033[1;30m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;30m
+    _endTermEscape
+  end
 end
 
 define ColorLightRed
-  _startTermEscape
-  echo \033[0;31m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;31m
+    _endTermEscape
+  end
 end
 
 define ColorGreen
-  _startTermEscape
-  echo \033[0;32m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;32m
+    _endTermEscape
+  end
 end
 
 define ColorLightGreen
-  _startTermEscape
-  echo \033[1;32m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;32m
+    _endTermEscape
+  end
 end
 
 define ColorBrown
-  _startTermEscape
-  echo \033[0;33m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;33m
+    _endTermEscape
+  end
 end
 
 define ColorYellow
-  _startTermEscape
-  echo \033[1;33m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;33m
+    _endTermEscape
+  end
 end
 
 define ColorBlue
-  _startTermEscape
-  echo \033[1;34m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;34m
+    _endTermEscape
+  end
 end
 
 define ColorLightblue
-  _startTermEscape
-  echo \033[0;34m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;34m
+    _endTermEscape
+  end
 end
 
 define ColorMagenta
-  _startTermEscape
-  echo \033[0;35m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;35m
+    _endTermEscape
+  end
 end
 
 define ColorLightMagenta
-  _startTermEscape
-  echo \033[1;35m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;35m
+    _endTermEscape
+  end
 end
 
 define ColorCyan
-  _startTermEscape
-  echo \033[0;36m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0;36m
+    _endTermEscape
+  end
 end
 
 define ColorLightCyan
-  _startTermEscape
-  echo \033[1;36m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;36m
+    _endTermEscape
+  end
 end
 
 define ColorRed
-  _startTermEscape
-  echo \033[1;31m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[1;31m
+    _endTermEscape
+  end
 end
 
 define ColorRegular
-  _startTermEscape
-  echo \033[0m
-  _endTermEscape
+  if $ENABLE_COLOR > 0
+    _startTermEscape
+    echo \033[0m
+    _endTermEscape
+  end
 end
 
