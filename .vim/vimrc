@@ -740,7 +740,7 @@ set background=dark
 silent! colorscheme onedark
 
 if has('win32')
-  silent! set guifont=Consolas:h10
+  silent! set guifont=Consolas:h8
 else
   silent! set guifont=Inconsolata\ Medium\ 16,\ Monospace\ 12
 endif
