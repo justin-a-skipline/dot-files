@@ -257,16 +257,23 @@ function! s:EasyCtags(...)
   if has('win32')
     let rel_arg = "always"
   endif
-  if a:0 > 0 && (match(a:000, '^.\+$') == 0)
-    let l:tags_dir = a:1
+  if a:0 > 0 "&& (match(a:000, '^.\+$') == 0)
+    let l:dir_and_extra_parms = ""
+    for item in a:000
+    let l:dir_and_extra_parms ..= item
+    endfor
   else
-    let l:tags_dir = getcwd(win_getid())
+    let l:dir_and_extra_parms = getcwd(win_getid())
   endif
-  if ((&filetype ==? "c") || (&filetype ==? "cpp") || (&filetype ==? "msp") || (&filetype ==? "asm"))
-    execute(s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' --languages=C,C++ '.l:tags_dir.' && ctags -Ra --tag-relative='.rel_arg.' --langmap=Asm:+.s43.S43.h.inc '.l:tags_dir)
+  let langMapChange = ['c', 'cpp', 'msp', 'asm']
+  let executableString = ""
+  if index(langMapChange, &ft) >= 0
+    let executableString ..= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' --languages=C,C++ '.l:dir_and_extra_parms.' && ctags -Ra --tag-relative='.rel_arg.' --langmap=Asm:+.s43.S43.h.inc '.l:dir_and_extra_parms
   else
-    execute(s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' '.l:tags_dir)
+    let executableString ..= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' '.l:dir_and_extra_parms
   endif
+  echo executableString
+  execute(executableString)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! LocationListToggle call s:LocationListToggle()
