@@ -74,7 +74,6 @@ if has("gui_running")
   set guioptions=c
 endif
 
-set hidden
 set history=500
 set nrformats=bin,hex,alpha
 set backspace=indent,eol,start " be able to backspace over these chars
@@ -712,6 +711,7 @@ let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+let ftToNotSetHidden = ['netrw']
 augroup vimrc
   autocmd! vimrc
   au VimEnter * call s:SetupPlugins()
@@ -727,6 +727,8 @@ augroup vimrc
   au BufEnter,BufNew * if &diff | set nocursorline | endif
   au BufNewFile,BufRead *.xaml set ft=xml
   au FileType make setlocal noexpandtab
+  "netrw keeps setting nohidden!
+  autocmd BufEnter * if index(ftToNotSetHidden, &ft) < 0 | set hidden
 augroup END
 
 let g:onedark_termcolors=256
