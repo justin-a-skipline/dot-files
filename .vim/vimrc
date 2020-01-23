@@ -178,6 +178,8 @@ vnoremap j gj
 vnoremap k gk
 nnoremap <c-j> :lnext<CR>z.
 nnoremap <c-k> :lprevious<CR>z.
+nnoremap J :cnext<CR>z.
+nnoremap K :cprevious<CR>z.
 nnoremap <Bslash>j :lnewer<CR><CR>
 nnoremap <Bslash>k :lolder<CR><CR>
 nnoremap <Bslash>h :nohl<CR>
@@ -187,6 +189,7 @@ nnoremap <Bslash>, 10<c-w><
 nnoremap <Bslash>- 10<c-w>-
 nnoremap <Bslash>= 10<c-w>+
 nnoremap <Bslash>l :LocationListToggle<CR>
+nnoremap <Bslash>c :QuickFixListToggle<CR>
 vnoremap <Bslash>/ :Comment<CR>
 vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
@@ -225,6 +228,8 @@ endif
 nnoremap <Bslash>s "myiw:Lgrep "<c-R>m"<SPACE>
 nnoremap <Bslash>S "myiw:lgrep "<c-R>m"<SPACE>
 vnoremap <Bslash>s "my:Lgrep<SPACE>"<c-R>m"<SPACE>
+nnoremap <Bslash>f :let @m=expand('<cfile>')<CR>:Find<SPACE><c-R>m
+vnoremap <Bslash>f "my:Find<SPACE><c-R>m
 
 tnoremap <c-g><c-t> <c-w>:normal gt<CR>
 tnoremap <c-g>t     <c-w>:normal gT<CR>
@@ -292,6 +297,18 @@ function! s:LocationListToggle()
     execute w:location_list_orig."wincmd w"
     let w:location_list_winnr = t:temp2
     execute w:location_list_winnr."wincmd w"
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! QuickFixListToggle call s:QuickFixListToggle()
+let s:qftoggle = 0
+function! s:QuickFixListToggle()
+  if s:qftoggle == 1
+    silent! botright cclose
+    let s:qftoggle = 0
+  else
+    silent! botright copen
+    let s:qftoggle = 1
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -700,6 +717,18 @@ function! s:CleanEmptyBuffers()
   if !empty(l:buffers)
     exe 'bd ' . join(l:buffers, ' ')
   endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -complete=file_in_path -nargs=1 Find call s:Find(<q-args>)
+function! s:Find(...)
+  if a:0 < 1
+    return
+  endif
+  let temp = &grepformat
+  set grepformat=%f
+  let exeString = "silent grep --files --iglob ".a:1
+  execute(exeString)
+  execute('set grepformat='.temp)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Custom Netrw Functions
