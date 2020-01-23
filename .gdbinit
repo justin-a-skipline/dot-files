@@ -15,6 +15,7 @@ set $_list_on_stop = 0
 
 set $_list_on_next = 1
 set $_list_on_step = 1
+set $_list_on_finish = 1
 
 set $_listsize = 9
 set listsize $_listsize
@@ -112,18 +113,45 @@ Display arg1 * 16 number of bytes of memory at address arg0
 Usage: HexDump address [num rows = 4]
 end
 
-define Disassemble
+define DisassembleSource
   if $argc == 0
-    Disassemble 8
+    set $_lines = 8
   else
-    printf "-----------------------------------REGISTERS------------------------------------\n"
-    info registers
-    printf "----------------------------------DISASSEMBLY-----------------------------------\n"
-    disassemble /sr *$pc,+(4*$arg0)
+    set $_lines = $arg0
   end
+
+  printf "-----------------------------------REGISTERS------------------------------------\n"
+  info registers
+  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
+  SilenceOn
+  # Be sure to include previous line just to maintain context while stepping
+  info line *($pc - 4)
+  SilenceOff
+  disassemble /sr $_,($pc+(4*$_lines))
 end
-document Disassemble
-Disassembles next n chunks of 4 bytes after $pc
+document DisassembleSource
+Disassembles current context plus next num instructions, including source.
+Usage: Disassemble [num instructions = 8]
+end
+
+define DisassembleRaw
+  if $argc == 0
+    set $_lines = 8
+  else
+    set $_lines = $arg0
+  end
+
+  printf "-----------------------------------REGISTERS------------------------------------\n"
+  info registers
+  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
+  eval "x/%di $pc - (4 * %d)",$_lines,$_lines
+  _MarkLine
+  x/1i $pc
+  _MarkLine
+  eval "x/%di $pc + (4 * 1)",$_lines
+end
+document DisassembleRaw
+Disassembles current context plus next num instructions, raw instructions only.
 Usage: Disassemble [num instructions = 8]
 end
 
@@ -183,26 +211,6 @@ document Context
 Display various program execution information.
 end
 
-define hookpost-up
-  Context
-end
-
-define hookpost-down
-  Context
-end
-
-define hook-finish
-  Context
-end
-
-define hook-until
-  Context
-end
-
-define hook-advance
-  Context
-end
-
 define hook-stop
   if $_list_on_stop > 0
     ListSource
@@ -229,12 +237,17 @@ end
 
 define si
   stepi
-  printf "-----------------------------------REGISTERS------------------------------------\n"
-  info registers
-  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
-  x/9 $pc - (4 * 9)
-  _MarkLine
-  x/1 $pc
-  _MarkLine
-  x/9 $pc + (4 * 1)
+  DisassembleSource
+end
+
+define ni
+  nexti
+  DisassembleSource
+end
+
+define f
+  finish
+  if $_list_on_finish > 0
+    ListSource
+  end
 end
