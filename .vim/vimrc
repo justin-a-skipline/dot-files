@@ -731,6 +731,68 @@ function! s:Find(...)
   execute('set grepformat='.temp)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -nargs=0 RegisterTerminalBuffer let t:termBufNr = bufnr()
+
+function! s:GetTermBufNr()
+  let termBuf = get(t:,'termBufNr',-1)
+  if termBuf < 0
+    echoerr "RegisterTerminalBuffer first"
+  endif
+  return termBuf
+endfunction
+
+function! s:SendGDBLineCommand(termBuf, command)
+  let l:file = expand("%:.:")
+  let l:line = line(".")
+  let pos = l:file..':'..l:line
+  call term_sendkeys(a:termBuf, a:command.." "..pos.."\<cr>")
+endfunction
+
+function! s:SendGDBCommand(termBuf, command)
+  call term_sendkeys(a:termBuf, a:command.."\<cr>")
+endfunction
+
+command! -nargs=0 Break call s:BreakGDB()
+function! s:BreakGDB()
+  let termBuf = s:GetTermBufNr()
+  if termBuf > 0
+    call s:SendGDBLineCommand(termBuf, "b")
+  endif
+endfunction
+
+command! -nargs=0 Tbreak call s:TbreakGDB()
+function! s:TbreakGDB()
+  let termBuf = s:GetTermBufNr()
+  if termBuf > 0
+    call s:SendGDBLineCommand(termBuf, "tb")
+  endif
+endfunction
+
+command! -nargs=0 Until call s:UntilGDB()
+function! s:UntilGDB()
+  let termBuf = s:GetTermBufNr()
+  if termBuf > 0
+    call s:SendGDBCommand(termBuf, "u")
+  endif
+endfunction
+
+command! -nargs=0 Continue call s:Continue()
+function! s:Continue()
+  let termBuf = s:GetTermBufNr()
+  if termBuf > 0
+    call s:SendGDBCommand(termBuf, "continue")
+  endif
+endfunction
+
+command! -nargs=0 Pause call s:Pause()
+function! s:Pause()
+  let termBuf = s:GetTermBufNr()
+  if termBuf > 0
+    call s:SendGDBCommand(termBuf, "\<c-c>")
+  endif
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SetLocalDir(islocal)

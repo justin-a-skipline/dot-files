@@ -9,13 +9,15 @@ set print symbol on
 set print pretty on
 set output-radix 0x10
 set confirm off
-
-# Prevents command file from executing if true on start
-set $_list_on_stop = 0
+set print symbol-filename on
 
 set $_list_on_next = 1
 set $_list_on_step = 1
 set $_list_on_finish = 1
+set $_list_on_break = 1
+set $_list_on_up = 1
+set $_list_on_down = 1
+set $_list_on_until = 1
 
 set $_listsize = 9
 set listsize $_listsize
@@ -167,6 +169,10 @@ define ListSource
       set $_ListSource_offset = $arg1
     end
   end
+  printf "-----------------------------------ARGS-----------------------------------------\n"
+  info args
+  printf "-----------------------------------LOCALS---------------------------------------\n"
+  info locals
   SilenceOn
   set listsize 1
   if $argc > 0
@@ -201,10 +207,6 @@ end
 define Context
   printf "-----------------------------------FRAME----------------------------------------\n"
   frame
-  printf "-----------------------------------ARGS-----------------------------------------\n"
-  info args
-  printf "-----------------------------------LOCALS---------------------------------------\n"
-  info locals
   ListSource
 end
 document Context
@@ -212,13 +214,27 @@ Display various program execution information.
 end
 
 define hook-stop
-  if $_list_on_stop > 0
-    ListSource
-  end
 end
 document hook-stop
 Hook to run when execution stops.
-set $_list_on_stop = 0 to disable
+end
+
+define b
+  break $arg0
+  if $_list_on_break > 0
+    commands
+      ListSource
+    end
+  end
+end
+
+define tb
+  tbreak $arg0
+  if $_list_on_break > 0
+    commands
+      ListSource
+    end
+  end
 end
 
 define n
@@ -248,6 +264,31 @@ end
 define f
   finish
   if $_list_on_finish > 0
+    ListSource
+  end
+end
+
+define u
+  up
+  if $_list_on_up > 0
+    ListSource
+  end
+end
+
+define d
+  down
+  if $_list_on_down > 0
+    ListSource
+  end
+end
+
+define un
+  if $argc > 0
+    until $arg0
+  else
+    until
+  end
+  if $_list_on_until > 0
     ListSource
   end
 end
