@@ -60,6 +60,7 @@ set foldmethod=indent
 set nobackup
 set nowritebackup
 set undofile
+set noswapfile
 
 if has("win32")
   set directory=~/dot-files/.vim/swap//
