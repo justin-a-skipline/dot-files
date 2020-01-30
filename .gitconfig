@@ -7,3 +7,5 @@
 	colorMoved = true
 [credential]
 	helper = cache --timeout=3600
+[core]
+	autocrlf = false
