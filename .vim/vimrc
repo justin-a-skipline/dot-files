@@ -331,7 +331,9 @@ let s:comment_characters = {
 command! -range Comment <line1>,<line2>call s:Comment()
 function! s:Comment()
   if (has_key(s:comment_characters,&filetype))
-    execute "s:\\v(^\\s*)(\\S):\\1".s:comment_characters[&filetype]."\\2:e"
+    let comment_at_caret = "s:\\v(^\\s*)(\\S):\\1".s:comment_characters[&filetype]."\\2:e"
+    let comment_at_0 = "s:\\v(^.*$):".s:comment_characters[&filetype]."\\1:e"
+    execute comment_at_0
   else
     echo "Unknown comment character for filetype, see vimrc"
   endif
