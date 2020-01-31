@@ -240,6 +240,10 @@ nnoremap <c-g>t     <c-w>:normal gT<CR>
 tnoremap <c-\>N <c-w>:NewTermTab<CR>
 nnoremap <c-\>N <c-w>:NewTermTab<CR>
 
+" Command line history completion
+cnoremap <c-j> <Down>
+cnoremap <c-k> <Up>
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
