@@ -31,7 +31,7 @@ shopt -s globstar
 shopt -s autocd
 shopt -s cdspell direxpand dirspell
 
-export LESS="-XWFR"
+export LESS="-XFR"
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
