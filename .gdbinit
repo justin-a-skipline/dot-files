@@ -235,6 +235,14 @@ document hook-stop
 Hook to run when execution stops.
 end
 
+define iskip
+  set $pc=$pc+4
+  DisassembleRaw
+end
+document iskip
+Jump past 4 byte instruction.
+end
+
 define b
   break $arg0
   if $_list_on_break > 0
