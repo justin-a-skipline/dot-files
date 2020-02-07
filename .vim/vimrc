@@ -799,6 +799,18 @@ function! s:Pause()
   endif
 endfunction
 
+command! -nargs=* -complete=tag Evaluate call s:Evaluate(<q-args>)
+function! s:Evaluate(...)
+  let termBuf = s:GetTermBufNr()
+  let eval_expression = a:1
+  if (len(eval_expression) == 0)
+    let eval_expression = expand('<cexpr>')
+  endif
+  if termBuf > 0
+    call s:SendGDBCommand(termBuf, 'p '..eval_expression)
+  endif
+endfunction
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
