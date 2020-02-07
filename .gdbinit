@@ -9,7 +9,6 @@ set print symbol on
 set print pretty on
 set output-radix 0x10
 set confirm off
-set print symbol-filename on
 
 set $_list_on_next = 1
 set $_list_on_step = 1
@@ -18,6 +17,17 @@ set $_list_on_break = 1
 set $_list_on_up = 1
 set $_list_on_down = 1
 set $_list_on_until = 1
+
+set $print_symbol_filename = 1
+
+define SetPrintSymbolFilename
+  if $arg0 > 0
+    set print symbol-filename on
+  else
+    set print symbol-filename off
+  end
+end
+SetPrintSymbolFilename $print_symbol_filename
 
 set $_listsize = 9
 set listsize $_listsize
@@ -116,6 +126,7 @@ Usage: HexDump address [num rows = 4]
 end
 
 define DisassembleSource
+  set print symbol-filename off
   if $argc == 0
     set $_lines = 8
   else
@@ -130,6 +141,7 @@ define DisassembleSource
   info line *($pc - 4)
   SilenceOff
   disassemble /sr $_,($pc+(4*$_lines))
+  SetPrintSymbolFilename $print_symbol_filename
 end
 document DisassembleSource
 Disassembles current context plus next num instructions, including source.
@@ -137,6 +149,7 @@ Usage: Disassemble [num instructions = 8]
 end
 
 define DisassembleRaw
+  set print symbol-filename off
   if $argc == 0
     set $_lines = 8
   else
@@ -151,6 +164,7 @@ define DisassembleRaw
   x/1i $pc
   _MarkLine
   eval "x/%di $pc + (4 * 1)",$_lines
+  SetPrintSymbolFilename $print_symbol_filename
 end
 document DisassembleRaw
 Disassembles current context plus next num instructions, raw instructions only.
