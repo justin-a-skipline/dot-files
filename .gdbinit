@@ -34,6 +34,7 @@ set listsize $_listsize
 
 define SilenceOn
   set logging off
+  set logging overwrite on
   set logging file ~/gdbsilence.txt
   set logging redirect on
   set logging on
@@ -45,6 +46,7 @@ end
 
 define SilenceOff
   set logging off
+  set logging overwrite off
   set logging redirect off
   set logging on
 end
