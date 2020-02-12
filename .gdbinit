@@ -277,12 +277,12 @@ end
 
 define si
   stepi
-  DisassembleSource
+  DisassembleRaw
 end
 
 define ni
   nexti
-  DisassembleSource
+  DisassembleRaw
 end
 
 define f
