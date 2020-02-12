@@ -110,15 +110,20 @@ Usage: _HexDumpLine address
 end
  
 define HexDump
-  if $argc == 1
-    HexDump $arg0 4
+  if $argc == 0
+      HexDump $addr $prevHexDumpCount
   else
-    set $_i=0
-    set $addr=(void *)$arg0
-    while ( $_i < $arg1 )
-    _HexDumpLine $addr
-    set $addr=$addr+16
-    set $_i++
+    if $argc == 1
+      HexDump $arg0 4
+    else
+      set $_i=0
+      set $prevHexDumpCount=$arg1
+      set $addr=(void *)$arg0
+      while ( $_i < $arg1 )
+        _HexDumpLine $addr
+        set $addr=$addr+16
+        set $_i++
+      end
     end
   end
 end
