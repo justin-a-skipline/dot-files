@@ -8,8 +8,11 @@ set show-all-if-ambiguous on
 set show-all-if-unmodified on
 set skip-completed-text on
 set visible-stats on
+set colored-stats on
 
 set menu-complete-display-prefix on
+
+set completion-prefix-display-length 5
 
 
 
@@ -18,10 +21,13 @@ set keymap vi-command
 "\C-j": history-search-forward
 #Visual mode surround emulation
 "V": "mm"
-"s(": "d`mi()\ePllxP"
-"s[": "d`mi[]\ePllxP"
-"s\"": "d`mi\"\"\ePllxP"
+"s(": "a)\e`mi(\e"
+"s[": "a]\e`mi[\e"
+"s\"": "a\"\e`mi\"\e"
 #Yank/change/delete inside commands
+"yim": "y`m"
+"dim": "d`m"
+"cim": "c`m"
 "yiw": "byw"
 "diw": "bdw"
 "ciw": "bcw"
