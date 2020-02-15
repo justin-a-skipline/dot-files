@@ -275,7 +275,7 @@ function! s:EasyCtags(...)
   if a:0 > 0 "&& (match(a:000, '^.\+$') == 0)
     let l:dir_and_extra_parms = ""
     for item in a:000
-    let l:dir_and_extra_parms ..= item
+    let l:dir_and_extra_parms .= item
     endfor
   else
     let l:dir_and_extra_parms = getcwd(win_getid())
@@ -283,9 +283,9 @@ function! s:EasyCtags(...)
   let langMapChange = ['c', 'cpp', 'msp', 'asm']
   let executableString = ""
   if index(langMapChange, &ft) >= 0
-    let executableString ..= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' --languages=C,C++ '.l:dir_and_extra_parms.' && ctags -Ra --tag-relative='.rel_arg.' --langmap=Asm:+.s43.S43.h.inc '.l:dir_and_extra_parms
+    let executableString .= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' --languages=C,C++ '.l:dir_and_extra_parms.' && ctags -Ra --tag-relative='.rel_arg.' --langmap=Asm:+.s43.S43.h.inc '.l:dir_and_extra_parms
   else
-    let executableString ..= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' '.l:dir_and_extra_parms
+    let executableString .= s:async_run_mod . 'ctags -R --tag-relative='.rel_arg.' '.l:dir_and_extra_parms
   endif
   echo executableString
   execute(executableString)
@@ -744,7 +744,7 @@ function! s:Find(...)
   execute('set grepformat='.temp)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -nargs=0 RegisterTerminalBuffer let t:termBufNr = bufnr()
+command! -nargs=0 RegisterTerminalBuffer let t:termBufNr = bufnr("%")
 
 function! s:GetTermBufNr()
   let termBuf = get(t:,'termBufNr',-1)
@@ -757,12 +757,12 @@ endfunction
 function! s:SendGDBLineCommand(termBuf, command)
   let l:file = expand("%:.:")
   let l:line = line(".")
-  let pos = l:file..':'..l:line
-  call term_sendkeys(a:termBuf, a:command.." "..pos.."\<cr>")
+  let pos = l:file.':'.l:line
+  call term_sendkeys(a:termBuf, a:command . " " . pos . "\<cr>")
 endfunction
 
 function! s:SendGDBCommand(termBuf, command)
-  call term_sendkeys(a:termBuf, a:command.."\<cr>")
+  call term_sendkeys(a:termBuf, a:command."\<cr>")
 endfunction
 
 command! -nargs=0 Break call s:BreakGDB()
@@ -813,7 +813,7 @@ function! s:Evaluate(...)
     let eval_expression = expand('<cexpr>')
   endif
   if termBuf > 0
-    call s:SendGDBCommand(termBuf, 'p '..eval_expression)
+    call s:SendGDBCommand(termBuf, 'p ' . eval_expression)
   endif
 endfunction
 
