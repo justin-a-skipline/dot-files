@@ -1,14 +1,12 @@
-source ~/dot-files/gdb/colors.gdb
-
 set history filename ~/.gdb_history
 set history save on
 set pagination off
-SetEnableColor 1
 set print entry-values compact
 set print symbol on
 set print pretty on
 set output-radix 0x10
 set confirm off
+set prompt ================================================================================\n(gdb) 
 
 set $_list_on_next = 1
 set $_list_on_step = 1
