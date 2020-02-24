@@ -335,6 +335,7 @@ let s:comment_characters = {
       \"nim"    : "#",
       \"make"   : "#",
       \"vim"    : "\"",
+      \"gdb"    : "#",
       \"dosbatch": "REM ",
       \"python" : "#",
       \}
