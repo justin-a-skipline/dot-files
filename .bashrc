@@ -55,7 +55,7 @@ alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:c
 
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 
-alias ls='ls -aFh --color=auto'
+alias ls='ls -Fh --color=auto'
 
 alias find='find 2>/dev/null'
 
