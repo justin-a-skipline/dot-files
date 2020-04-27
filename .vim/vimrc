@@ -15,6 +15,9 @@ set autoindent
 filetype plugin indent on
 syntax enable
 
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,default,latin1
+
 "things after case labels aren't indented
 "so I can add braces in case statements
 set cino==0
@@ -105,7 +108,7 @@ set statusline+=\ %m%r " modified, read-only flags
 set statusline+=\ %y  " filetype according to vim
 set statusline+=\ [%{&ff}] " show detected line endings for file
 set statusline+=%=
-set statusline+=\ [0x\%02.4B] " hex value under cursor showing two bytes for unicode
+set statusline+=\ [0x\%02.6B] " hex value under cursor showing three bytes for unicode
 set statusline+=\ [%{&encoding}] " encoding for file
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
