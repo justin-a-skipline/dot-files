@@ -246,8 +246,7 @@ document iskip
 Jump past 4 byte instruction.
 end
 
-define b
-  break $arg0
+define ListOnBreak
   if $_list_on_break > 0
     commands
       ListSource
@@ -255,13 +254,14 @@ define b
   end
 end
 
+define b
+  break $arg0
+  ListOnBreak
+end
+
 define tb
   tbreak $arg0
-  if $_list_on_break > 0
-    commands
-      ListSource
-    end
-  end
+  ListOnBreak
 end
 
 define n
