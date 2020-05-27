@@ -161,14 +161,10 @@ define DisassembleRaw
     set $_lines = $arg0
   end
 
+  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
+  disas/sr $pc,+32
   printf "-----------------------------------REGISTERS------------------------------------\n"
   info registers
-  printf "----------------------------------DISASSEMBLY-----------------------------------\n"
-  eval "x/%di $pc - (4 * %d)",$_lines,$_lines
-  _MarkLine
-  x/1i $pc
-  _MarkLine
-  eval "x/%di $pc + (4 * 1)",$_lines
   SetPrintSymbolFilename $print_symbol_filename
 end
 document DisassembleRaw
