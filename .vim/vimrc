@@ -53,6 +53,9 @@ set lazyredraw
 set hlsearch
 nohl
 
+" Disable mouse
+set mouse=
+
 " Match location/quickfix list error format
 "  for easy use with :lgetbuffer
 set errorformat+=%f\|%l\ col\ %c\|%m
