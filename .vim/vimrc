@@ -761,7 +761,7 @@ function! s:GetTermBufNr()
   return termBuf
 endfunction
 
-function! s:SendGDBLineCommand(termBuf, command, appendedText="")
+function! s:SendGDBLineCommand(termBuf, command, appendedText)
   let l:file = expand("%:.:")
   let l:line = line(".")
   let pos = l:file.':'.l:line
