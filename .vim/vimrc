@@ -53,7 +53,7 @@ set lazyredraw
 set hlsearch
 nohl
 
-" Disable mouse
+" Disable mouse or it keeps clicking accidentally in terminal
 set mouse=
 
 " Match location/quickfix list error format
@@ -152,7 +152,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:local_terminal_name = 'LOCAL'
 let s:global_terminal_name = 'GLOBAL'
-let s:windows_default_term = 'C:\Users\jalexander\Program Installs\Git\bin\bash.exe'
+let s:windows_default_term = 'C:\Program Files\Git\bin\bash.exe'
 let s:linux_default_term = '/usr/bin/env bash'
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
