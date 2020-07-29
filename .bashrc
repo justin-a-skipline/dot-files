@@ -79,6 +79,12 @@ alias gl='git log --oneline'
 alias gd='git diff'
 alias gdc='git diff --cached'
 
+pdfdiff () {
+  DIFFOUTPUT="$3"
+  [ -z "$DIFFOUTPUT" ] && DIFFOUTPUT=diff.pdf
+  diff-pdf --output-diff="$DIFFOUTPUT" "$1" "$2";
+}
+
 extract () {
 	for archive in $*; do
 		if [ -f $archive ] ; then
