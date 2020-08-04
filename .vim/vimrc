@@ -197,7 +197,8 @@ nnoremap <Bslash>, 10<c-w><
 nnoremap <Bslash>- 10<c-w>-
 nnoremap <Bslash>= 10<c-w>+
 nnoremap <Bslash>l :LocationListToggle<CR>
-nnoremap <Bslash>c :QuickFixListToggle<CR>
+nnoremap <Bslash>C :let &l:colorcolumn=virtcol('.')<CR>
+nnoremap <Bslash>c :let &l:colorcolumn=""<CR>
 vnoremap <Bslash>/ :Comment<CR>
 vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
@@ -315,18 +316,6 @@ function! s:LocationListToggle()
     execute w:location_list_orig."wincmd w"
     let w:location_list_winnr = t:temp2
     execute w:location_list_winnr."wincmd w"
-  endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! QuickFixListToggle call s:QuickFixListToggle()
-let s:qftoggle = 0
-function! s:QuickFixListToggle()
-  if s:qftoggle == 1
-    silent! botright cclose
-    let s:qftoggle = 0
-  else
-    silent! botright copen
-    let s:qftoggle = 1
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
