@@ -74,10 +74,10 @@ alias ..3='cd ../../..'
 alias ..4='cd ../../../..'
 alias ..5='cd ../../../../..'
 
-alias gs='git status --short --branch && git log --oneline -10'
-alias gl='git log --oneline'
+alias gl='git log --oneline --decorate'
+alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
-alias gdc='git diff --cached'
+alias gdc='gd --cached'
 
 pdfdiff () {
   DIFFOUTPUT="$3"
