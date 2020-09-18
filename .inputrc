@@ -87,6 +87,7 @@ set keymap vi-command
 
 #delete yank entire lines
 "dd": "0d$"
+"cc": "0C"
 "yy": "0y$"
 
 set keymap vi-insert
