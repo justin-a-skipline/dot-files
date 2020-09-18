@@ -1,0 +1,54 @@
+startup_message off
+
+autodetach on
+
+ignorecase on
+
+defflow off
+
+defbce on
+
+maptimeout 0
+
+compacthist on
+
+vbell off
+
+defscrollback 5000
+
+hardstatus alwayslastline
+
+altscreen on
+
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m/%d %{W}%c %{g}]'
+
+bind h focus left
+bind j focus down
+bind k focus up
+bind l focus right
+bind \011 layout next
+
+layout autosave on
+layout new one
+select 1
+layout new two
+select 1
+split
+#resize -v +8
+focus down
+select 4
+focus up
+layout new three
+select 1
+split
+resize -v +7
+focus down
+select 3
+split -v
+resize -h +10
+focus right
+select 4
+focus up
+
+layout attach one
+layout select one
