@@ -852,7 +852,7 @@ augroup END
 
 let g:onedark_termcolors=256
 set background=dark
-silent! colorscheme unicon
+silent! colorscheme onedark
 
 if has('win32')
   silent! set guifont=Consolas:h8
