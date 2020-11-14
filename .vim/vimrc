@@ -263,6 +263,17 @@ vnoremap <Bslash>E "my:let @m=substitute(strtrans(@m),'\^@',' ','g')<CR>:let @m=
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+function! s:TermStart(term_name)
+  let prev_colo = execute('colorscheme')[1:]
+  silent! colorscheme onedark
+  if has("win32")
+    call term_start(s:windows_default_term,{'curwin':1,'term_name':a:term_name,'norestore':1})
+  else
+    call term_start(s:linux_default_term,{'curwin':1,'term_name':a:term_name})
+  endif
+  execute 'silent! colorscheme '.expand(prev_colo)
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:SetupPlugins()
 "called on autocommand that is triggered after
 "plugins are setup (post vimrc sourcing)
@@ -418,11 +429,7 @@ function! s:MakeNewTermTab(...)
     let s:term_num += 1
   endif
   $tabnew
-  if has("win32")
-    call term_start(s:windows_default_term,{'curwin':1,'term_name':l:term_name,'norestore':1})
-  else
-    call term_start(s:linux_default_term,{'curwin':1,'term_name':l:term_name})
-  endif
+  call s:TermStart(l:term_name)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 " Toggleable terminal is specific to each tab
@@ -441,11 +448,7 @@ function! s:TerminalToggle()
     if exists("t:terminal_buf_num") && bufexists(t:terminal_buf_num)
       execute "buf ".t:terminal_buf_num
     else
-      if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:local_terminal_name,'norestore':1})
-      else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:local_terminal_name})
-      endif
+      call s:TermStart(s:local_terminal_name)
       let t:terminal_buf_num = bufnr("%")
     endif
   endif
@@ -466,11 +469,7 @@ function! s:VerticalTerminalToggle()
     if exists("t:vertical_terminal_buf_num") && bufexists(t:vertical_terminal_buf_num)
       execute "buf ".t:vertical_terminal_buf_num
     else
-      if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:local_terminal_name,'norestore':1})
-      else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:local_terminal_name})
-      endif
+      call s:TermStart(s:local_terminal_name)
       let t:vertical_terminal_buf_num = bufnr("%")
     endif
   endif
@@ -492,11 +491,7 @@ function! s:GlobalTerminalToggle()
     if exists("g:global_terminal_buf_num") && bufexists(g:global_terminal_buf_num)
       execute "buf ".g:global_terminal_buf_num
     else
-      if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:global_terminal_name,'norestore':1})
-      else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:global_terminal_name})
-      endif
+      call s:TermStart(s:global_terminal_name)
       let g:global_terminal_buf_num = bufnr("%")
     endif
   endif
@@ -517,11 +512,7 @@ function! s:GlobalVerticalTerminalToggle()
     if exists("g:global_vertical_terminal_buf_num") && bufexists(g:global_vertical_terminal_buf_num)
       execute "buf ".g:global_vertical_terminal_buf_num
     else
-      if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':s:global_terminal_name,'norestore':1})
-      else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':s:global_terminal_name})
-      endif
+      call s:TermStart(s:global_terminal_name)
       let g:global_vertical_terminal_buf_num = bufnr("%")
     endif
   endif
@@ -542,11 +533,7 @@ function! s:DebuggingTerminalToggle()
     if exists("g:debugging_terminal_buf_num") && bufexists(g:debugging_terminal_buf_num)
       execute "buf ".g:debugging_terminal_buf_num
     else
-      if has("win32")
-        call term_start(s:windows_default_term,{'curwin':1,'term_name':'GDB','norestore':1})
-      else
-        call term_start(s:linux_default_term,{'curwin':1,'term_name':'GDB'})
-      endif
+      call s:TermStart('GDB')
       let g:debugging_terminal_buf_num = bufnr("%")
     endif
   endif
