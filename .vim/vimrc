@@ -31,6 +31,8 @@ set showcmd
 
 set nostartofline
 
+set nofixeol
+
 set sidescroll=1
 
 let g:markdown_folding = 1
