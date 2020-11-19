@@ -590,6 +590,14 @@ function! s:GetTermBufNr()
   return termBuf
 endfunction
 
+command! -nargs=+ GitFuncLog call s:SendGitFuncLog(<f-args>)
+function! s:SendGitFuncLog(funcName, ...)
+  let l:termBuf = s:GetTermBufNr()
+  if l:termBuf > 0
+    call term_sendkeys(l:termBuf, substitute("git log -L :".a:funcName.':'.expand('%').' '.join(a:000,' ')."\<cr>", '\\','/','g'))
+  endif
+endfunction
+
 function! s:SendGDBLineCommand(termBuf, command, appendedText)
   let l:file = expand("%:.:")
   let l:line = line(".")
