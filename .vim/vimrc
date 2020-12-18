@@ -89,6 +89,10 @@ set backspace=indent,eol,start " be able to backspace over these chars
 
 set autoread
 
+set listchars=tab:»·,trail:·,nbsp:·
+set list
+let s:list_tracker = &list
+
 set wildmode=list:longest,full " tab complete to longest match, second tab lists all matches
 set wildignorecase " ignore case when completing file and dir names
 set wildignore+=*.o
@@ -726,6 +730,8 @@ augroup vimrc
   " Don't scan include files
   au BufEnter * set complete-=i
   au BufEnter * set complete-=u
+  au WinNew * let &list = s:list_tracker
+  au WinLeave * let s:list_tracker = &list
   "turn off cursorline when diffing
   au BufEnter,BufNew * if &diff | set nocursorline | endif
   au BufNewFile,BufRead *.xaml set ft=xml
