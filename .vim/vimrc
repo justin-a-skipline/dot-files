@@ -168,6 +168,7 @@ silent! vunmap <c-x>
 set timeout timeoutlen=1000 ttimeoutlen=200
 nnoremap <c-]> g<c-]>
 vnoremap <c-]> g<c-]>
+nnoremap gd :call CocAction('jumpDefinition')<CR>
 inoremap jk <esc>
 vnoremap s( c()<ESC>P
 vnoremap s\| c\|\|<ESC>P
