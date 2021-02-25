@@ -316,6 +316,7 @@ function! TermStart(term_name)
     call term_start(s:linux_default_term,{'curwin':1,'term_name':a:term_name})
   endif
   execute 'silent! colorscheme '.expand(prev_colo)
+  execute 'setlocal nonumber'
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:SetupPlugins()
