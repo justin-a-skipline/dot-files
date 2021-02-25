@@ -162,7 +162,7 @@ define DisassembleRaw
   end
 
   printf "----------------------------------DISASSEMBLY-----------------------------------\n"
-  disas/sr $pc,+32
+  disas/r $pc,+32
   printf "-----------------------------------REGISTERS------------------------------------\n"
   info registers
   SetPrintSymbolFilename $print_symbol_filename
