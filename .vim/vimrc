@@ -307,7 +307,7 @@ endfunction
 
 set tabline=%!MyTabLine()
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:TermStart(term_name)
+function! TermStart(term_name)
   let prev_colo = execute('colorscheme')[1:]
   silent! colorscheme onedark
   if has("win32")
