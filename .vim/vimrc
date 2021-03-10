@@ -754,4 +754,7 @@ else
   silent! set guifont=Inconsolata\ Medium\ 10,\ Monospace\ 10
 endif
 
+" Setup :Man command
+runtime ftplugin/man.vim
+
 let g:netrw_banner = 0

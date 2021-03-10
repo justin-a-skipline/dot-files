@@ -15,6 +15,7 @@ bind -f "${HOME}/dot-files/.inputrc"
 
 export EDITOR="vim"
 export VISUAL="vim"
+export MANPAGER="vim -M +MANPAGER -c ':normal zR' -c ':setlocal nonumber' -"
 alias vi='vim'
 
 ##### History Settings ##########
