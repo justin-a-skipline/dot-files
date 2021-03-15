@@ -140,7 +140,7 @@ function __set_ls_colors
   # default, normal files
   LS_COLORS="no=${NOCOLOR}:fi=${NOCOLOR}"
   # directories
-  LS_COLORS+=":di=${YELLOW}"
+  LS_COLORS+=":di=${CYAN}"
   # symbolic links - color as item pointed to
   LS_COLORS+=":ln=target"
   # named pipe
@@ -207,7 +207,7 @@ function __setprompt
 	fi
 
 	# Current time
-	PS1+="\[${YELLOW}\][\A]"
+	PS1+="\[${CYAN}\][\A]"
 
   # Current battery
   if battery 2>&1 > /dev/null ; then
