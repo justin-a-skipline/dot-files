@@ -4,7 +4,7 @@ case $- in
       *) return;;
 esac
 
-source "${HOME}/dot-files/z/z.sh"
+test -e "${HOME}/dot-files/z/z.sh" && source $_
 
 PROMPT_COMMAND=""
 
