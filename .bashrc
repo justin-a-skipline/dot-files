@@ -4,6 +4,59 @@ case $- in
       *) return;;
 esac
 
+##### Colors ######################
+# To have colors for ls and all grep commands such as grep, egrep and zgrep
+function __set_ls_colors
+{
+	local LIGHTGRAY="0;37"
+	local WHITE="1;37"
+	local BLACK="0;30"
+	local DARKGRAY="1;30"
+	local RED="1;31"
+	local LIGHTRED="0;31"
+	local GREEN="0;32"
+	local LIGHTGREEN="1;32"
+	local BROWN="0;33"
+	local YELLOW="1;33"
+	local BLUE="0;34"
+	local LIGHTBLUE="1;34"
+	local MAGENTA="0;35"
+	local LIGHTMAGENTA="1;35"
+	local CYAN="0;36"
+	local LIGHTCYAN="1;36"
+	local NOCOLOR="0"
+
+  export CLICOLOR=1
+  # default, normal files
+  LS_COLORS="no=${NOCOLOR}:fi=${NOCOLOR}"
+  # directories
+  LS_COLORS+=":di=${CYAN}"
+  # symbolic links - color as item pointed to
+  LS_COLORS+=":ln=target"
+  # named pipe
+  LS_COLORS+=":pi=${LIGHTGREEN}"
+  # socket
+  LS_COLORS+=":so=${LIGHTMAGENTA}"
+  # block device
+  LS_COLORS+=":bd=${LIGHTRED}"
+  # character device
+  LS_COLORS+=":cd=${RED}"
+  # orphan symbolic link (broken)
+  LS_COLORS+=":or=${BROWN}"
+  # executable file
+  LS_COLORS+=":ex=${LIGHTGREEN}"
+  # extensions
+  LS_COLORS+=":*.tar=${RED}"
+  LS_COLORS+=":*.tgz=${RED}"
+  LS_COLORS+=":*.zip=${RED}"
+  LS_COLORS+=":*.gz=${RED}"
+  LS_COLORS+=":*.bz2=${RED}"
+  export LS_COLORS
+}
+
+__set_ls_colors
+
+
 test -e "${HOME}/dot-files/z/z.sh" && source $_
 
 PROMPT_COMMAND=""
@@ -113,58 +166,6 @@ mkdirgo () {
   mkdir -p $1
   cd $1
 }
-
-##### Colors ######################
-# To have colors for ls and all grep commands such as grep, egrep and zgrep
-function __set_ls_colors
-{
-	local LIGHTGRAY="0;37"
-	local WHITE="1;37"
-	local BLACK="0;30"
-	local DARKGRAY="1;30"
-	local RED="1;31"
-	local LIGHTRED="0;31"
-	local GREEN="0;32"
-	local LIGHTGREEN="1;32"
-	local BROWN="0;33"
-	local YELLOW="1;33"
-	local BLUE="0;34"
-	local LIGHTBLUE="1;34"
-	local MAGENTA="0;35"
-	local LIGHTMAGENTA="1;35"
-	local CYAN="0;36"
-	local LIGHTCYAN="1;36"
-	local NOCOLOR="0"
-
-  export CLICOLOR=1
-  # default, normal files
-  LS_COLORS="no=${NOCOLOR}:fi=${NOCOLOR}"
-  # directories
-  LS_COLORS+=":di=${CYAN}"
-  # symbolic links - color as item pointed to
-  LS_COLORS+=":ln=target"
-  # named pipe
-  LS_COLORS+=":pi=${LIGHTGREEN}"
-  # socket
-  LS_COLORS+=":so=${LIGHTMAGENTA}"
-  # block device
-  LS_COLORS+=":bd=${LIGHTRED}"
-  # character device
-  LS_COLORS+=":cd=${RED}"
-  # orphan symbolic link (broken)
-  LS_COLORS+=":or=${BROWN}"
-  # executable file
-  LS_COLORS+=":ex=${LIGHTGREEN}"
-  # extensions
-  LS_COLORS+=":*.tar=${RED}"
-  LS_COLORS+=":*.tgz=${RED}"
-  LS_COLORS+=":*.zip=${RED}"
-  LS_COLORS+=":*.gz=${RED}"
-  LS_COLORS+=":*.bz2=${RED}"
-  export LS_COLORS
-}
-
-__set_ls_colors
 
 # Color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\e[01;32m'
