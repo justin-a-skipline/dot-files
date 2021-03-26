@@ -349,7 +349,7 @@ function! s:EasyCtags(...)
     let l:dir_and_extra_parms = getcwd(win_getid())
   endif
   let langMapChange = ['c', 'cpp', 'msp', 'asm']
-  let commonOptions =  "--tag-relative=".rel_arg." --pattern-length-limit=0"
+  let commonOptions =  "--tag-relative=".rel_arg." --pattern-length-limit=0 --excmd=number"
   if index(langMapChange, &ft) >= 0
     let executableString = s:async_run_mod . 'ctags -R --languages=C,C++ '.commonOptions.' '.l:dir_and_extra_parms." && ctags -Ra ".commonOptions." --langmap=Asm:+.s43.S43.h.inc ".l:dir_and_extra_parms
   else
