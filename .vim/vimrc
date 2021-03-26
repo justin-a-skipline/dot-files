@@ -116,6 +116,7 @@ set laststatus=2    " always display statusline
 set statusline=%<%F " file name and path
 set statusline+=\ %m%r " modified, read-only flags
 set statusline+=\ %y  " filetype according to vim
+set statusline+=\ %n  " buffer number
 set statusline+=\ [%{&ff}] " show detected line endings for file
 set statusline+=%=
 set statusline+=\ [0x\%02.6B] " hex value under cursor showing three bytes for unicode
