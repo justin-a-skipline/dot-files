@@ -711,6 +711,24 @@ function! s:Evaluate(...)
   endif
 endfunction
 
+let s:guiFontSize = 8
+command! -nargs=0 GuiFontIncrease call s:GuiFont('+')
+command! -nargs=0 GuiFontDecrease call s:GuiFont('-')
+command! -nargs=0 GuiFontDefault call s:GuiFont('=')
+function! s:GuiFont(command)
+  if a:command == '+'
+    let s:guiFontSize += 1
+  elseif a:command == '-'
+    let s:guiFontSize -= 1
+  elseif a:command == '='
+    let s:guiFontSize = 8
+  endif
+  if has('win32')
+    execute('silent! set guifont=Consolas:h'.s:guiFontSize)
+  else
+    execute('silent! set guifont=Inconsolata\ Medium\ '.s:guiFontSize.',\ Monospace\ '.s:guiFontSize)
+  endif
+endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -751,11 +769,7 @@ let g:onedark_termcolors=256
 set background=dark
 silent! colorscheme onedark
 
-if has('win32')
-  silent! set guifont=Consolas:h8
-else
-  silent! set guifont=Inconsolata\ Medium\ 10,\ Monospace\ 10
-endif
+call s:GuiFont('=')
 
 " Setup :Man command
 runtime ftplugin/man.vim
