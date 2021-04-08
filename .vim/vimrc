@@ -226,9 +226,6 @@ tnoremap <c-Bslash>lt <c-w>:TerminalToggle<CR>
 tnoremap <c-Bslash>lvt <c-w>:VerticalTerminalToggle<CR>
 nnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
 tnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
-" Svn directory diff hotkeys
-nnoremap <Bslash>q :SvnDirDiffPrevFile<CR>
-nnoremap <Bslash>w :SvnDirDiffNextFile<CR>
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 " yank inside visual selection, cursor returns to where it was, can specify any register
