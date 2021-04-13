@@ -49,7 +49,7 @@ set completeopt+=longest
 set showmatch
 set incsearch
 set ruler
-set tagcase=ignore
+set tagcase=smart
 set ignorecase
 set smartcase
 set lazyredraw
