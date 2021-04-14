@@ -317,7 +317,7 @@ function! TermStart(term_name)
   else
     call term_start(s:linux_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter})
   endif
-  s:terminal_counter += 1
+  let s:terminal_counter += 1
   execute 'silent! colorscheme '.expand(prev_colo)
   execute 'setlocal nonumber'
 endfunction
