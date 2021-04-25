@@ -133,6 +133,10 @@ alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
 alias gdc='gd --cached'
 
+alias cpu_performance='echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+alias cpu_powersave='echo powersave | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+alias cpu_freq='watch -n 1 "cat /proc/cpuinfo | grep \"^[c]pu MHz\""'
+
 pdfdiff () {
   DIFFOUTPUT="$3"
   [ -z "$DIFFOUTPUT" ] && DIFFOUTPUT=diff.pdf
