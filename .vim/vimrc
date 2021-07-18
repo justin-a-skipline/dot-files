@@ -394,6 +394,7 @@ let s:comment_characters = {
       \"gdb"    : "#",
       \"dosbatch": "REM ",
       \"python" : "#",
+      \"vhdl" : "--",
       \}
 command! -range Comment <line1>,<line2>call s:Comment()
 function! s:Comment()
