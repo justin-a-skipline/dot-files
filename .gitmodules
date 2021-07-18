@@ -8,6 +8,3 @@
 [submodule "z"]
 	path = z
 	url = https://github.com/rupa/z.git
-[submodule ".vim/pack/plugins/start/coc.nvim"]
-	path = .vim/pack/plugins/start/coc.nvim
-	url = https://github.com/neoclide/coc.nvim
