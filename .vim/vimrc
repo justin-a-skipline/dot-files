@@ -312,8 +312,10 @@ function! TermStart(term_name)
   silent! colorscheme onedark
   if has("win32")
     call term_start(s:windows_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter,'norestore':1})
+    set termwinscroll=100000
   else
     call term_start(s:linux_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter})
+    set termwinscroll=100000
   endif
   let s:terminal_counter += 1
   execute 'silent! colorscheme '.expand(prev_colo)
