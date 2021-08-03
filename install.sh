@@ -1,18 +1,29 @@
 #!/bin/sh
 
-cat << EOF > .screenrc
+cat << EOF > ~/.screenrc
 source ~/dot-files/.screenrc
 EOF
 
-cat << EOF > .vimrc
+cat << EOF > ~/.vimrc
 set rtp+=~/dot-files/.vim
 source ~/dot-files/.vim/vimrc
 EOF
 
-cat << EOF > .bashrc
+cat << EOF > ~/.bashrc
 source ~/dot-files/.bashrc
 EOF
 
-cat << EOF > .gdbinit
+cat << EOF > ~/.gdbinit
 source ~/dot-files/gdb/gdbinit-pure.gdb
 EOF
+
+ExtraInstructions()
+{
+  cat << EOF
+  Vimrc requires installation of:
+    universal-ctags
+    ripgrep
+EOF
+}
+
+ExtraInstructions
