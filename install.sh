@@ -17,6 +17,10 @@ cat << EOF > ~/.gdbinit
 source ~/dot-files/gdb/gdbinit-pure.gdb
 EOF
 
+cat << EOF > ~/.inputrc
+\$include ~/dot-files/.inputrc
+EOF
+
 ExtraInstructions()
 {
   cat << EOF
