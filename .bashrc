@@ -83,7 +83,7 @@ PROMPT_COMMAND+='history -a;'
 shopt -s checkwinsize
 shopt -s globstar
 shopt -s autocd
-shopt -s cdspell direxpand dirspell
+shopt -s cdspell dirspell
 
 export LESS="-XFR"
 export LESSCHARSET=utf-8
