@@ -167,8 +167,6 @@ let s:linux_default_term = '/usr/bin/env bash'
 "unmap windows visual mode cut to clipboard. Use for decrementing lists
 silent! vunmap <c-x>
 set timeout timeoutlen=1000 ttimeoutlen=200
-nnoremap <c-]> g<c-]>
-vnoremap <c-]> g<c-]>
 inoremap jk <esc>
 vnoremap s( c()<ESC>P
 vnoremap s\| c\|\|<ESC>P
@@ -257,6 +255,10 @@ nnoremap <c-\>N <c-w>:NewTermTab<CR>
 " Command line history completion
 cnoremap <c-j> <Down>
 cnoremap <c-k> <Up>
+
+" Ctags into location list mappings
+vnoremap g] "my:ltag<SPACE><c-R>m
+nnoremap g] :let @m=expand('<cword>')<CR>:ltag<SPACE><c-R>m
 
 " GDB mappings
 tnoremap <c-Bslash>R <c-w>:RegisterTerminalBuffer<CR>
