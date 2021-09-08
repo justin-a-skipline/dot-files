@@ -73,7 +73,7 @@ alias vi='vim'
 
 ##### History Settings ##########
 HISTCONTROL='erasedups:ignoreboth'
-HISTSIZE=1000
+HISTSIZE=10000
 HISTFILESIZE=10000
 HISTIGNORE='?:??'
 shopt -s histappend histverify
