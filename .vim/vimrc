@@ -6,7 +6,7 @@ let s:work_machine = has("win32") + has("win64")
 "Indentation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set noexpandtab
-set shiftwidth=4
+set shiftwidth=0
 set tabstop=4
 set softtabstop=4
 set textwidth=0
@@ -20,7 +20,7 @@ set fileencodings=ucs-bom,utf-8,default,latin1
 
 "things after case labels aren't indented
 "so I can add braces in case statements
-set cino==0
+set cino==0s
 
 set nu
 
@@ -755,7 +755,6 @@ augroup vimrc
   au BufNewFile,BufRead *.mk set ft=make
   au BufNewFile,BufRead *.md setlocal textwidth=80
   au BufNewFile,BufRead,BufEnter *.zig set shiftwidth=4 | set tabstop=4 |set softtabstop=4
-  au BufNewFile,BufRead,BufEnter *.c set shiftwidth=2 | set tabstop=2 |set softtabstop=2
   " Don't scan include files
   au BufEnter * set complete-=i
   au BufEnter * set complete-=u
