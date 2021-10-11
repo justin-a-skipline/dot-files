@@ -223,11 +223,9 @@ function __setprompt
 	PS1+=" \[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])"
 
 	# Git branch
-  local git_branch="$(git status --branch --short 2> /dev/null)"
-  if [[ ${git_branch} ]]; then
-    local git_branch_parsed="$(echo -n ${git_branch} | head -n1 | awk '{print $2}' | cut -d '.' -f 1)"
-    PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${git_branch_parsed}\[${DARKGRAY}\])"
-  fi
+	if local git_branch="$(git branch --show-current 2> /dev/null)"; then
+		PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${git_branch}\[${DARKGRAY}\])"
+	fi
 
 	# Skip to the next line
 	PS1+="\n"
