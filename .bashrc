@@ -223,7 +223,8 @@ function __setprompt
 	PS1+=" \[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])"
 
 	# Git branch
-	if local git_branch="$(git branch --show-current 2> /dev/null)"; then
+	local git_branch="$(git branch --show-current 2> /dev/null)"
+	if [ $git_branch ]; then
 		PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${git_branch}\[${DARKGRAY}\])"
 	fi
 
