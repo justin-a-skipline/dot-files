@@ -265,7 +265,7 @@ tnoremap <c-Bslash>R <c-w>:RegisterTerminalBuffer<CR>
 nnoremap <Bslash>E :let @m=expand('<cexpr>')<CR>:Evaluate<SPACE><c-R>m
 " join lines together by removing newlines (null bytes in register)
 " also shrink excess spaces down to just one space, removing tabs
-vnoremap <Bslash>E "my:let @m=substitute(strtrans(@m),'\^@',' ','g')<CR>:let @m=substitute(@m,'\v\s+',' ','g')<CR>:Evaluate<SPACE><c-R>m
+vnoremap <Bslash>E "my:let @m=substitute(@m,'\v\s+',' ','g')<CR>:let @m=substitute(strtrans(@m),'\^@',' ','g')<CR>:Evaluate<SPACE><c-R>m
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
