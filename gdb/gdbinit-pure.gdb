@@ -318,3 +318,67 @@ define un
     ListSource
   end
 end
+
+set $_bp1 = 0
+set $_bp2 = 0
+set $_bp3 = 0
+set $_bp4 = 0
+set $_lastbp = 0
+define DependentBreakpoints
+  if $argc < 2
+    printf "2 breakpoints needed\n"
+  else
+    if $argc >= 5
+      printf "TODO: Implement 5 dependent breakpoints\n"
+    else
+      if $argc >= 2
+        set $_bp1 = $arg0
+        set $_bp2 = $arg1
+        set $_lastbp = $_bp2
+        disable $_bp2
+      end
+
+      if $argc >= 3
+        set $_bp3 = $arg2
+        set $_lastbp = $_bp3
+        disable $_bp3
+      end
+
+      if $argc >= 4
+        set $_bp4 = $arg3
+        set $_lastbp = $_bp4
+        disable $_bp4
+      end
+
+
+      enable $_bp1
+
+      if $argc >= 2
+        commands $_bp1
+          disable $_bp1
+          enable $_bp2
+          c
+        end
+        commands $_bp2
+          disable $_bp2
+          enable $_bp3
+          c
+        end
+      end
+
+      if $argc >= 3
+        commands $_bp3
+          disable $_bp3
+          enable $_bp4
+          c
+        end
+      end
+
+      commands $_lastbp
+        disable $_lastbp
+        enable $_bp1
+        Context
+      end
+    end
+  end
+end
