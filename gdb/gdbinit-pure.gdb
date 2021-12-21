@@ -269,9 +269,21 @@ define n
     ListSource
   end
 end
+define rn
+  reverse-next
+  if $_list_on_next > 0
+    ListSource
+  end
+end
 
 define s
   step
+  if $_list_on_step > 0
+    ListSource
+  end
+end
+define rs
+  reverse-step
   if $_list_on_step > 0
     ListSource
   end
@@ -293,12 +305,22 @@ define f
     ListSource
   end
 end
+define rf
+  reverse-finish
+  if $_list_on_finish > 0
+    ListSource
+  end
+end
 
 define u
   up
   if $_list_on_up > 0
     ListSource
   end
+end
+
+define rc
+  reverse-continue
 end
 
 define d
