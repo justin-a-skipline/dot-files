@@ -256,9 +256,8 @@ nnoremap <c-\>N <c-w>:NewTermTab<CR>
 cnoremap <c-j> <Down>
 cnoremap <c-k> <Up>
 
-" Ctags into location list mappings
-vnoremap g] "my:ltag<SPACE><c-R>m
-nnoremap g] :let @m=expand('<cword>')<CR>:ltag<SPACE><c-R>m
+vnoremap g] "my:tjump<SPACE><c-R>m
+nnoremap g] :let @m=expand('<cword>')<CR>:tjump<SPACE><c-R>m
 
 " GDB mappings
 tnoremap <c-Bslash>R <c-w>:RegisterTerminalBuffer<CR>
