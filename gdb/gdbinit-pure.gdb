@@ -56,6 +56,75 @@ Stops redirecting command output to log file.
 Usage: SilenceOff
 end
 
+define LoggingOn
+  set logging off
+  set logging overwrite off
+  set logging file ~/gdb-log.txt
+  set logging redirect on
+  set logging on
+end
+document LoggingOn
+Redirects output to log file (~/gdb-log.txt).
+May interact with other commands because of
+the overlap with SilenceOn and SilenceOff used
+to get nice output at breakpoints. Is safe to
+use and then turn off within a breakpoint however.
+Usage: LoggingOn
+end
+
+define LoggingOff
+  set logging off
+  set logging file ~/gdb-log.txt
+  set logging redirect off
+  set logging off
+end
+document LoggingOff
+Turns off logging to ~/gdb-log.txt
+end
+
+define LoggingTimestampBlocking
+  shell date +%s%N >> ~/gdb-log.txt
+end
+document LoggingTimestampBlocking
+Causes shell to append nanosecond precision timestamp
+to ~/gdb-log.txt. This means there will
+be a delay in program execution while command
+finishes. Measured with "time":
+real    0m0.006s
+user    0m0.001s
+sys     0m0.000s
+end
+
+define LoggingTimestampNonBlocking
+  shell date +%s%N >> ~/gdb-log.txt &
+end
+document LoggingTimestampNonBlocking
+Causes shell to append nanosecond precision timestamp
+to ~/gdb-log.txt. This means there will
+be a delay in program execution while command
+finishes. Measured with "time":
+real    0m0.001s
+user    0m0.000s
+sys     0m0.001s
+end
+
+define LoggingTimestamp
+LoggingTimestampNonBlocking
+end
+document LoggingTimestamp
+Causes shell to append nanosecond precision timestamp
+to ~/gdb-log.txt. Defaults to non-blocking.
+If seeing corrupted output, consider using
+LoggingTimestampBlocking instead.
+end
+
+define LogClear
+  shell > ~/gdb-log.txt
+end
+document LogClear
+Empties log file of all contents. DESTRUCTIVE
+end
+
 define AsciiChar
 set $_c=*(unsigned char *)($arg0)
 if ( $_c < 0x20 || $_c > 0x7E )
