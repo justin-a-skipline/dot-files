@@ -309,8 +309,6 @@ if !exists('s:terminal_counter')
   let s:terminal_counter = 0
 endif
 function! TermStart(term_name)
-  let prev_colo = execute('colorscheme')[1:]
-  silent! colorscheme onedark
   if has("win32")
     call term_start(s:windows_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter,'norestore':1})
     set termwinscroll=100000
@@ -319,7 +317,6 @@ function! TermStart(term_name)
     set termwinscroll=100000
   endif
   let s:terminal_counter += 1
-  execute 'silent! colorscheme '.expand(prev_colo)
   execute 'setlocal nonumber'
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
