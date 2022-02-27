@@ -125,6 +125,39 @@ document LogClear
 Empties log file of all contents. DESTRUCTIVE
 end
 
+define ClearGraph
+printf "\r\rRTGRAPH clear_graph\n"
+end
+document ClearGraph
+Clears graph
+end
+
+define GraphValue
+  if $argc == 2
+    printf "\r\rRTGRAPH add %s %f\n",$arg0, $arg1
+  end
+  if $argc == 3
+    printf "\r\rRTGRAPH add %s %f %f\n", $arg0, $arg2, $arg1
+  end
+end
+document GraphValue
+Graphs value presented in form:
+"name" y_value
+"name" x_value y_value
+end
+
+define GraphSingleValueWithTimeStamp
+  if $argc == 2
+    printf "\r\rRTGRAPH add %s %f ",$arg0, $arg1
+    shell date +%s%N
+  end
+end
+document GraphValue
+Graphs value presented in form:
+"name" y_value
+"name" x_value y_value
+end
+
 define AsciiChar
 set $_c=*(unsigned char *)($arg0)
 if ( $_c < 0x20 || $_c > 0x7E )
@@ -466,10 +499,24 @@ define DependentBreakpoints
       end
 
       commands $_lastbp
-        disable $_lastbp
-        enable $_bp1
+        DependentBreakPointsRestart
         Context
       end
     end
   end
+end
+
+define DependentBreakPointsRestart
+  disable $_lastbp
+  enable $_bp1
+end
+document DependentBreakPointsRestart
+Sets up conditions for last breakpoint easily
+so you can override actions on last breakpoint
+and have the chain restart. Meant to be used
+inside of a chain of commands.
+Example:
+commands $_lastbp
+DependentBreakPointsRestart
+InsertCustomCommandsHere
 end

@@ -185,6 +185,33 @@ fi
 
 svndiff() { svn diff "$@" | colordiff | less; }
 
+# Any program hooked up
+if (command -v script &&
+	command -v systemctl) &>/dev/null; then
+  rt_graph() { ~/dot-files/scripts/rt_graph/rt_graph_hookup.bash "$*"; }
+  mkdir -p ~/.config/systemd/user
+  cat <<- EOF > ~/.config/systemd/user/rtgraph.service
+  [Unit]
+  Description=RT Graph
+
+  [Service]
+  ExecStart="$HOME/dot-files/scripts/rt_graph/python_rt_graph.py"
+  Restart=always
+  RestartSec=5s
+
+  # Hardening
+  SystemCallArchitectures=native
+  MemoryDenyWriteExecute=true
+  NoNewPrivileges=true
+
+  [Install]
+  WantedBy=default.target
+EOF
+  systemctl --user enable --now rtgraph.service
+else
+  echo "rt_graph support missing: need script command or systemctl" >&2
+fi
+
 # Color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\e[01;32m'
 export LESS_TERMCAP_md=$'\e[01;32m'
