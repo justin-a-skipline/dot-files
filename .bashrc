@@ -175,6 +175,16 @@ mkdirgo () {
   cd $1
 }
 
+fext() { echo ${1##*.}; }
+
+fname() {  echo ${1%.*}; }
+
+if command -v git &>/dev/null; then
+  git config --global merge.conflictStyle diff3
+fi
+
+svndiff() { svn diff "$@" | colordiff | less; }
+
 # Color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\e[01;32m'
 export LESS_TERMCAP_md=$'\e[01;32m'
