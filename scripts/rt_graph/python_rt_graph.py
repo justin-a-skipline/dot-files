@@ -46,7 +46,6 @@ def handle_add_time(args):
     # automatically increment x value if none given
     x_value = datetime.datetime.now()
     y_value = args.value
-    print((x_value, y_value))
     all_values[args.key].append((x_value, y_value))
 add_time_subparser = subparsers.add_parser('add_time', help='Add another value to graph with auto timestamp')
 add_time_subparser.set_defaults(func=handle_add_time)
@@ -67,7 +66,6 @@ def server_thread():
         message = ""
         while True:
             message += sock.recv(1024).decode('utf-8')
-            print(message)
             if len(message) > 2048:
                 message = message[-2048:]
             start_of_command = message.find(command_prefix)
@@ -75,7 +73,6 @@ def server_thread():
             if start_of_command == -1:
                 message = message[-len(command_prefix):] # throw away guaranteed worthless chars
                 continue
-            print(start_of_command)
             try: # try to find end of command
                 index = message.index('\n')
             except:
@@ -96,8 +93,9 @@ def plotData(unused):
     ax.cla()
     for name, data in all_values.items():
         x_list, y_list = zip(*data)
-        ax.plot(x_list, y_list, label=name) # how to do this?
+        ax.plot(x_list, y_list, label=name, marker='*')
         ax.legend()
+        ax.grid(True)
         plt.gcf().autofmt_xdate()
 
 def graph_thread():
