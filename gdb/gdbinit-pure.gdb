@@ -148,14 +148,13 @@ end
 
 define GraphSingleValueWithTimeStamp
   if $argc == 2
-    printf "\r\rRTGRAPH add %s %f ",$arg0, $arg1
-    shell date +%s%N
+    printf "\r\rRTGRAPH add_time %s %f\n",$arg0, $arg1
   end
 end
-document GraphValue
+document GraphSingleValueWithTimeStamp
 Graphs value presented in form:
 "name" y_value
-"name" x_value y_value
+adds timestamp as offset from first reading
 end
 
 define AsciiChar

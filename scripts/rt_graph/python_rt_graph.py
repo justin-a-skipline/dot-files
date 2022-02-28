@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import datetime
 import socket
 import threading
 import textwrap
@@ -38,6 +39,19 @@ add_subparser = subparsers.add_parser('add', help='Add another value to graph')
 add_subparser.set_defaults(func=handle_add)
 add_subparser.add_argument('key', type=str, help='name of item')
 add_subparser.add_argument('values', nargs='+', type=float, help='y and optional x values')
+
+def handle_add_time(args):
+    if args.key not in all_values:
+        all_values[args.key] = list()
+    # automatically increment x value if none given
+    x_value = datetime.datetime.now()
+    y_value = args.value
+    print((x_value, y_value))
+    all_values[args.key].append((x_value, y_value))
+add_time_subparser = subparsers.add_parser('add_time', help='Add another value to graph with auto timestamp')
+add_time_subparser.set_defaults(func=handle_add_time)
+add_time_subparser.add_argument('key', type=str, help='name of item')
+add_time_subparser.add_argument('value', type=float, help='y value')
 
 def handle_clear_graph(args):
     all_values.clear()
@@ -84,6 +98,7 @@ def plotData(unused):
         x_list, y_list = zip(*data)
         ax.plot(x_list, y_list, label=name) # how to do this?
         ax.legend()
+        plt.gcf().autofmt_xdate()
 
 def graph_thread():
     ani = FuncAnimation(fig, plotData, interval=100)
