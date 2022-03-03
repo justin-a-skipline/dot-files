@@ -25,6 +25,7 @@ subparsers = parser.add_subparsers()
 all_values = dict()
 
 command_queue = queue.Queue(200)
+paused = False
 
 def handle_add(args):
     if args.key not in all_values:
@@ -56,6 +57,14 @@ def handle_clear_graph(args):
     all_values.clear()
 clear_graph_subparser = subparsers.add_parser('clear_graph', help='Clear the graph')
 clear_graph_subparser.set_defaults(func=handle_clear_graph)
+
+def handle_pause_graph(args):
+    global paused
+    print(args)
+    paused = args.paused != 0
+pause_graph_subparser = subparsers.add_parser('pause_graph', help='Pause updates so graph can be fiddled with')
+pause_graph_subparser.set_defaults(func=handle_pause_graph)
+pause_graph_subparser.add_argument('paused', type=int, help='1 paused, 0 unpaused')
 
 def server_thread():
     command_prefix = '\r\rRTGRAPH '
@@ -90,6 +99,9 @@ def server_thread():
 fig = plt.figure()
 ax = plt.subplot()
 def plotData(unused):
+    global paused
+    if paused == True:
+        return
     ax.cla()
     for name, data in all_values.items():
         x_list, y_list = zip(*data)

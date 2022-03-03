@@ -192,6 +192,7 @@ if (command -v script &&
   rt_graph_add() { echo -e "\r\rRTGRAPH add $*" >/dev/udp/localhost/24242; }
   rt_graph_clear() { echo -e "\r\rRTGRAPH clear_graph" >/dev/udp/localhost/24242; }
   rt_graph_add_time() { echo -e "\r\rRTGRAPH add_time ${1} ${2}" >/dev/udp/localhost/24242; }
+  rt_graph_set_paused() { echo -e "\r\rRTGRAPH pause_graph ${1}" >/dev/udp/localhost/24242; }
   mkdir -p ~/.config/systemd/user
   cat <<- EOF > ~/.config/systemd/user/rtgraph.service
   [Unit]

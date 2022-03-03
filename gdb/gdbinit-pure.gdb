@@ -125,19 +125,33 @@ document LogClear
 Empties log file of all contents. DESTRUCTIVE
 end
 
-define ClearGraph
+define GraphClear
 printf "\r\rRTGRAPH clear_graph\n"
 end
-document ClearGraph
+document GraphClear
+Clears graph
+end
+
+define GraphPause
+printf "\r\rRTGRAPH pause_graph 1\n"
+end
+document GraphPause
+Clears graph
+end
+
+define GraphResume
+printf "\r\rRTGRAPH pause_graph 0\n"
+end
+document GraphPause
 Clears graph
 end
 
 define GraphValue
   if $argc == 2
-    printf "\r\rRTGRAPH add %s %f\n",$arg0, $arg1
+    printf "\r\rRTGRAPH add %s %f\n", $arg0, (float)$arg1
   end
   if $argc == 3
-    printf "\r\rRTGRAPH add %s %f %f\n", $arg0, $arg2, $arg1
+    printf "\r\rRTGRAPH add %s %f %f\n", $arg0, (float)$arg2, (float)$arg1
   end
 end
 document GraphValue
@@ -148,7 +162,7 @@ end
 
 define GraphSingleValueWithTimeStamp
   if $argc == 2
-    printf "\r\rRTGRAPH add_time %s %f\n",$arg0, $arg1
+    printf "\r\rRTGRAPH add_time %s %f\n",$arg0, (float)$arg1
   end
 end
 document GraphSingleValueWithTimeStamp
