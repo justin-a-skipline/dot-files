@@ -115,13 +115,13 @@ def graph_thread():
     plt.show()
 
 def command_thread():
-   while True:
-       args = None
-       try: args = command_queue.get(timeout=0.5)
-       except KeyboardInterrupt: sys.exit(1)
-       except: continue
-       if args is not None and hasattr(args, 'func'):
-           args.func(args)
+    while True:
+        args = None
+        try: args = command_queue.get(timeout=0.5)
+        except KeyboardInterrupt: sys.exit(1)
+        except: continue
+        if args is not None and hasattr(args, 'func'):
+            args.func(args)
 
 if __name__ == "__main__":
     args = parser.parse_args()
