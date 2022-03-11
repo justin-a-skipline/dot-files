@@ -187,11 +187,12 @@ svndiff() { svn diff "$@" | colordiff | less; }
 
 # Any program hooked up
 if command -v script &>/dev/null; then
+  mkfifo ~/dot-files/scripts/rt_graph/rt_graph.fifo &> /dev/null || :
   rt_graph() { ~/dot-files/scripts/rt_graph/rt_graph_hookup.bash "$*"; }
-  rt_graph_add() { echo -e "\r\rRTGRAPH add $*" >/dev/udp/localhost/24242; }
-  rt_graph_clear() { echo -e "\r\rRTGRAPH clear_graph" >/dev/udp/localhost/24242; }
-  rt_graph_add_time() { echo -e "\r\rRTGRAPH add_time ${1} ${2}" >/dev/udp/localhost/24242; }
-  rt_graph_set_paused() { echo -e "\r\rRTGRAPH pause_graph ${1}" >/dev/udp/localhost/24242; }
+  rt_graph_add() { echo -e "\r\rRTGRAPH add $*" >~/dot-files/scripts/rt_graph/rt_graph.fifo; }
+  rt_graph_clear() { echo -e "\r\rRTGRAPH clear_graph" >~/dot-files/scripts/rt_graph/rt_graph.fifo; }
+  rt_graph_add_time() { echo -e "\r\rRTGRAPH add_time ${1} ${2}" >~/dot-files/scripts/rt_graph/rt_graph.fifo; }
+  rt_graph_set_paused() { echo -e "\r\rRTGRAPH pause_graph ${1}" >~/dot-files/scripts/rt_graph/rt_graph.fifo; }
   rt_graph_start() { ~/dot-files/scripts/rt_graph/python_rt_graph.py &>/dev/null & }
 else
   echo "rt_graph support missing: need script command" >&2

@@ -7,4 +7,5 @@ exit_handler()
 
 trap exit_handler EXIT
 
-script -f -c "$*" >(cat - >/dev/udp/localhost/24242)
+export fifo_name="$(dirname "$(readlink -f "$0")")/rt_graph.fifo"
+script -f -c "$*" >(cat - > "$fifo_name")

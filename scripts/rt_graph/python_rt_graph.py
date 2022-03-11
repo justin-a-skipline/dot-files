@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import datetime
-import socket
+import os
 import threading
 import textwrap
 import time
@@ -22,10 +22,11 @@ parser = argparse.ArgumentParser(description=textwrap.dedent("""
 
 subparsers = parser.add_subparsers()
 
+global_data_lock = threading.Lock()
 all_values = dict()
+paused = False
 
 command_queue = queue.Queue(200)
-paused = False
 
 def handle_add(args):
     if args.key not in all_values:
@@ -60,55 +61,64 @@ clear_graph_subparser.set_defaults(func=handle_clear_graph)
 
 def handle_pause_graph(args):
     global paused
-    print(args)
     paused = args.paused != 0
 pause_graph_subparser = subparsers.add_parser('pause_graph', help='Pause updates so graph can be fiddled with')
 pause_graph_subparser.set_defaults(func=handle_pause_graph)
 pause_graph_subparser.add_argument('paused', type=int, help='1 paused, 0 unpaused')
 
 def server_thread():
+    fifo_name = os.path.dirname(os.path.realpath(__file__))+"/rt_graph.fifo"
+    try:
+        os.mkfifo(fifo_name)
+    except FileExistsError:
+        print("{0} exists, using".format(fifo_name))
+
     command_prefix = '\r\rRTGRAPH '
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.bind(('localhost', 24242))
+    while True:
+        with open(fifo_name, "rb") as fifo:
+            message = ""
+            while True:
+                line = fifo.readline(1024)
+                if len(line) == 0:
+                    break
+                print(line)
+                message += line.decode('utf-8')
+                if len(message) > 2048:
+                    message = message[-2048:]
+                start_of_command = message.find(command_prefix)
+                # is the start of a message in there?
+                if start_of_command == -1:
+                    message = message[-len(command_prefix):] # throw away guaranteed worthless chars
+                    continue
+                try: # try to find end of command
+                    index = message.index('\n', start_of_command)
+                except:
+                    continue
 
-        message = ""
-        while True:
-            message += sock.recv(1024).decode('utf-8')
-            if len(message) > 2048:
-                message = message[-2048:]
-            start_of_command = message.find(command_prefix)
-            # is the start of a message in there?
-            if start_of_command == -1:
-                message = message[-len(command_prefix):] # throw away guaranteed worthless chars
-                continue
-            try: # try to find end of command
-                index = message.index('\n')
-            except:
-                continue
+                message_to_check = message[start_of_command + len(command_prefix):index].rstrip() # save message to parse
+                message = message[index + 1:] # throw away chars about to be used
+                print(message_to_check)
+                try:
+                    args = parser.parse_args(message_to_check.split())
+                except:
+                    continue
 
-            message_to_check = message[start_of_command + len(command_prefix):index] # save message to parse
-            message = message[index + 1:] # throw away chars about to be used
-            try:
-                args = parser.parse_args(message_to_check.split())
-            except:
-                continue
-
-            command_queue.put(args)
+                command_queue.put(args)
 
 fig = plt.figure()
 ax = plt.subplot()
 def plotData(unused):
-    global paused
-    if paused == True:
-        return
-    ax.cla()
-    for name, data in all_values.items():
-        x_list, y_list = zip(*data)
-        ax.plot(x_list, y_list, label=name, marker='*')
-        ax.legend()
-        ax.grid(True)
-        plt.gcf().autofmt_xdate()
+    with global_data_lock:
+        global paused
+        if paused == True:
+            return
+        ax.cla()
+        for name, data in all_values.items():
+            x_list, y_list = zip(*data)
+            ax.plot(x_list, y_list, label=name, marker='*')
+            ax.legend()
+            ax.grid(True)
+            plt.gcf().autofmt_xdate()
 
 def graph_thread():
     ani = FuncAnimation(fig, plotData, interval=100)
@@ -121,7 +131,8 @@ def command_thread():
         except KeyboardInterrupt: sys.exit(1)
         except: continue
         if args is not None and hasattr(args, 'func'):
-            args.func(args)
+            with global_data_lock:
+                args.func(args)
 
 if __name__ == "__main__":
     args = parser.parse_args()
