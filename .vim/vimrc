@@ -443,6 +443,45 @@ function! s:FindLine(file_line)
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -range -complete=tag -nargs=+ S <line1>,<line2>call s:SearchAndReplaceKeepCase(<f-args>)
+function! s:SearchAndReplaceKeepCase(word, replacement, ...)
+  " This function takes camelCase or PascalCase search and replace string and also does replace on
+  " camelCase version, PascalCase version, all lowercase version, and UPPERCASE version
+  " Optionally you can pass in modifiers to the standard substitution command like c for confirm
+
+  " Example: S aThing anotherThing
+  " aThing    anotherThing
+  " AThing    AnotherThing
+  " athing    anotherThing
+  " ATHING    ANOTHERTHING
+  "
+  " qaThing   qaThing
+  " qAThing   qAThing
+  " qathing   qathing
+  " qATHING   qATHING
+  "
+  " aThingq   aThingq
+  " AThingq   AThingq
+  " athingq   athingq
+  " ATHINGq   ATHINGq
+  "
+  " qaThingq  qaThingq
+  " qAThingq  qAThingq
+  " qathingq  qathingq
+  " qATHINGq  qATHINGq
+
+  " Collect modifiers from varargs, default empty string
+  let sub_mod = get(a:, 1, '')
+  " original changed to camelCase
+  execute 'silent! s;\C\v<' . tolower(a:word[0]) . a:word[1:] . '>;' . tolower(a:replacement[0]) . a:replacement[1:] . ';g' . sub_mod
+  " original changed to PascalCase
+  execute 'silent! s;\C\v<' . toupper(a:word[0]) . a:word[1:] . '>;' . toupper(a:replacement[0]) . a:replacement[1:] . ';g' . sub_mod
+  " original changed to alllowercase
+  execute 'silent! s;\C\v<' . tolower(a:word)                 . '>;' . tolower(a:replacement)                        . ';g' . sub_mod
+  " original changed to ALLUPPERCASE
+  execute 'silent! s;\C\v<' . toupper(a:word)                 . '>;' . toupper(a:replacement)                        . ';g' . sub_mod
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! TogglePreview call s:TogglePreview()
 function! s:TogglePreview()
   if exists("t:pwin")
