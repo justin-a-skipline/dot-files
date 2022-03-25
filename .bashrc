@@ -189,6 +189,41 @@ if command -v git &>/dev/null; then
 fi
 
 svndiff() { svn diff "$@" | colordiff | less; }
+svnbranchlog()
+{
+  if [ $# -ne 0 -a "$1" = "--help" ]; then
+  cat << "EOF"
+  usage: svnbranchlog [option]
+
+  options:
+  --commit-wise-branch Default, all commits since branch creation across all externals
+  --total-branch       All changes since branch creation across all externals
+EOF
+  fi
+
+  cat > ~/.git-svn-diff.bash << "EOF"
+#!/usr/bin/env bash
+git --no-pager diff --color --color-moved=dimmed-zebra --histogram -W --no-index $6 $7
+EOF
+  chmod +x ~/.git-svn-diff.bash
+  local -r branch_url=$(svn info | sed -E -e '/^Relative URL/!d' -e 's/Relative URL: //')
+  local -r branch_rel_path=$(echo $branch_url | sed -E -e 's/\^\///')
+  local -r initial_branch_revision=$(svn log -r1:HEAD --stop-on-copy -l1 ^/ "$branch_rel_path" | awk 'NR==2 {print $1}' | sed -e 's/r//')
+  local -a external_list_url_array=(
+  $(svn propget svn:externals -R | sed -E -e 's/^[^^]*//' -e '/^\^/!d' | awk '{$NF=""; print}')
+  )
+  local -a external_list_rel_path_array=(
+  $(echo ${external_list_url_array[*]} | sed -E -e 's/\^\///g')
+  )
+
+  let local -r first_revision_after_branch_creation=$initial_branch_revision+1
+
+  if [ $# -eq 0 -o "$1" = "--commit-wise-branch" ]; then
+    svn log "-r$first_revision_after_branch_creation:HEAD" --diff --diff-cmd ~/.git-svn-diff.bash --stop-on-copy ^/ "$branch_rel_path" ${external_list_rel_path_array[*]}
+  elif [ "$1" = "--total-branch" ]; then
+    svn diff --no-diff-deleted --no-diff-added --show-copies-as-adds --verbose -r "$initial_branch_revision:HEAD" --diff-cmd ~/.git-svn-diff.bash "$branch_url" ${external_list_url_array[*]}
+  fi
+}
 
 # Any program hooked up
 if command -v script &>/dev/null; then
