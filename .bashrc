@@ -179,6 +179,11 @@ fext() { echo ${1##*.}; }
 
 fname() {  echo ${1%.*}; }
 
+cp_rename() {
+  test $# -ge 2 || return 1
+  cp "$1" "$2".$(fext "$1")
+}
+
 if command -v git &>/dev/null; then
   git config --global merge.conflictStyle diff3
 fi
