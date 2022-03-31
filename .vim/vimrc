@@ -20,7 +20,7 @@ set fileencodings=ucs-bom,utf-8,default,latin1
 
 "things after case labels aren't indented
 "so I can add braces in case statements
-set cino==0s
+set cino=g0,:0,=0
 
 set nu
 
