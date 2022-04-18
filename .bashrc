@@ -76,7 +76,7 @@ HISTSIZE=10000
 HISTFILESIZE=10000
 HISTIGNORE='?:??'
 shopt -s histappend histverify
-PROMPT_COMMAND+='history -a;'
+PROMPT_COMMAND+='history -a;history -c;history -r'
 
 ##### Shell Settings ############
 shopt -s checkwinsize
