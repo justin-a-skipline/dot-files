@@ -106,9 +106,8 @@ set wildignore+=*.lst
 set virtualedit=block " allow visual mode block editing to extend past EOL
 
 " use :find to search through all files under the current working directory
-set path-=. " cwd should take precedence over directory of file
-set path+=**
-set path+=.
+" followed by the directory of the file loaded in the current buffer
+set path=**,.
 
 " search for tag file relative to current working directory rather than
 " current file's directory
