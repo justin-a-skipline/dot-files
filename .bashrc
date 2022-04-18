@@ -320,11 +320,6 @@ function __setprompt
 	# Current time
 	PS1+="\[${CYAN}\][\A]"
 
-  # Current battery
-  if battery 2>&1 > /dev/null ; then
-    PS1+=" \[${LIGHTRED}\]{$(battery | awk '{print $2}')}";
-  fi
-
 	# Current directory
 	PS1+=" \[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])"
 
