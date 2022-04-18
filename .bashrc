@@ -187,6 +187,20 @@ if command -v git &>/dev/null; then
   git config --global merge.conflictStyle diff3
 fi
 
+valgdb() {
+  if [ $# -eq 0 -o "$1" = "--help" ]; then
+  cat << "EOF"
+  usage: valgdb [valgrind options] <path/to/executable>
+EOF
+  return 1
+  fi
+
+  valgrind --vgdb-error=0 "$@" &
+  valpid=$!
+  gdb -ex "target remote | vgdb --pid=$!" "${!#}"
+  kill -9 "$valpid"
+}
+
 svndiff() { svn diff "$@" | colordiff | less; }
 svnbranchlog()
 {
