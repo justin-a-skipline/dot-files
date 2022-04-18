@@ -22,6 +22,9 @@ set fileencodings=ucs-bom,utf-8,default,latin1
 "so I can add braces in case statements
 set cino=g0,:0,=0
 
+" when joining lines with comments at front, remove comments
+set formatoptions+=j
+
 set nu
 
 set splitright
