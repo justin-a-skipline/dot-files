@@ -18,6 +18,7 @@ set $_list_on_break = 1
 set $_list_on_up = 1
 set $_list_on_down = 1
 set $_list_on_until = 1
+set $_list_locals = 0
 
 set $print_symbol_filename = 1
 
@@ -305,7 +306,9 @@ define ListSource
   printf "-----------------------------------ARGS-----------------------------------------\n"
   info args
   printf "-----------------------------------LOCALS---------------------------------------\n"
-  info locals
+  if $_list_locals > 0
+    info locals
+  end
   SilenceOn
   set listsize 1
   if $argc > 0
