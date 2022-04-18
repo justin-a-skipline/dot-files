@@ -227,6 +227,8 @@ tnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 nnoremap <c-w>M <c-w>\|<c-w>_
+tnoremap <c-w>M <c-w>\|<c-w>_
+vnoremap <c-w>M <c-w>\|<c-w>_
 " yank inside visual selection, cursor returns to where it was, can specify any register
 " from https://ddrscott.github.io/blog/2016/yank-without-jank/
 vnoremap <expr>y "my\"" . v:register . "y`y"
