@@ -265,31 +265,57 @@ function __setprompt
 {
 	local LAST_COMMAND=$? # Must come first!
 
-	# Define colors
-	local LIGHTGRAY="\e[0;37m"
-	local WHITE="\e[1;37m"
-	local BLACK="\e[0;30m"
-	local DARKGRAY="\e[1;30m"
-	local RED="\e[1;31m"
-	local LIGHTRED="\e[0;31m"
-	local GREEN="\e[0;32m"
-	local LIGHTGREEN="\e[1;32m"
-	local BROWN="\e[0;33m"
-	local YELLOW="\e[1;33m"
-	local BLUE="\e[1;34m"
-	local LIGHTBLUE="\e[0;34m"
-	local MAGENTA="\e[0;35m"
-	local LIGHTMAGENTA="\e[1;35m"
-	local CYAN="\e[0;36m"
-	local LIGHTCYAN="\e[1;36m"
-	local NOCOLOR="\e[0m"
+	PS1=""
 
-	# Show error exit code if there is one
-	if [[ $LAST_COMMAND != 0 ]]; then
-		PS1="\[${LIGHTRED}\]?"
+	# Define colors
+	local LIGHTGRAY=""
+	local WHITE=""
+	local BLACK=""
+	local DARKGRAY=""
+	local RED=""
+	local LIGHTRED=""
+	local GREEN=""
+	local LIGHTGREEN=""
+	local BROWN=""
+	local YELLOW=""
+	local BLUE=""
+	local LIGHTBLUE=""
+	local MAGENTA=""
+	local LIGHTMAGENTA=""
+	local CYAN=""
+	local LIGHTCYAN=""
+	local NOCOLOR=""
+	if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+		# Define colors
+		local LIGHTGRAY="\e[0;37m"
+		local WHITE="\e[1;37m"
+		local BLACK="\e[0;30m"
+		local DARKGRAY="\e[1;30m"
+		local RED="\e[1;31m"
+		local LIGHTRED="\e[0;31m"
+		local GREEN="\e[0;32m"
+		local LIGHTGREEN="\e[1;32m"
+		local BROWN="\e[0;33m"
+		local YELLOW="\e[1;33m"
+		local BLUE="\e[1;34m"
+		local LIGHTBLUE="\e[0;34m"
+		local MAGENTA="\e[0;35m"
+		local LIGHTMAGENTA="\e[1;35m"
+		local CYAN="\e[0;36m"
+		local LIGHTCYAN="\e[1;36m"
+		local NOCOLOR="\e[0m"
 	else
-		PS1="\[${LIGHTGREEN}\]?"
+		# add separator to commands since color doesn't help distinguish
+		PS1+=$(for ((i=0;i<${COLUMNS};i++)); do echo -n "-"; done;)
 	fi
+
+	# Show colored error exit code
+	if [[ $LAST_COMMAND != 0 ]]; then
+		PS1+="\[${LIGHTRED}\]"
+	else
+		PS1+="\[${LIGHTGREEN}\]"
+	fi
+	PS1+="[${LAST_COMMAND}]"
 
 	# Current time
 	PS1+="\[${CYAN}\][\A]"
@@ -327,10 +353,5 @@ function __setprompt
 	PS4='\[${DARKGRAY}\]+\[${NOCOLOR}\] '
 }
 
-# test for color support and enable colored prompt if possible
-if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-  PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
-else
-  PS1='[\A]\u:\w \$ '
-fi
+PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 
