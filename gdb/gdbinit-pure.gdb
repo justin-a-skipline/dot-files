@@ -7,7 +7,7 @@ set print pretty on
 set print demangle on
 set print asm-demangle on
 set disassembly-flavor intel
-set output-radix 0x10
+set output-radix 10
 set confirm off
 set prompt ================================================================================\n(gdb) 
 
@@ -18,9 +18,22 @@ set $_list_on_break = 1
 set $_list_on_up = 1
 set $_list_on_down = 1
 set $_list_on_until = 1
-set $_list_locals = 0
 
 set $print_symbol_filename = 1
+
+define SetListLocals
+  if $argc > 0
+    set $list_locals = $arg0
+  end
+end
+document SetListLocals
+Sets whether to run info locals on Context display.
+This might be a slow call in C++ with references to
+class objects because they are expanded rather than treated
+like a pointer by gdb.
+Usage: SilenceOff
+end
+SetListLocals 0
 
 define SetPrintSymbolFilename
   if $arg0 > 0
@@ -306,7 +319,7 @@ define ListSource
   printf "-----------------------------------ARGS-----------------------------------------\n"
   info args
   printf "-----------------------------------LOCALS---------------------------------------\n"
-  if $_list_locals > 0
+  if $list_locals > 0
     info locals
   end
   SilenceOn
