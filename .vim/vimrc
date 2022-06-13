@@ -235,7 +235,7 @@ vnoremap <expr>y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 " * key doesn't auto jump
 nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>:%s///gn<CR>
-vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')<CR>:set hls<CR>:%s///gn<CR>
+vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')->substitute('\n', '\\n','g')->substitute('\r', '\\r','g')<CR>:set hls<CR>:%s///gn<CR>
 
 "lgrep search hotkeys
 if s:work_machine
