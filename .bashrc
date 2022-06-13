@@ -201,7 +201,7 @@ EOF
   kill -9 "$valpid"
 }
 
-svndiff() { svn diff "$@" | colordiff | less; }
+svndiff() { svn diff "$@" | colordiff | less -x1,5; }
 svnbranchlog()
 {
   if [ $# -ne 0 -a "$1" = "--help" ]; then
