@@ -218,6 +218,9 @@ nnoremap <Bslash>/ :Comment<CR>
 nnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>] :TogglePreview<CR>
 nnoremap <c-Bslash>n :VerticalSplitNoteToggle<CR>
+tnoremap <c-Bslash>n <c-w>:VerticalSplitNoteToggle<CR>
+nnoremap <c-Bslash>gn :GlobalVerticalSplitNoteToggle<CR>
+tnoremap <c-Bslash>gn <c-w>:GlobalVerticalSplitNoteToggle<CR>
 nnoremap <c-Bslash>t :GlobalTerminalToggle<CR>
 nnoremap <c-Bslash>vt :GlobalVerticalTerminalToggle<CR>
 tnoremap <c-Bslash>t <c-w>:GlobalTerminalToggle<CR>
@@ -511,6 +514,19 @@ function! s:VerticalSplitNoteToggle()
   else
     botright vsplit NOTES.md
     let t:notes_win_number = win_getid(winnr())
+    vertical resize 85
+  endif
+endfunction
+command! GlobalVerticalSplitNoteToggle call s:GlobalVerticalSplitNoteToggle()
+function! s:GlobalVerticalSplitNoteToggle()
+  if exists("t:global_notes_win_number")
+    if win_id2win(t:global_notes_win_number)
+      execute win_id2win(t:global_notes_win_number)."close!"
+    endif
+    unlet t:global_notes_win_number
+  else
+    botright vsplit ~/NOTES.md
+    let t:global_notes_win_number = win_getid(winnr())
     vertical resize 85
   endif
 endfunction
