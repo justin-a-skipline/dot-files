@@ -241,8 +241,10 @@ vnoremap <c-w>M <c-w>\|<c-w>_
 vnoremap <expr>y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 " * key doesn't auto jump
-nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>:%s///gn<CR>
-vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')->substitute('\n', '\\n','g')->substitute('\r', '\\r','g')<CR>:set hls<CR>:%s///gn<CR>
+" Also put the *'d text into the search history buffer by
+"  re-inserting the text into the "/" register through pasting
+nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>:%s///gn<CR>:normal /<c-r>/<CR>
+vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')->substitute('\n', '\\n','g')->substitute('\r', '\\r','g')<CR>:set hls<CR>:%s///gn<CR>:normal /<c-r>/<CR>
 
 "lgrep search hotkeys
 if s:work_machine
