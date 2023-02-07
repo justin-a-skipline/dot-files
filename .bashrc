@@ -174,6 +174,8 @@ mkdirgo () {
   cd $1
 }
 
+trim_whitespace() { sed -e 's/[ \t]\+//' -e 's/[ \t]+$//'; }
+
 fext() { echo ${1##*.}; }
 
 fname() {  echo ${1%.*}; }
