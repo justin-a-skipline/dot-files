@@ -248,9 +248,9 @@ vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')->substitute('\n
 
 "lgrep search hotkeys
 if s:work_machine
-  command! -nargs=+ -complete=tag Lgrep lgrep -twork <args>
+  command! -nargs=+ -complete=tag Lgrep lgrep -twork -L <args>
 else
-  command! -nargs=+ -complete=tag Lgrep lgrep <args>
+  command! -nargs=+ -complete=tag Lgrep lgrep -L <args>
 endif
 nnoremap <Bslash>s "myiw:Lgrep "<c-R>m"<SPACE>
 nnoremap <Bslash>S "myiw:lgrep "<c-R>m"<SPACE>
