@@ -695,7 +695,15 @@ function! s:Find(...)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -nargs=0 RegisterTerminalBuffer let t:termBufNr = bufnr("%")
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! -nargs=+ Lmake call s:Lmake(<q-args>)
+function! s:Lmake(command)
+  let temp = &l:makeprg
+  let &l:makeprg=a:command
+  lmake
+  let &l:makeprg=temp
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:GetTermBufNr()
   let termBuf = get(t:,'termBufNr',-1)
   if termBuf < 0
@@ -840,3 +848,7 @@ call s:GuiFont('=')
 runtime ftplugin/man.vim
 
 let g:netrw_banner = 0
+
+" cause bashrc to be loaded when running shell commands in vim
+" Also applies to make command for example
+let $BASH_ENV = "~/.bashrc"
