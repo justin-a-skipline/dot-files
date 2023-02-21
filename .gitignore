@@ -87,3 +87,5 @@ Session.vim
 !.subversion/config
 .vim/swap/*
 .vim/undo/*
+.vim/autoload/plug.vim
+.vim/plugged
