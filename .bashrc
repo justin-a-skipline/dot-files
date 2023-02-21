@@ -162,7 +162,7 @@ gc_fixup()
 
 fuzzy_history()
 {
-	history | fzf | tr -s ' ' | cut -d' ' -f3-
+	history | fzf --tac | tr -s ' ' | cut -d' ' -f3-
 }
 
 do_fuzzy_history()
