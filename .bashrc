@@ -160,6 +160,17 @@ gc_fixup()
 	)
 }
 
+fuzzy_history()
+{
+	history | fzf | tr -s ' ' | cut -d' ' -f3-
+}
+
+do_fuzzy_history()
+{
+	local cmd="$(fuzzy_history)"
+	$cmd
+}
+
 alias cpu_performance='echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
 alias cpu_powersave='echo powersave | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
 alias cpu_freq='watch -n 1 "cat /proc/cpuinfo | grep \"^[c]pu MHz\""'
