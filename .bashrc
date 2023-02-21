@@ -135,6 +135,30 @@ alias gl='git log --oneline --decorate'
 alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
 alias gdc='gd --cached'
+gc_fixup()
+{
+	(
+	command -v fzf > /dev/null || { echo "Install fzf to use"; return 1; }
+	set -o pipefail
+	local sha
+	local commit_argument
+
+	if [ $# -eq 0 ]; then
+		commit_argument="HEAD" # default to showing commits starting at HEAD
+	else
+		commit_argument="$1" # Use passed in argument (eg. origin/main.. to slect b/t origin/main to HEAD)
+	fi
+
+	sha=$(git log --oneline --decorate --color "$commit_argument" | fzf --height=50% --ansi | cut -d' ' -f1) || return 1
+
+	if [ ! -z "$sha" ]; then
+		echo git commit --fixup "$sha"
+		git commit --fixup "$sha"
+	else
+		return 1
+	fi
+	)
+}
 
 alias cpu_performance='echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
 alias cpu_powersave='echo powersave | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
