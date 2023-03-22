@@ -54,6 +54,14 @@ struct tu_array_out_of_bounds_data
     struct tu_type_descriptor *index_type;
 };
 
+struct tu_type_mismatch_data
+{
+    struct tu_source_location location;
+    struct tu_type_descriptor *type;
+    unsigned long alignment;
+    unsigned char type_check_kind;
+};
+
 struct tu_type_mismatch_v1_data
 {
     struct tu_source_location location;
@@ -95,53 +103,97 @@ struct tu_invalid_builtin_data
 extern "C"
 {
 #endif
-    void __ubsan_handle_add_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_add_overflow(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("addition overflow", data->location);
     }
 
-    void __ubsan_handle_sub_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_sub_overflow(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("subtraction overflow", data->location);
     }
 
-    void __ubsan_handle_mul_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_mul_overflow(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("multiplication overflow", data->location);
     }
 
-    void __ubsan_handle_divrem_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_divrem_overflow(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("division overflow", data->location);
     }
 
-    void __ubsan_handle_negate_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_negate_overflow(void *vData, void *unused)
     {
+        (void)unused;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("negation overflow", data->location);
     }
 
-    void __ubsan_handle_pointer_overflow(struct tu_overflow_data *data)
+    void __ubsan_handle_pointer_overflow(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_overflow_data *const data = vData;
         tu_process_event("pointer overflow", data->location);
     }
 
-    void __ubsan_handle_shift_out_of_bounds(struct tu_shift_out_of_bounds_data *data)
+    void __ubsan_handle_shift_out_of_bounds(void *vData, void *unused, void *unused2)
     {
+        (void)unused;
+        (void)unused2;
+        struct tu_shift_out_of_bounds_data *const data = vData;
         tu_process_event("shift out of bounds", data->location);
     }
 
-    void __ubsan_handle_load_invalid_value(struct tu_invalid_value_data *data)
+    void __ubsan_handle_load_invalid_value(void *vData, void *unused)
     {
+        (void)unused;
+        struct tu_invalid_value_data *const data = vData;
         tu_process_event("invalid load value", data->location);
     }
 
-    void __ubsan_handle_out_of_bounds(struct tu_array_out_of_bounds_data *data)
+    void __ubsan_handle_out_of_bounds(void *vData, void *unused)
     {
+        (void)unused;
+        struct tu_array_out_of_bounds_data *const data = vData;
         tu_process_event("array out of bounds", data->location);
     }
 
-    void __ubsan_handle_type_mismatch_v1(struct tu_type_mismatch_v1_data *data, uintptr_t ptr)
+    void __ubsan_handle_type_mismatch(void *vData, void *vPtr)
     {
+        struct tu_type_mismatch_data *const data = vData;
+        uintptr_t ptr = (uintptr_t)vPtr;
+        if (!ptr)
+        {
+            tu_process_event("use of NULL pointer", data->location);
+        }
+        else if (ptr & (data->alignment - 1))
+        {
+            tu_process_event("use of misaligned pointer", data->location);
+        }
+        else
+        {
+            tu_process_event("no space for object", data->location);
+        }
+    }
+
+    void __ubsan_handle_type_mismatch_v1(void *vData, void *vPtr)
+    {
+        struct tu_type_mismatch_v1_data *const data = vData;
+        uintptr_t ptr = (uintptr_t)vPtr;
         if (!ptr)
         {
             tu_process_event("use of NULL pointer", data->location);
@@ -156,8 +208,10 @@ extern "C"
         }
     }
 
-    void __ubsan_handle_vla_bound_not_positive(struct tu_negative_vla_data *data)
+    void __ubsan_handle_vla_bound_not_positive(void *vData, void *unused)
     {
+        (void)unused;
+        struct tu_negative_vla_data *const data = vData;
         tu_process_event("variable-length argument is negative", data->location);
     }
 
@@ -175,6 +229,7 @@ extern "C"
     {
 
         tu_process_event("unreachable code reached", data->location);
+        while (1);
     }
 
     void __ubsan_handle_invalid_builtin(struct tu_invalid_builtin_data *data)
