@@ -864,4 +864,22 @@ call plug#begin('~/.vim/plugged')
    Plug 'skywind3000/asyncrun.vim'
    Plug 'peterhoeg/vim-qml'
    Plug 'artoj/qmake-syntax-vim'
+   let g:ale_set_loclist = 0
+   let g:ale_set_quickfix = 0
+   let g:ale_c_cc_executable = 'gcc'
+   let g:ale_c_build_dir_names = ['build', '_Release_PC']
+   " A dash in front of the name removes the check
+   let g:ale_c_clangtidy_checks = [
+			   \ '-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling',
+			   \ '-clang-analyzer-security.insecureAPI.strcpy',
+			   \ ]
+   let g:ale_cpp_cc_executable = 'gcc'
+   let g:ale_sh_shellcheck_exclusions = 'SC2030,SC2031,SC2069'
+   let g:ale_sh_shellcheck_options = '-x'
+   let g:ale_lint_on_text_changed = 'never'
+   let g:ale_lint_on_insert_leave = 0
+   let g:ale_lint_on_enter = 1
+   let g:ale_lint_on_save = 1
+   let g:ale_lint_on_filetype_changed = 0
+   Plug 'w0rp/ale'
 call plug#end()
