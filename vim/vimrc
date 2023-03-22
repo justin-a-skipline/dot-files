@@ -862,4 +862,6 @@ endif
 call plug#begin('~/.vim/plugged')
    Plug 'ziglang/zig.vim'
    Plug 'skywind3000/asyncrun.vim'
+   Plug 'peterhoeg/vim-qml'
+   Plug 'artoj/qmake-syntax-vim'
 call plug#end()
