@@ -1,5 +1,17 @@
 #include <stdint.h>
 
+//#include <stdio.h>
+//#include <inttypes.h>
+//void tiny_ubsan_event_occurred(void *addressOfEvent, const char *message, const char *file, uint32_t line, uint32_t column)
+//{
+//	printf("TINY_UBSAN: %s at %p in %s:%"PRIu32":%"PRIu32"\n",
+//			message,
+//			addressOfEvent,
+//			file,
+//			line,
+//			column);
+//}
+
 void tiny_ubsan_event_occurred(void *addressOfEvent, const char *message, const char *file, uint32_t line, uint32_t column);
 
 struct tu_source_location
