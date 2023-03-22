@@ -114,7 +114,7 @@ set path=**,.
 set cpoptions+=d
 
 function StatusLineColor()
-	hi! User9 term=bold cterm=bold ctermfg=red guifg=red
+  hi! User9 term=bold cterm=bold ctermfg=red guifg=red
 endfunction
 set laststatus=2    " always display statusline
 set statusline=%{StatusLineColor()}%<%F " file name and path
