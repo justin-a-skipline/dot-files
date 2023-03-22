@@ -135,30 +135,72 @@ alias gl='git log --oneline --decorate'
 alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
 alias gdc='gd --cached'
-gc_fixup()
-{
-	(
-	command -v fzf > /dev/null || { echo "Install fzf to use"; return 1; }
-	set -o pipefail
-	local sha
-	local commit_argument
 
-	if [ $# -eq 0 ]; then
-		commit_argument="HEAD" # default to showing commits starting at HEAD
-	else
-		commit_argument="$1" # Use passed in argument (eg. origin/main.. to slect b/t origin/main to HEAD)
+git_fzf_log_get_sha()
+{
+	declare -n ret=$1
+	command -v fzf > /dev/null || { echo "Install fzf to use"; return 1; }
+	local commit_argument="HEAD"
+
+	if [ $# -eq 2 ]; then
+		commit_argument="$2" # Use passed in argument (eg. origin/main.. to slect b/t origin/main to HEAD)
 	fi
 
-	sha=$(git log --oneline --decorate --color "$commit_argument" | fzf --height=50% --ansi | cut -d' ' -f1) || return 1
+	ret=$(set -o pipefail; git log --oneline --decorate --color "$commit_argument" | fzf --height=50% --ansi | cut -d' ' -f1) || return 1
+}
 
-	if [ ! -z "$sha" ]; then
+git_fzf_log_get_multiple_sha()
+{
+	declare -n ret=$1
+	command -v fzf > /dev/null || { echo "Install fzf to use"; return 1; }
+	local commit_argument="HEAD"
+
+	if [ $# -eq 2 ]; then
+		commit_argument="$2" # Use passed in argument (eg. origin/main.. to slect b/t origin/main to HEAD)
+	fi
+
+	ret=$(set -o pipefail; git log --oneline --decorate --color "$commit_argument" | fzf --height=50% --ansi --multi | cut -d' ' -f1) || return 1
+}
+
+gc_fixup()
+{
+	local sha
+	git_fzf_log_get_sha sha "$1" || return 1
+
+	if [ -n "$sha" ]; then
 		echo git commit --fixup "$sha"
-		git commit --fixup "$sha"
+#		git commit --fixup "$sha"
 	else
 		return 1
 	fi
-	)
 }
+
+gc_rebase()
+{
+	local sha
+	git_fzf_log_get_sha sha "$1" || return 1
+
+	if [ -n "$sha" ]; then
+		echo git rebase -i "$sha"
+		git rebase -i "$sha"
+	else
+		return 1
+	fi
+}
+
+gc_cherrypick()
+{
+	local sha
+	git_fzf_log_get_multiple_sha sha "$1" || return 1
+
+	if [ -n "$sha" ]; then
+		echo git cherry-pick "$sha"
+		echo "$sha" | xargs git cherry-pick
+	else
+		return 1
+	fi
+}
+#complete -C 'makelist() { for branch in $(git for-each-ref --format=\"%\(refname:short\)\"); do echo "$branch"; done; }; filter() { makelist | sort -u; }; filter' gc_cherrypick
 
 fuzzy_history()
 {
@@ -236,6 +278,11 @@ EOF
   valpid=$!
   gdb -ex "target remote | vgdb --pid=$!" "${!#}"
   kill -9 "$valpid"
+}
+
+public_ip()
+{
+	curl -s https://checkip.amazonaws.com
 }
 
 svndiff() { svn diff "$@" | colordiff | less -x1,5; }
