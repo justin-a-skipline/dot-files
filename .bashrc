@@ -409,8 +409,11 @@ function __setprompt
 
 	# Git branch
 	local git_branch="$(git branch --show-current 2> /dev/null)"
+	local svn_url="$(svn info 2>/dev/null | grep "Relative URL: " | cut -d' ' -f3-)"
 	if [ $git_branch ]; then
 		PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${git_branch}\[${DARKGRAY}\])"
+	elif [ $svn_url ]; then
+		PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${svn_url}\[${DARKGRAY}\])"
 	fi
 
 	# Skip to the next line
