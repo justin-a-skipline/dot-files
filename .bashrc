@@ -136,6 +136,28 @@ alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
 alias gdc='gd --cached'
 
+encode_video_to_x265()
+{
+  if [ $# -lt 1 ]; then
+    return 1;
+  fi
+
+  file="$1"
+  echo "Processing $file to $file.mov"
+  ffmpeg -y -i "$file" -codec:v libx265 -crf 30 -threads 7 "$file.mov" &> /dev/null
+  echo -e "\tOld size: $(du -h "$file" | cut -f1)\tNew size: $(du -h "$file.mov" | cut -f1)"
+}
+
+basic_encrypt_file_stdin()
+{
+  openssl aes-256-cbc -salt
+}
+
+basic_decrypt_file_stdin()
+{
+  openssl aes-256-cbc -salt -d
+}
+
 git_fzf_log_get_sha()
 {
 	declare -n ret=$1
