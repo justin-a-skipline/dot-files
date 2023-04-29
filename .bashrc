@@ -98,9 +98,11 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 
-  for file in /usr/local/share/bash-completion/completions/*; do
-    source "$file"
-  done
+  if [ -d /usr/local/share/bash-completion/completions ]; then
+    for file in /usr/local/share/bash-completion/completions/*; do
+      source "$file"
+    done
+  fi
 fi
 
 ##### Aliases and Functions #####
