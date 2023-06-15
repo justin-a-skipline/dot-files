@@ -128,13 +128,7 @@ set statusline+=\ [%{&encoding}] " encoding for file
 set statusline+=\ [%2.10(%l:%c%V%)\ \/\ %L] " line:column / total lines
 
 if executable('rg') "name on windows
-  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:\*.s43\ --type-add\ work:\*.S43\ --type-add\ work:\*.inc\ --type-add\ zig:\*.zig
-  set grepformat=%f:%l:%c:%m,%f:%l:%m
-elseif executable('ripgrep.rg') "name when installed from snap
-  set grepprg=ripgrep.rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ work:include:cpp,c,asm\ --type-add\ work:\\*.s43\ --type-add\ work:\\*.S43\ --type-add\ work:\\*.inc\ --type-add\ zig:\\*.zig
-  set grepformat=%f:%l:%c:%m,%f:%l:%m
-elseif executable('ag')
-  set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column\ --vimgrep
+  set grepprg=rg\ --no-messages\ --vimgrep\ --max-filesize\ 5M\ --type-add\ zig:\*.zig
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 endif
 
