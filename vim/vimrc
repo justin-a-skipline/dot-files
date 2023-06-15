@@ -1,8 +1,4 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-"Machine
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:work_machine = has("win32") + has("win64")
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Indentation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 set noexpandtab
@@ -244,11 +240,7 @@ nnoremap <silent> * :let @/=expand("<cword>")<CR>:set hls<CR>:%s///gn<CR>:normal
 vnoremap <silent> * y:let @/='\V'.substitute(@",'\\','\\\\','g')->substitute('\n', '\\n','g')->substitute('\r', '\\r','g')<CR>:set hls<CR>:%s///gn<CR>:normal /<c-r>/<CR>
 
 "lgrep search hotkeys
-if s:work_machine
-  command! -nargs=+ -complete=tag Lgrep lgrep -twork -L <args>
-else
-  command! -nargs=+ -complete=tag Lgrep lgrep -L <args>
-endif
+command! -nargs=+ -complete=tag Lgrep lgrep -L <args>
 nnoremap <Bslash>s "myiw:Lgrep "<c-R>m"<SPACE>
 nnoremap <Bslash>S "myiw:lgrep "<c-R>m"<SPACE>
 vnoremap <Bslash>s "my:Lgrep<SPACE>"<c-R>m"<SPACE>
