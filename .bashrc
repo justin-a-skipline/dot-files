@@ -160,6 +160,23 @@ basic_decrypt_file_stdin()
   openssl aes-256-cbc -salt -d
 }
 
+_gl()
+{
+	if [ $# -eq 1 ]; then
+		commit_argument="$1" # Use passed in argument (eg. origin/main.. to select b/t origin/main to HEAD)
+	else
+		commit_argument="HEAD"
+	fi
+
+	stderr_output_prog="cat"
+	if command -v lolcat &>/dev/null; then
+		stderr_output_prog="lolcat"
+	fi
+	# Mirror stdout of this subshell to stderr using tee so you can
+	# see which sha was selected
+	( set -o pipefail; git log --oneline --decorate --color "$commit_argument" | fzf --height=50% --ansi --multi | cut -d' ' -f1 ) | tee >("$stderr_output_prog" >&2)
+}
+
 git_fzf_log_get_sha()
 {
 	declare -n ret=$1
@@ -188,41 +205,23 @@ git_fzf_log_get_multiple_sha()
 
 gc_fixup()
 {
-	local sha
-	git_fzf_log_get_sha sha "$1" || return 1
-
-	if [ -n "$sha" ]; then
-		echo git commit --fixup "$sha"
-#		git commit --fixup "$sha"
-	else
-		return 1
-	fi
+	sha="$(_gl "$@")"
+	echo git commit --fixup "$sha"
+	git commit --fixup "$sha"
 }
 
 gc_rebase()
 {
-	local sha
-	git_fzf_log_get_sha sha "$1" || return 1
-
-	if [ -n "$sha" ]; then
-		echo git rebase -i "$sha"
-		git rebase -i "$sha"
-	else
-		return 1
-	fi
+	sha="$(_gl "$@")"
+	echo git rebase -i "$sha"
+	git rebase -i "$sha"
 }
 
 gc_cherrypick()
 {
-	local sha
-	git_fzf_log_get_multiple_sha sha "$1" || return 1
-
-	if [ -n "$sha" ]; then
-		echo git cherry-pick "$sha"
-		echo "$sha" | xargs git cherry-pick
-	else
-		return 1
-	fi
+	sha="$(_gl "$@")"
+	echo git cherry-pick "$sha"
+	git cherry-pick "$sha"
 }
 #complete -C 'makelist() { for branch in $(git for-each-ref --format=\"%\(refname:short\)\"); do echo "$branch"; done; }; filter() { makelist | sort -u; }; filter' gc_cherrypick
 
