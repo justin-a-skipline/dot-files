@@ -860,6 +860,9 @@ call plug#begin('~/.vim/plugged')
 			   \ '-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling',
 			   \ '-clang-analyzer-security.insecureAPI.strcpy',
 			   \ ]
+   let g:ale_cpp_clazy_checks = [
+			   \ '-clazy-fully-qualified-moc-types',
+			   \ ]
    let g:ale_cpp_cc_executable = 'gcc'
    let g:ale_sh_shellcheck_exclusions = 'SC2030,SC2031,SC2069'
    let g:ale_sh_shellcheck_options = '-x'
