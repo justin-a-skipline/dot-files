@@ -25,8 +25,16 @@ subparsers = parser.add_subparsers()
 global_data_lock = threading.Lock()
 all_values = dict()
 paused = False
+titleString = ""
 
 command_queue = queue.Queue(200)
+
+def handle_set_title(args):
+    global titleString
+    titleString = args.title
+add_subparser = subparsers.add_parser('set_title', help='Sets title of graph')
+add_subparser.set_defaults(func=handle_set_title)
+add_subparser.add_argument('title', type=str, help='title text')
 
 def handle_add(args):
     if args.key not in all_values:
@@ -113,6 +121,8 @@ def plotData(unused):
         if paused == True:
             return
         ax.cla()
+        global titleString
+        ax.set_title(titleString)
         for name, data in all_values.items():
             x_list, y_list = zip(*data)
             ax.plot(x_list, y_list, label=name, marker='*')
