@@ -550,14 +550,13 @@ DependentBreakPointsRestart
 InsertCustomCommandsHere
 end
 
-# from http://silmor.de/qtstuff.printqstring.php
-define Qt5PrintQString
-  set $d=$arg0.d
-  printf "(Qt5 QString)0x%x length=%i: \"",&$arg0,$d->size
+define _printUTF16String
+  set $pToBytes=(const unsigned short *)$arg0
+  set $size=$arg1
   set $i=0
-  set $ca=(const ushort*)(((const char*)$d)+$d->offset)
-  while $i < $d->size
-    set $c=$ca[$i++]
+  printf "\""
+  while $i < $size
+    set $c=$pToBytes[$i++]
     if $c < 32 || $c > 127
       printf "\\u%04x", $c
     else
@@ -565,4 +564,19 @@ define Qt5PrintQString
     end
   end
   printf "\"\n"
+end
+
+# from http://silmor.de/qtstuff.printqstring.php
+define Qt5PrintQString
+  set $d=$arg0.d
+  printf "(Qt5 QString)0x%x length=%i: ",&$arg0,$d->size
+  set $ca=((const char*)$d)+$d->offset
+  _printUTF16String $ca $d->size
+end
+
+define Qt4PrintQString
+   set $d=$arg0.d
+   printf "(Qt4 QString)0x%x length=%i: ",&$arg0,$d->size
+   set $ca=$d->data
+   _printUTF16String $ca $d->size
 end
