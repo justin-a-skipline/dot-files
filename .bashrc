@@ -135,6 +135,13 @@ alias gs='git status --short --branch && gl -10'
 alias gd='git diff'
 alias gdc='gd --cached'
 
+red_msg()
+{
+	echo -en "\e[0;31m"
+	echo "$@"
+	echo -en "\e[0m"
+}
+
 encode_video_to_x265()
 {
   if [ $# -lt 1 ]; then
