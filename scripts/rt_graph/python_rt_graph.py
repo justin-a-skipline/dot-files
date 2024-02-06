@@ -64,6 +64,8 @@ add_time_subparser.add_argument('value', type=float, help='y value')
 
 def handle_clear_graph(args):
     all_values.clear()
+    global titleString
+    titleString = ""
 clear_graph_subparser = subparsers.add_parser('clear_graph', help='Clear the graph')
 clear_graph_subparser.set_defaults(func=handle_clear_graph)
 
