@@ -469,3 +469,428 @@ function __setprompt
 
 PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 
+######## WORK SECTION #########
+
+gc_build()
+{
+	(
+	export PATH=${HOME}/qt_versions/5.15.2/gcc_64/bin/:"$PATH"
+	mkdir -p build && cd build/ && qmake .. CONFIG+=debug && make -j8
+	) 2>&1 > /dev/null | sed -e 's;^../../;;'
+}
+gc_static_analyze()
+{
+	GC_STATIC_ANALYZER="clazy --standalone"
+#	GC_STATIC_ANALYZER="clang-tidy"
+	(
+	export CLAZY_HEADER_FILTER="\./"
+	jq '.[].directory+"/"+.[].file'  build/compile_commands.json |
+		sort | uniq |
+		xargs "$GC_STATIC_ANALYZER" -p build \
+			--extra-arg="-Wno-inconsistent-missing-override" \
+			--extra-arg="-Wno-clazy-connect-by-name" \
+			--export-fixes="$(readlink -f build/fixes.yaml)"
+	)
+}
+gc_hw_build()
+{
+	if ! ( grep 'BR2_DEFCONFIG' "${HOME}/workspace/buildroot-hdvo/.config" | grep 'zynq_hdvo318_defconfig' ); then
+		red_msg "Must use correct defconfig: make zynq_hdvo318_defconfig"
+		return 1
+	fi
+	(
+	mkdir -p hw-build && cd hw-build/ && "${HOME}/workspace/buildroot-hdvo/output/host/bin/qmake" .. && make -j8
+	) 2>&1 > /dev/null
+}
+
+canutils_build()
+{
+	(
+	export PATH=${HOME}/qt_versions/5.15.2/gcc_64/bin/:"$PATH"
+	# -k flag keeps going when CANDisplay fails to build correctly
+	# Building with qt4 is desired now because stax viewer has janky colors at the moment with qt5
+	mkdir -p build && cd build/ && qmake .. CONFIG+=debug && bear --append make -j8 -k
+	) 2>&1 > /dev/null | sed -e 's;^../../;;'
+}
+
+ust_build()
+{
+	(
+	export PATH=${HOME}/qt_versions/5.15.2/gcc_64/bin/:"$PATH"
+	mkdir -p build && cd build/ && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .. && make -j8
+	) 2>&1 > /dev/null
+}
+
+ust_hw_build()
+{
+	(
+	export UST_BUILDROOT_DIR="${HOME}/workspace/buildroot-ust20"
+	mkdir -p build/build-hw && cd build/build-hw/ && "$UST_BUILDROOT_DIR/output/host/bin/cmake" -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../../ust20_toolchain.cmake -DUST_BUILDROOT_DIR:PATH="$UST_BUILDROOT_DIR" ../.. && make -j8
+	) 2>&1 > /dev/null
+	# See script.sh in ~/workspace/ust-update/update-example
+	# This script is what runs, basically copied to each update
+	# different systems may need to do different things.
+	# Pass the list of files to the mkupdate
+	# Dan T is using _Release/ from CoreSkipper, confirm if that is ok
+#(ins)$ cd ~/workspace/buildroot-ust20/board/skipline/ust20_updateroot/UpdateCreator/
+#make_update.sh
+#bash ./make_update.sh ~/workspace/ust-update/whiteline/*
+# makes output/update.bin
+
+# https://git.skip-line.com/dan_sl/u-st20 is where the setups for a brand new
+#    ust20 setup are
+# Need new folder for safety mark or whoever in skiprepo
+}
+
+pigeon_hw_build()
+{
+	(
+	export PATH=/opt/swi/y25-ext/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/:"$PATH"
+	mkdir -p build && cd build/ && /opt/swi/y25-ext/sysroots/x86_64-pokysdk-linux/usr/bin/qmake .. && make -j8
+	) 2>&1 > /dev/null
+}
+
+gc_system()
+{( # subshell so env doesn't leak
+		system="${1:?system required eg~/skiprepo/production/systems/GC12_A22311/variants/cellular_hdvo/}"
+		# default to root directory, per gc developer setup instructions
+		SKLCORE_ROOT="${2:-/}"
+		rm -rf --preserve-root "$SKLCORE_ROOT"/data/* "$SKLCORE_ROOT"/factorydefaults/*
+		cp "$system"/factorydefaults/*.xml "$SKLCORE_ROOT"/factorydefaults/
+		cp "$system"/permissions/permissions.json "$SKLCORE_ROOT"/factorydefaults/
+		# Woops! These should be per dev becasue DataTransmit could be generating SRO data on the dev PC.
+		cp "$system"/loggingconfig.json "$SKLCORE_ROOT"/factorydefaults/
+		cp "$system"/enc_id "$SKLCORE_ROOT"/factorydefaults/
+
+		cp "$system"/DefaultUIConfig.json "$SKLCORE_ROOT"/factorydefaults/
+		cp "$system"/PatternConfig.json "$SKLCORE_ROOT"/factorydefaults/
+)}
+
+ust_run() {
+	(
+		export QT_LOGGING_RULE=qt.qml.binding.removal.info=true
+		export LD_LIBRARY_PATH=$HOME/qt_versions/5.15.2/gcc_64/lib
+		./build/src/ust
+	)
+}
+
+remote_connect_wait_for_tunnel()
+{
+	if [ $# -lt 1 ] || [ -z "$1" ]; then
+		echo "Pass CVO_xxxx as first param" 1>&2
+		return 1
+	fi
+	local CVO_ID
+	CVO_ID="$1"
+	mosquitto_pub -h realtime.skip-line.com -p 8883 -u m742r5O599CaV5W -P GQ52Rn5jK97iwQj -t "HDVO/$CVO_ID/REMOTE_CONNECT" -n --capath /etc/ssl/certs || { echo "mosquitto failed"; return 1; }
+	echo "do 'ps aux | grep ssh' until a new connection appears"
+	echo "then use remote_connect_start_ssh"
+	# RT is also a channel (replacing REMOTE_CONNECT) and doesn't require remote connection stuff I think
+}
+remote_connect_start_ssh()
+{
+	ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ~/Documents/hdvo_ssh/hdvo_access_key -p 1234 root@localhost
+	red_msg "DON'T FORGET TO CLOSE THE REMOTE CONNECTION IN ORG"
+}
+
+switch_functions_to_num()
+{
+	cpp -P -D'DefineSwitchFunction(a,b,c)=__COUNTER__ a' "$HOME/workspace/skipline/projects/common_libs/switches/switch_functions.def" | awk '{ print $1+1 "\t" $2 }'
+}
+
+kiwi_build()
+{
+	#https://github.com/Spec-Rite/Kiwi/wiki/Building#building-kiwi
+	(
+	mkdir -p build && cd build/ && cmake -DCPU_ONLY=on -DCMAKE_BUILD_TYPE=Debug -DDESKTOP_BUILD=ON .. && make -j8 && make dev_gui -j8
+	) 2>&1 > /dev/null
+}
+
+kiwi_hw_build()
+{
+	# Building on the actual target
+	#https://github.com/Spec-Rite/Kiwi/wiki/Building#building-kiwi
+	(
+	mkdir -p build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/eagleeye_toolchain.cmake -DKIWI_BUILD=ON .. && make -j8
+	) 2>&1 > /dev/null
+}
+
+kiwi_stream_to_video4()
+{
+	# This matches the first sampleconfig.json input in the Kiwi repo
+	video=/dev/video4
+	fakevideonum=7
+	if [ $# -lt 1 ]; then
+		red_msg "Usage: ${FUNCNAME[0]} <path to image>"
+		return 1
+	fi
+
+	if [ ! -h "$video" ]; then
+		# We have to make a loopback device and then
+		# symlink it to /dev/video0 because the Kiwi looks
+		# at that device name.
+		sudo mv "$video" "$video".bak
+		sudo modprobe v4l2loopback video_nr="$fakevideonum"
+		sudo ln -s "/dev/video$fakevideonum" "$video"
+	fi
+
+	is_image=false
+	if file "$1" | grep -E -i "(jpeg|jpg|bmp|png)"; then
+		is_image=true
+	fi
+
+	# This encodes the image into a loop and streams the raw h264 video
+	# to stdout. The second ffmpeg instance grabs it off stdin and sends
+	# it to the loopback device. Note that it will fail if the image width
+	# and height are not even numbers.
+	# We scale the video to the expected dimensions
+	if [ "$is_image" = "true" ]; then
+		ffmpeg -re -loop 1 -i "$1" -vf "scale=1920:1080" -c:v libx264 -tune stillimage -pix_fmt yuv420p -f rawvideo - | ffmpeg -re -i - -f v4l2 "/dev/video$fakevideonum"
+	else
+		# Run the input video on a loop
+		ffmpeg -re -stream_loop -1 -i "$1" -vf "scale=1920:1080" -c:v libx264 -f v4l2 "/dev/video$fakevideonum"
+	fi
+}
+
+start_StaxViewer()
+{
+	~/workspace/skipline/projects/canutils/build/StaxViewer/StaxViewer --truck "$@" &>/dev/null &
+}
+start_GrinderTester()
+{
+	~/workspace/skipline/projects/canutils/build/GrinderTester/GrinderTester &>/dev/null &
+}
+start_CANDisplayV2()
+{
+	~/workspace/skipline/projects/canutils/build/CANDisplayV2/CANDisplayV2 &>/dev/null &
+}
+start_BerendsenSim()
+{
+	~/workspace/skipline/projects/canutils/build/BerendsenSim/BerendsenSim &>/dev/null &
+}
+start_LaserSimulator()
+{
+	~/workspace/skipline/projects/canutils/build/LaserSimulator/LaserSimulator &>/dev/null &
+}
+start_EatonKeypad()
+{
+	~/workspace/skipline/projects/canutils/build/EatonJ1939KeypadSim/EatonJ1939KeypadSim &>/dev/null &
+}
+start_EatonOutput()
+{
+	~/workspace/skipline/projects/canutils/build/EatonJ1939OutputSim/EatonJ1939OutputSim &>/dev/null &
+}
+start_SupportSimUtil()
+{
+	python3 ~/workspace/SupportSimUtil/mainwindow.py &>/dev/null &
+}
+start_BootloaderGUI()
+{
+	~/workspace/skipline/projects/canutils/build/BootloaderGUI/BootloaderGUI &>/dev/null &
+}
+start_TruckDesigner()
+{
+	(cd ~/workspace/skipline/projects/can-cfg && ./build/can-cfg &>/dev/null) &
+}
+start_MakeSystemUpdate()
+{
+	(cd ~/workspace/skipline/projects/utils/UpdateCreator && ./make_system_update.sh "$@" && cp ~/Downloads/DL-18UpdateInstructions.pdf ./output/ && xdg-open ./output)
+}
+start_DeployManualBinaries()
+{
+	if [ "$#" -lt 1 ]; then
+		return 1
+	fi
+
+	system_file=$(readlink -f "$1")
+	if ! [ -e "$system_file" ]; then
+		echo "system file doesn't exist"
+		return 1
+	fi
+
+	(cd ~/workspace/skipline/projects/skipper && ./systems/select_system.py "$system_file" && ./scripts/eclipse_build.sh Deploy _Deploy . && ./scripts/deployBinaries.py)
+}
+start_TruckDesignerNoSVN()
+{
+	(cd ~/workspace/skipline/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
+}
+start_UpdateApollo()
+{
+	ssh burner@apollo.skip-line.com "cd skiprepo/production/systems && svn up"
+}
+start_meldSystemFiles()
+{
+	(
+	cd ~/skiprepo/production/systems || return 1
+	if ! [ -d "$1" ]; then
+		echo "system directory doesn't exist"
+		return 1
+	fi
+	cd "$1" || return 1
+
+	files=( "permissions/permissions.json" "factorydefaults/IOConfig.xml" "factorydefaults/DefaultUIConfig.xml" )
+
+	td_folder="td_variants/logging"
+	if ! [ -d "$td_folder" ]; then
+		td_folder="td_variants/non_logging"
+	fi
+	if ! [ -d "$td_folder" ]; then
+		echo "no td folder"
+	fi
+
+	variants_folder="variants/cellular_hdvo"
+	if ! [ -d "$variants_folder" ]; then
+		variants_folder="variants/logging"
+	fi
+	if ! [ -d "$variants_folder" ]; then
+		variants_folder="variants/non_logging"
+	fi
+	if ! [ -d "$variants_folder" ]; then
+		echo "no variants folder"
+		# Actually just print list of file pairs to diff, then make outer function that calls meld with
+		# --diff option repeatedly. Then each new call to these functions will open a new meld instance.
+	fi
+
+	for file in "${files[@]}"; do
+		echo meld "$td_folder/$file" "$variants_folder/$file" -n
+		meld "$td_folder/$file" "$variants_folder/$file" -n &>/dev/null &
+	done
+
+	start_meldManualAndTD "$1"
+
+	)
+}
+start_meldManualAndTD()
+{
+	(
+	if ! [ "$#" -eq 1 ]; then
+		red_msg "Pass system name eg systems/sc12_blah_MANUAL or sc12_blah"
+		return 1
+	fi
+
+	local sanitized_input;
+	sanitized_input=$(basename "${1%%/}");
+	local base_system="${sanitized_input%%_MANUAL.h}"
+	local maybe_manual_system="${base_system}_MANUAL"
+
+	local manual_system_file_name="${maybe_manual_system}.h"
+
+	local skipper_systems_folder="$HOME/workspace/skipline/projects/skipper/systems"
+	local systems_folder="$HOME/skiprepo/production/systems"
+
+	if ! [ -d "$systems_folder/$base_system" ]; then
+		red_msg "$systems_folder/$base_system does not exist"
+		return 1
+	fi
+	if ! [ -f "$skipper_systems_folder/$manual_system_file_name" ]; then
+		red_msg "$skipper_systems_folder/$manual_system_file_name does not exist"
+	fi
+
+	echo meld "$systems_folder/$base_system/system.h" "$skipper_systems_folder/$manual_system_file_name" -n
+	meld "$systems_folder/$base_system/system.h" "$skipper_systems_folder/$manual_system_file_name" -n &>/dev/null &
+
+	while IFS= read -r -d '' switchfile; do
+		local filename
+		filename=$(basename "$switchfile")
+		echo meld "$switchfile" "$systems_folder/${base_system}_MANUAL/$filename" -n
+		meld "$switchfile" "$systems_folder/${base_system}_MANUAL/$filename" -n &>/dev/null &
+	done < <(find "$systems_folder/$base_system/" -type f -name "*Switch.xml" -print0)
+	)
+}
+
+start_RebuildTDAndGC()
+{
+	(cd ~/workspace/skipline/projects/can-cfg && touch can-cfg.qrc && scripts/command_line_dev_build --quiet)
+	(cd ~/workspace/skipline/projects/GlassCockpit && scripts/command_line_dev_build --release-pc --quiet)
+}
+
+start_DeployHDVO()
+{
+	if [ $# -lt 1 ]; then
+		return 1
+	fi
+	local folder_path
+	folder_path="$(readlink -f "$1")"
+	if ! [ -d "$folder_path" ]; then
+		red_msg "$folder_path is not a valid directory"
+		return 1
+	fi
+
+	( cd "$folder_path" && ~/workspace/skipline/projects/GlassCockpit/scripts/deployHDVOscript/deployHDVO.py "$(basename "$folder_path")" )
+}
+
+start_MakeSystemManual()
+{
+	if [ $# -lt 1 ]; then
+		return 1
+	fi
+	local folder_path
+	folder_path="$(readlink -f "$1")"
+	if ! [ -d "$folder_path" ]; then
+		red_msg "$folder_path is not a valid directory"
+		return 1
+	fi
+
+	( cd ~/workspace/skipline/projects/skipper && ./scripts/make_system_manual.sh "$(basename "$folder_path")" )
+}
+
+start_DeployStandaloneHDVO()
+{
+	( cd ~/hdvo-318/code/hdvo-318/scripts/production && ./hdvo_config_deploy.py )
+}
+
+start_ProgramSwc-1312()
+{
+	avrdude -pc128 -cavrisp2 -Pusb -B6 -F -u -Uflash:w:avr-cbl/STANDALONE_SWITCH_BOX/avr-cbl.hex:a -Ulfuse:w:0xFF:m -Uhfuse:w:0xD0:m -Uefuse:w:0xF5:m
+}
+
+start_sgpt()
+{
+	sgpt --model 'gpt-4' "$@"
+}
+
+example_find()
+{
+	# handles newlines, spaces, etc
+	while IFS= read -r -d '' file; do
+		echo "$file"
+	done < <(find "$dir" -type f \( -name "*.bin" -o -name "*Wiring Sheet.pdf" \) -print0)
+}
+
+start_search_systems_for_features()
+{
+	while IFS= read -r -d '' file; do
+		local llama_info
+		llama_info=$(jq -e 'recurse | select(.materialPressureOutput? == "Adaptive Paint Pressure Control")' "$file")
+		if $?; then
+			:
+			# This isn't working yet, want to look at num pump inputs per color that matches llama being enabled above
+#			local pumpInputsForColor
+#			pumpInputsForColor=$(jq -e "recurse | select(numPumpInputs.$(echo "$llama_info" | jq 'select(.color)').materialPressureOutput? == "Adaptive Paint Pressure Control")" "$file")
+		fi
+	done < <(find "$HOME/skiprepo/production/systems" -type f -name "*.truck" -print0)
+}
+
+svncommit()
+{
+	command_options=("$@")
+	for (( i=0; i<${#command_options[@]}; i++ )); do
+		if [[ ${command_options[i]} == "-m" ]]; then
+			unset "command_options[i]"
+			unset "command_options[i+1]"
+		fi
+	done
+
+	svn status "${command_options[@]}"
+	local answer="N"
+	read -r -p "Do you want to commit these files? (Yy/Nn): " answer
+	case "$answer" in
+		Y|y)
+			;;
+		*) return 1;
+	esac
+
+	svn commit "$@"
+}
+
+######## END WORK SECTION #########
