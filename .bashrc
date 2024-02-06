@@ -437,6 +437,10 @@ function __setprompt
 		PS1+=" \[${DARKGRAY}\](\[${CYAN}\]${svn_url}\[${DARKGRAY}\])"
 	fi
 
+	if [ -n "$VIRTUAL_ENV" ]; then
+		PS1+=" \[${DARKGRAY}\](\[${LIGHTMAGENTA}\]venv:${VIRTUAL_ENV}\[${DARKGRAY}\])"
+	fi
+
 	# Skip to the next line
 	PS1+="\n"
 
