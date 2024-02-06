@@ -853,6 +853,9 @@ call plug#begin('~/.vim/plugged')
    Plug 'skywind3000/asyncrun.vim'
    Plug 'peterhoeg/vim-qml'
    Plug 'artoj/qmake-syntax-vim'
+
+   Plug 'madox2/vim-ai'
+
    let g:ale_set_loclist = 0
    let g:ale_set_quickfix = 0
    let g:ale_c_cc_executable = 'gcc'
