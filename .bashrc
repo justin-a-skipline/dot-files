@@ -56,9 +56,6 @@ function __set_ls_colors
 
 __set_ls_colors
 
-
-test -e "${HOME}/dot-files/z/z.sh" && source $_
-
 PROMPT_COMMAND=""
 
 stty -ixon
