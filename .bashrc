@@ -893,4 +893,11 @@ svncommit()
 	svn commit "$@"
 }
 
+start_send_file_to_printer()
+{
+	for file in "$@"; do
+		echo "put \"$file\"" | sftp -b - -i ~/.cancfg/id_rsa_cancfg_apollo cancfg@printstation.skip-line.com
+	done
+}
+
 ######## END WORK SECTION #########
