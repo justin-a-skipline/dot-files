@@ -803,6 +803,27 @@ function! SetLocalDir(islocal)
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+" For working in environments where some files
+" are already tab delimited. This function detects
+" how many lines are started with tabs and continues
+" the convention as long as there is at least 70% tabs.
+" Called in an autocommand
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+function TabsOrSpaces()
+    " Determines whether to use spaces or tabs on the current buffer.
+    if getfsize(bufname("%")) > 256000
+        " File is very large, just use the default.
+        return
+    endif
+
+    let numTabs=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^\\t"'))
+    let numSpaces=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^ "'))
+
+    if (numTabs / numSpaces) > (0.7)
+        setlocal noexpandtab
+    endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 let ftToNotSetHidden = ['netrw']
@@ -828,6 +849,9 @@ augroup vimrc
   au FileType make setlocal noexpandtab
   "netrw keeps setting nohidden!
   autocmd BufEnter * if index(ftToNotSetHidden, &ft) < 0 | set hidden
+
+  " Call the function after opening a buffer
+  autocmd BufReadPost * call TabsOrSpaces()
 augroup END
 
 let g:onedark_termcolors=256
