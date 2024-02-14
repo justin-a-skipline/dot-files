@@ -819,8 +819,10 @@ function TabsOrSpaces()
     let numTabs=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^\\t"'))
     let numSpaces=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^ "'))
 
+	" These would be work files where the conventions are different from what I would choose
     if (numTabs / numSpaces) > (0.7)
         setlocal noexpandtab
+		let b:ale_python_flake8_options="--extend-ignore=W191,E501"
     endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
