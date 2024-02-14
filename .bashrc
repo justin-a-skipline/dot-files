@@ -871,6 +871,21 @@ start_search_systems_for_features()
 	done < <(find "$HOME/skiprepo/production/systems" -type f -name "*.truck" -print0)
 }
 
+helper_yes_no_dialog()
+{
+	local prompt="Continue?"
+	if [ $# -gt 0 ]; then
+		prompt="$1"
+	fi
+	local answer="N"
+	read -r -p "$(echo -e $prompt) (Yy/Nn): " answer
+	case "$answer" in
+		Y|y)
+			;;
+		*) return 1;
+	esac
+}
+
 svncommit()
 {
 	command_options=("$@")
@@ -883,20 +898,20 @@ svncommit()
 
 	svn status "${command_options[@]}"
 	local answer="N"
-	read -r -p "Do you want to commit these files? (Yy/Nn): " answer
-	case "$answer" in
-		Y|y)
-			;;
-		*) return 1;
-	esac
+	helper_yes_no_dialog "Do you want to commit these files?" || return 1;
 
 	svn commit "$@"
 }
 
 start_send_file_to_printer()
 {
+	local prompt="Is this file list correct?\n"
 	for file in "$@"; do
-		echo "put \"$file\"" | sftp -b - -i ~/.cancfg/id_rsa_cancfg_apollo cancfg@printstation.skip-line.com
+		prompt+="$file\n"
+	done
+	helper_yes_no_dialog "$prompt" || return 1;
+	for file in "$@"; do
+		echo "put \"$file\"" | tee | sftp -b - -i ~/.cancfg/id_rsa_cancfg_apollo cancfg@printstation.skip-line.com
 	done
 }
 
