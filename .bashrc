@@ -4,6 +4,8 @@ case $- in
       *) return;;
 esac
 
+ulimit -c unlimited
+
 ##### Colors ######################
 # To have colors for ls and all grep commands such as grep, egrep and zgrep
 function __set_ls_colors
