@@ -809,20 +809,22 @@ let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 " the convention as long as there is at least 70% tabs.
 " Called in an autocommand
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-function TabsOrSpaces()
+function! TabsOrSpaces()
     " Determines whether to use spaces or tabs on the current buffer.
     if getfsize(bufname("%")) > 256000
         " File is very large, just use the default.
         return
     endif
 
-    let numTabs=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^\\t"'))
-    let numSpaces=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^ "'))
+    let numTabs=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^\\t\\+"'))
+    let numSpaces=len(filter(getbufline(bufname("%"), 1, 250), 'v:val =~ "^ \\+"'))
 
+	let l:new_file = numTabs == 0 && numSpaces == 0
+	let l:tabs_detected = numSpaces > 0 && (numTabs / numSpaces) > (0.7)
 	" These would be work files where the conventions are different from what I would choose
-    if (numTabs / numSpaces) > (0.7)
+    if !l:new_file && l:tabs_detected
         setlocal noexpandtab
-		let b:ale_python_flake8_options="--extend-ignore=W191,E501"
+		let b:ale_python_flake8_options="--extend-ignore=W191,E501,E101,E117,W291"
     endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
