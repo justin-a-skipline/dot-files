@@ -128,6 +128,9 @@ let s:menu_grey = s:colors.menu_grey
 let s:special_grey = s:colors.special_grey
 let s:vertsplit = s:colors.vertsplit
 
+let s:less_intense_green = s:colors.less_intense_green
+let s:less_intense_red = s:colors.less_intense_red
+
 " }}}
 
 " Syntax Groups (descriptions and ordering from `:h w18`) {{{
@@ -183,9 +186,9 @@ else
   call s:h("CursorLine", { "bg": s:cursor_grey }) " the screen line that the cursor is in when 'cursorline' is set
 endif
 call s:h("Directory", { "fg": s:blue }) " directory names (and other special names in listings)
-call s:h("DiffAdd", { "bg": s:green, "fg": s:black }) " diff mode: Added line
-call s:h("DiffChange", { "bg": s:yellow, "fg": s:black }) " diff mode: Changed line
-call s:h("DiffDelete", { "bg": s:red, "fg": s:black }) " diff mode: Deleted line
+call s:h("DiffAdd", { "bg": s:less_intense_green, "fg": s:black }) " diff mode: Added line
+call s:h("DiffChange", { "bg": s:colors.dark_yellow, "fg": s:black }) " diff mode: Changed line
+call s:h("DiffDelete", { "bg": s:less_intense_red, "fg": s:black }) " diff mode: Deleted line
 call s:h("DiffText", { "bg": s:black, "fg": s:yellow }) " diff mode: Changed text within a changed line
 call s:h("ErrorMsg", { "fg": s:red }) " error messages on the command line
 call s:h("VertSplit", { "fg": s:vertsplit }) " the column separating vertically split windows
