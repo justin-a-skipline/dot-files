@@ -790,13 +790,6 @@ start_meldManualAndTD()
 
 	echo meld "$systems_folder/$base_system/system.h" "$skipper_systems_folder/$manual_system_file_name" -n
 	meld "$systems_folder/$base_system/system.h" "$skipper_systems_folder/$manual_system_file_name" -n &>/dev/null &
-
-	while IFS= read -r -d '' switchfile; do
-		local filename
-		filename=$(basename "$switchfile")
-		echo meld "$switchfile" "$systems_folder/${base_system}_MANUAL/$filename" -n
-		meld "$switchfile" "$systems_folder/${base_system}_MANUAL/$filename" -n &>/dev/null &
-	done < <(find "$systems_folder/$base_system/" -type f -name "*Switch.xml" -print0)
 	)
 }
 
