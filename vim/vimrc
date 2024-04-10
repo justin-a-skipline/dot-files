@@ -112,9 +112,16 @@ set cpoptions+=d
 function StatusLineColor()
   hi! User9 term=bold cterm=bold ctermfg=red guifg=red
 endfunction
+function AleFixOnSaveDisabledText()
+	if exists('g:ale_fix_on_save') && g:ale_fix_on_save == 0
+		return '[F]'
+	endif
+	return ''
+endfunction
 set laststatus=2    " always display statusline
 set statusline=%{StatusLineColor()}%<%F " file name and path
 set statusline+=\ %9*%m%*%r%* " modified in red (User9), read-only flags
+set statusline+=\ %9*%{AleFixOnSaveDisabledText()}%* " disabled fixer in Red
 set statusline+=\ %y  " filetype according to vim
 set statusline+=\ %n  " buffer number
 set statusline+=\ [%{&ff}] " show detected line endings for file
