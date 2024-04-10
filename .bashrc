@@ -910,4 +910,10 @@ start_send_file_to_printer()
 	done
 }
 
+start_SetupNewGrinderHDVO()
+{
+	( ~/hdvo-318/code/hdvo-318/scripts/production/hdvo_config_deploy.py --pigeonize "$@")
+	# Then copy any gc configs from another system
+}
+
 ######## END WORK SECTION #########
