@@ -595,6 +595,17 @@ remote_connect_start_ssh()
 	red_msg "DON'T FORGET TO CLOSE THE REMOTE CONNECTION IN ORG"
 }
 
+remote_connect_kill_ssh()
+{
+	ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ~/Documents/hdvo_ssh/hdvo_access_key -p 1234 root@localhost "killall ssh"
+}
+
+remote_connect_scp()
+{
+	scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ~/Documents/hdvo_ssh/hdvo_access_key -P 1234 root@localhost:"$1" ./
+	red_msg "DON'T FORGET TO CLOSE THE REMOTE CONNECTION IN ORG"
+}
+
 switch_functions_to_num()
 {
 	cpp -P -D'DefineSwitchFunction(a,b,c)=__COUNTER__ a' "$HOME/workspace/skipline/projects/common_libs/switches/switch_functions.def" | awk '{ print $1+1 "\t" $2 }'
@@ -929,4 +940,49 @@ start_DownloadSnapshots()
 	scp -J burner@192.168.3.6 -oPort=5754 "skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/$1" "$2"
 }
 
+start_mountUSBBinFile()
+{
+	binfile="_Release_PC/master/usbfat.bin"
+	if [ $# -gt 0 ]; then
+		binfile="$1"
+	fi
+	mkdir -p /tmp/usb
+	sudo mount -t vfat -o "uid=$(id -u),rw" "$binfile" /tmp/usb
+	xdg-open /tmp/usb
+}
+
+start_activate_sim_card()
+{
+	if [ $# -ne 3 ]; then
+		echo Usage: start_activate_sim_card hdvo_serial_number cvo_id sim_id
+		return 1;
+	fi
+	local PROGSERNUM
+	local CVO_ID
+	local SIMID
+	PROGSERNUM="$1"
+	CVO_ID="$2"
+	SIMID="$3"
+
+	local HOLOGRAM_ORG_ID=32801
+	local HOLOGRAM_API_KEY=4izrmTIpQWFKLqNXrY4GgcfAdXMWas
+	local HOLOGRAM_PLAN_ID=1046
+	local HOLOGRAM_ZONE=global
+	local HOLOGRAM_TAG=8995
+
+	curl -f --header "Content-Type: application/json" --data "{\"username\":\"hdvoDeployScript\",\"password\":\"hFVWvSX7DTLu\",\"truck_id\":\"${CVO_ID}\",\"serial_num\":\"${PROGSERNUM}\",\"sim\":\"${SIMID}\"}" https://reportgen2.skip-line.com/trucks/append_sim/
+
+	ACTIVATION_RESPONSE=$(curl -f --request POST --header "Content-Type: application/json" --data-binary "{\"plan\":${HOLOGRAM_PLAN_ID},\"zone\":\"${HOLOGRAM_ZONE}\",\"orgid\":${HOLOGRAM_ORG_ID},\"tagid\":${HOLOGRAM_TAG}}" "https://dashboard.hologram.io/api/1/links/cellular/sim_${SIMID}/claim" -u apikey:${HOLOGRAM_API_KEY})
+
+	if [ $? -eq 0 ] && [ "x$(echo $ACTIVATION_RESPONSE | jq '.success')" == "xtrue" ]; then
+		# Parse the JSON response to get a device ID back out of it
+		DEVICEID="$(echo "$ACTIVATION_RESPONSE" | jq '.data[0].device')"
+		if [ "x$DEVICEID" != "x" ]; then
+			# Now tell hologram to name this device
+			curl -f --request PUT --header "Content-Type: application/json" --data-binary "{\"name\":\"${CVO_ID} (${SIMID: -5})\",\"orgid\":${HOLOGRAM_ORG_ID}}" "https://dashboard.hologram.io/api/1/devices/${DEVICEID}" -u apikey:${HOLOGRAM_API_KEY}
+		fi
+	else
+		"SIM card activation failed. An error occurred while trying to contact Hologram. SIM ID = $SIMID. Try again?"
+	fi
+}
 ######## END WORK SECTION #########
