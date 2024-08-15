@@ -985,4 +985,16 @@ start_activate_sim_card()
 		"SIM card activation failed. An error occurred while trying to contact Hologram. SIM ID = $SIMID. Try again?"
 	fi
 }
+
+start_setupVCan()
+{
+	local num=0
+	if [ $# -eq 1 ]; then
+		num=$1
+	fi
+
+	sudo modprobe vcan
+	sudo ip link add dev "can$num" type vcan
+	sudo ip link set up "can$num"
+}
 ######## END WORK SECTION #########
