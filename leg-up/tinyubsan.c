@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 
 //#include <stdio.h>
 //#include <inttypes.h>
@@ -220,22 +221,37 @@ extern "C"
         tu_process_event("non-null return is null", data->location);
     }
 
+#if __GNUC__ >= 11
+    void __ubsan_handle_nonnull_arg(void *data)
+#elif __GNUC__ < 6
+    void __ubsan_handle_nonnull_arg(struct tu_nonnull_arg_data *data , size_t arg_no __attribute__((unused)))
+#else
     void __ubsan_handle_nonnull_arg(struct tu_nonnull_arg_data *data)
+#endif
     {
-        tu_process_event("non-null argument is null", data->location);
+		struct tu_nonnull_arg_data *p = data;
+        tu_process_event("non-null argument is null", p->location);
     }
 
+#if __GNUC__ >= 11
+    void __ubsan_handle_builtin_unreachable(void *data)
+#else
     void __ubsan_handle_builtin_unreachable(struct tu_unreachable_data *data)
+#endif
     {
-
-        tu_process_event("unreachable code reached", data->location);
+		struct tu_unreachable_data *p = data;
+        tu_process_event("unreachable code reached", p->location);
         while (1);
     }
 
+#if __GNUC__ >= 11
+    void __ubsan_handle_invalid_builtin(void *data)
+#else
     void __ubsan_handle_invalid_builtin(struct tu_invalid_builtin_data *data)
+#endif
     {
-
-        tu_process_event("invalid builtin", data->location);
+		struct tu_invalid_builtin_data *p = data;
+        tu_process_event("invalid builtin", p->location);
     }
 
 #ifdef __cplusplus
