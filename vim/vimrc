@@ -868,22 +868,33 @@ let s:initial_chat_prompt =<< trim END
 
 You are a general assistant. When asked to edit code, only respond with the edited code without syntax brackets.
 END
-   let g:vim_ai_defaults = {
-			   \ "engine": "chat",
-			   \  "options": {
-			   \    "model": "gpt-4o",
-			   \    "temperature": 0.1,
-			   \    "max_tokens": 0,
-			   \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
-			   \    "initial_prompt": s:initial_chat_prompt,
-			   \  },
-			   \  "ui": {
-			   \    "paste_mode": 0,
-			   \  },
-			   \}
-   let g:vim_ai_chat = g:vim_ai_defaults
-   let g:vim_ai_complete = g:vim_ai_defaults
-   let g:vim_ai_edit = g:vim_ai_defaults
+    let g:vim_ai_complete = {
+                \ "engine": "chat",
+                \  "options": {
+                \    "model": "gpt-4o",
+                \    "temperature": 0.1,
+                \    "max_tokens": 0,
+                \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
+                \    "initial_prompt": ">>> system\n\nYou are a general assistant. When asked to edit code, only respond with the edited code without syntax brackets.\n",
+                \  },
+                \  "ui": {
+                \    "paste_mode": 0,
+                \  },
+                \}
+    let g:vim_ai_edit = g:vim_ai_complete
+    let g:vim_ai_chat = {
+                \ "engine": "chat",
+                \  "options": {
+                \    "model": "gpt-4o",
+                \    "temperature": 0.1,
+                \    "max_tokens": 0,
+                \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
+                \    "initial_prompt": ">>> system\n\nYou are a general assistant.\n",
+                \  },
+                \  "ui": {
+                \    "paste_mode": 0,
+                \  },
+                \}
 
    let g:ale_set_loclist = 0
    let g:ale_set_quickfix = 0
