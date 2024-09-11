@@ -365,6 +365,11 @@ else
   echo "rt_graph support missing: need script command" >&2
 fi
 
+if [ -e "${HOME}/.cargo/env" ]; then
+	# shellcheck source=../.cargo/env
+	source "${HOME}/.cargo/env"
+fi
+
 # Color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\e[01;32m'
 export LESS_TERMCAP_md=$'\e[01;32m'
