@@ -953,6 +953,7 @@ start_mountUSBBinFile()
 	fi
 	mkdir -p /tmp/usb
 	sudo mount -t vfat -o "uid=$(id -u),rw" "$binfile" /tmp/usb
+	echo "unmount with: sudo umount /tmp/usb"
 	xdg-open /tmp/usb
 }
 
