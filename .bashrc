@@ -746,7 +746,7 @@ start_meldSystemFiles()
 	fi
 	cd "$1" || return 1
 
-	files=( "permissions/permissions.json" "factorydefaults/IOConfig.xml" "factorydefaults/DefaultUIConfig.xml" )
+	files=( "permissions/permissions.json" "factorydefaults/IOConfig.xml" "factorydefaults/DefaultUIConfig.xml" "loggingconfig.json" )
 
 	td_folder="td_variants/logging"
 	if ! [ -d "$td_folder" ]; then
