@@ -7,6 +7,9 @@ set tabstop=4
 set softtabstop=4
 set textwidth=0
 
+" for work, disable python settings
+let g:python_recommended_style = 0
+
 set autoindent
 filetype plugin indent on
 syntax enable
