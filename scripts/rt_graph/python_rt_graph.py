@@ -80,6 +80,7 @@ add_time_subparser.add_argument("value", type=float, help="y value")
 
 def handle_clear_graph(args):
     all_values.clear()
+    plt.gca().set_prop_cycle(None)
     global titleString
     titleString = ""
 
