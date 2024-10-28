@@ -1008,4 +1008,16 @@ start_startWireguard()
 {
 	sudo wg-quick up /etc/wireguard/wg0.conf
 }
+
+start_SwitchBoardSim()
+{
+	(cd ~/workspace/skipline/projects/canutils && ./build/SwitchBoardSim/SwitchBoardSim &>/dev/null) &
+}
+start_DebugMaster()
+{
+	# Use whichever master you are wanting (0 - left, 1, right) then use 
+	gdb -ex 'handle SIGUSR1 nostop noprint' -ex 'handle SIGUSR2 nostop noprint' --args _Release_PC/master/Master "$@"
+	# Then use start_SwitchBoardSim, select the switch file from skiprepo and then use that as the switches
+	# to control it
+}
 ######## END WORK SECTION #########
