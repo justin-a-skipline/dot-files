@@ -860,6 +860,10 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin('~/.vim/plugged')
+   Plug 'godlygeek/tabular'
+   Plug 'preservim/vim-markdown'
+   let g:vim_markdown_no_default_key_mappings = 1
+   let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'c', 'python']
    Plug 'ziglang/zig.vim'
    Plug 'skywind3000/asyncrun.vim'
    Plug 'peterhoeg/vim-qml'
