@@ -1020,4 +1020,22 @@ start_DebugMaster()
 	# Then use start_SwitchBoardSim, select the switch file from skiprepo and then use that as the switches
 	# to control it
 }
+
+start_SVN_most_recent_changed()
+{
+  most_recent_file=""
+  most_recent_date=""
+
+  for file in "$@"
+  do
+    file_date=$(svn info "$file" | grep 'Last Changed Date' | cut -d: -f2-)
+    if [[ "$file_date" > "$most_recent_date" ]]
+    then
+      most_recent_date="$file_date"
+      most_recent_file="$file"
+    fi
+  done
+
+  echo "The most recently modified file is: $most_recent_file at $most_recent_date"
+}
 ######## END WORK SECTION #########
