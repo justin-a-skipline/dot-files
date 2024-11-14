@@ -8,6 +8,8 @@ import queue
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
+import tkinter as tk
+from tkinter import simpledialog
 
 parser = argparse.ArgumentParser(
     description=textwrap.dedent(
@@ -165,8 +167,40 @@ def plotData(unused):
             plt.gcf().autofmt_xdate()
 
 
+# Function to handle mouse click events
+def onclick(event):
+    # Define the file where coordinates will be saved
+    output_file = 'click_coordinates.txt'
+
+    # Check if the event is a mouse click
+    if event.xdata is not None and event.ydata is not None:
+        # Get the x and y coordinates
+        x, y = event.xdata, event.ydata
+
+        # Write the coordinates to a file
+        if event.button == 1:  # left click
+            with open(output_file, 'a') as f:
+                f.write(f"{x}, {y}\n")
+        elif event.button == 3:  # right click
+            root = tk.Tk()
+            root.withdraw()  # Hide the main window
+            user_input = simpledialog.askstring("Input", "Enter text to save with coordinates:")
+
+            if user_input is not None:
+                with open(output_file, 'a') as f:
+                    f.write(f"**** {user_input} ****\n")
+
+
+ani = None
+cid = None
+
+
 def graph_thread():
+    global ani
     ani = FuncAnimation(fig, plotData, interval=1000)
+    # Connect the click event to the onclick function
+    global cid
+    cid = fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()
 
 
