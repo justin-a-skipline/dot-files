@@ -70,10 +70,13 @@ export VISUAL="vim"
 alias vi='vim'
 
 ##### History Settings ##########
-HISTCONTROL='erasedups:ignoreboth'
-HISTSIZE=1000000
-HISTFILESIZE=$HISTSIZE
-HISTIGNORE='?:??'
+export HISTCONTROL='erasedups:ignoreboth'
+export HISTFILESIZE=-1
+export HISTSIZE=-1
+export HISTIGNORE='?:??'
+# Change the file location because certain bash sessions truncate .bash_history file upon close.
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE=~/.bash_eternal_history
 shopt -s histappend histverify
 PROMPT_COMMAND+='history -a;history -c;history -r'
 
