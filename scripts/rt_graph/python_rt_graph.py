@@ -63,6 +63,19 @@ add_subparser.add_argument(
 )
 
 
+def handle_add_offset(args):
+    if args.key not in all_values:
+        return
+    all_values[args.key] = [(tup[0] + args.x_offset, tup[1] + args.y_offset) for tup in all_values[args.key]]
+
+
+add_subparser = subparsers.add_parser("add_offset", help="Add offset to values on graph, destructive operation")
+add_subparser.set_defaults(func=handle_add_offset)
+add_subparser.add_argument("key", type=str, help="name of item")
+add_subparser.add_argument("x_offset", type=float, help="x offset")
+add_subparser.add_argument("y_offset", type=float, help="y offset")
+
+
 def handle_add_time(args):
     if args.key not in all_values:
         all_values[args.key] = list()
@@ -178,10 +191,20 @@ def onclick(event):
         x, y = event.xdata, event.ydata
 
         # Write the coordinates to a file
-        if event.button == 1:  # left click
+        if event.button == 2:  # middle click
             with open(output_file, 'a') as f:
                 f.write(f"{x}, {y}\n")
-        elif event.button == 3:  # right click
+    return True
+
+
+# Function to handle key press events
+def onPress(event):
+    # Define the file where coordinates will be saved
+    output_file = 'click_coordinates.txt'
+
+    # Check if the event is a mouse click
+    if event.xdata is not None and event.ydata is not None:
+        if event.key == 'control':
             root = tk.Tk()
             root.withdraw()  # Hide the main window
             user_input = simpledialog.askstring("Input", "Enter text to save with coordinates:")
@@ -189,6 +212,7 @@ def onclick(event):
             if user_input is not None:
                 with open(output_file, 'a') as f:
                     f.write(f"**** {user_input} ****\n")
+    return True
 
 
 ani = None
@@ -201,6 +225,7 @@ def graph_thread():
     # Connect the click event to the onclick function
     global cid
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    cid = fig.canvas.mpl_connect('key_press_event', onPress)
     plt.show()
 
 
