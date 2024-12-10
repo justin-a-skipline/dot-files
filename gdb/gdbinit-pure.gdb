@@ -6,7 +6,6 @@ set print symbol on
 set print pretty on
 set print demangle on
 set print asm-demangle on
-set disassembly-flavor intel
 set output-radix 10
 set confirm off
 set prompt ================================================================================\n(gdb) 
