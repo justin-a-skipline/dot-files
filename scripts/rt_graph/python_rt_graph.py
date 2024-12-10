@@ -8,8 +8,6 @@ import queue
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
-import tkinter as tk
-from tkinter import simpledialog
 
 parser = argparse.ArgumentParser(
     description=textwrap.dedent(
@@ -197,24 +195,6 @@ def onclick(event):
     return True
 
 
-# Function to handle key press events
-def onPress(event):
-    # Define the file where coordinates will be saved
-    output_file = 'click_coordinates.txt'
-
-    # Check if the event is a mouse click
-    if event.xdata is not None and event.ydata is not None:
-        if event.key == 'control':
-            root = tk.Tk()
-            root.withdraw()  # Hide the main window
-            user_input = simpledialog.askstring("Input", "Enter text to save with coordinates:")
-
-            if user_input is not None:
-                with open(output_file, 'a') as f:
-                    f.write(f"**** {user_input} ****\n")
-    return True
-
-
 ani = None
 cid = None
 
@@ -225,7 +205,6 @@ def graph_thread():
     # Connect the click event to the onclick function
     global cid
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
-    cid = fig.canvas.mpl_connect('key_press_event', onPress)
     plt.show()
 
 
