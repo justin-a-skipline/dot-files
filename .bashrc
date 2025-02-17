@@ -635,7 +635,7 @@ remote_connect_scp()
 
 switch_functions_to_num()
 {
-	cpp -P -D'DefineSwitchFunction(a,b,c)=__COUNTER__ a' "$HOME/workspace/skipline/projects/common_libs/switches/switch_functions.def" | awk '{ print $1+1 "\t" $2 }'
+	cpp -P -D'DefineSwitchFunction(a,b,c)=__COUNTER__ a' "$HOME/workspace/skipline-pristine/projects/common_libs/switches/switch_functions.def" | awk '{ print $1+1 "\t" $2 }'
 }
 
 kiwi_build()
@@ -694,31 +694,31 @@ kiwi_stream_to_video4()
 
 start_StaxViewer()
 {
-	~/workspace/skipline/projects/canutils/build/StaxViewer/StaxViewer --truck "$@" &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/StaxViewer/StaxViewer --truck "$@" &>/dev/null &
 }
 start_GrinderTester()
 {
-	~/workspace/skipline/projects/canutils/build/GrinderTester/GrinderTester &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/GrinderTester/GrinderTester &>/dev/null &
 }
 start_CANDisplayV2()
 {
-	~/workspace/skipline/projects/canutils/build/CANDisplayV2/CANDisplayV2 &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/CANDisplayV2/CANDisplayV2 &>/dev/null &
 }
 start_BerendsenSim()
 {
-	~/workspace/skipline/projects/canutils/build/BerendsenSim/BerendsenSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/BerendsenSim/BerendsenSim &>/dev/null &
 }
 start_LaserSimulator()
 {
-	~/workspace/skipline/projects/canutils/build/LaserSimulator/LaserSimulator &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/LaserSimulator/LaserSimulator &>/dev/null &
 }
 start_EatonKeypad()
 {
-	~/workspace/skipline/projects/canutils/build/EatonJ1939KeypadSim/EatonJ1939KeypadSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/EatonJ1939KeypadSim/EatonJ1939KeypadSim &>/dev/null &
 }
 start_EatonOutput()
 {
-	~/workspace/skipline/projects/canutils/build/EatonJ1939OutputSim/EatonJ1939OutputSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/EatonJ1939OutputSim/EatonJ1939OutputSim &>/dev/null &
 }
 start_SupportSimUtil()
 {
@@ -726,15 +726,11 @@ start_SupportSimUtil()
 }
 start_BootloaderGUI()
 {
-	~/workspace/skipline/projects/canutils/build/BootloaderGUI/BootloaderGUI &>/dev/null &
-}
-start_TruckDesigner()
-{
-	(cd ~/workspace/skipline/projects/can-cfg && ./build/can-cfg &>/dev/null) &
+	~/workspace/skipline-pristine/projects/canutils/build/BootloaderGUI/BootloaderGUI &>/dev/null &
 }
 start_MakeSystemUpdate()
 {
-	(cd ~/workspace/skipline/projects/utils/UpdateCreator && ./make_system_update.sh "$@" && cp ~/Downloads/DL-18UpdateInstructions.pdf ./output/ && xdg-open ./output)
+	(cd ~/workspace/skipline-pristine/projects/utils/UpdateCreator && ./make_system_update.sh "$@" && cp ~/Downloads/DL-18UpdateInstructions.pdf ./output/ && xdg-open ./output)
 }
 start_DeployManualBinaries()
 {
@@ -748,11 +744,7 @@ start_DeployManualBinaries()
 		return 1
 	fi
 
-	(cd ~/workspace/skipline/projects/skipper && ./systems/select_system.py "$system_file" && ./scripts/eclipse_build.sh Deploy _Deploy . && ./scripts/deployBinaries.py)
-}
-start_TruckDesignerNoSVN()
-{
-	(cd ~/workspace/skipline/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
+	(cd ~/workspace/skipline-pristine/projects/skipper && ./systems/select_system.py "$system_file" && ./scripts/eclipse_build.sh Deploy _Deploy . && ./scripts/deployBinaries.py)
 }
 start_UpdateApollo()
 {
@@ -815,7 +807,7 @@ start_meldManualAndTD()
 
 	local manual_system_file_name="${maybe_manual_system}.h"
 
-	local skipper_systems_folder="$HOME/workspace/skipline/projects/skipper/systems"
+	local skipper_systems_folder="$HOME/workspace/skipline-pristine/projects/skipper/systems"
 	local systems_folder="$HOME/skiprepo/production/systems"
 
 	if ! [ -d "$systems_folder/$base_system" ]; then
@@ -833,8 +825,19 @@ start_meldManualAndTD()
 
 start_RebuildTDAndGC()
 {
-	(cd ~/workspace/skipline/projects/can-cfg && touch can-cfg.qrc && scripts/command_line_dev_build --quiet)
-	(cd ~/workspace/skipline/projects/GlassCockpit && scripts/command_line_dev_build --release-pc --quiet)
+	(cd ~/workspace/skipline-pristine && git pull --rebase)
+	(cd ~/workspace/skipline-pristine/projects/can-cfg && touch can-cfg.qrc && scripts/command_line_dev_build --quiet)
+	(cd ~/workspace/skipline-pristine/projects/GlassCockpit && scripts/command_line_dev_build --release-pc --quiet)
+}
+
+start_TruckDesigner()
+{
+	(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg &>/dev/null) &
+}
+
+start_TruckDesignerNoSVN()
+{
+	(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
 }
 
 start_DeployHDVO()
@@ -849,7 +852,7 @@ start_DeployHDVO()
 		return 1
 	fi
 
-	( cd "$folder_path" && ~/workspace/skipline/projects/GlassCockpit/scripts/deployHDVOscript/deployHDVO.py "$(basename "$folder_path")" )
+	( cd "$folder_path" && ~/workspace/skipline-pristine/projects/GlassCockpit/scripts/deployHDVOscript/deployHDVO.py "$(basename "$folder_path")" )
 }
 
 start_MakeSystemManual()
@@ -864,7 +867,7 @@ start_MakeSystemManual()
 		return 1
 	fi
 
-	( cd ~/workspace/skipline/projects/skipper && ./scripts/make_system_manual.sh "$(basename "$folder_path")" )
+	( cd ~/workspace/skipline-pristine/projects/skipper && ./scripts/make_system_manual.sh "$(basename "$folder_path")" )
 }
 
 start_DeployStandaloneHDVO()
@@ -1033,7 +1036,7 @@ start_startWireguard()
 
 start_SwitchBoardSim()
 {
-	(cd ~/workspace/skipline/projects/canutils && ./build/SwitchBoardSim/SwitchBoardSim &>/dev/null) &
+	(cd ~/workspace/skipline-pristine/projects/canutils && ./build/SwitchBoardSim/SwitchBoardSim &>/dev/null) &
 }
 start_DebugMaster()
 {
