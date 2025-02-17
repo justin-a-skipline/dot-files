@@ -135,10 +135,23 @@ alias ..3='cd ../../..'
 alias ..4='cd ../../../..'
 alias ..5='cd ../../../../..'
 
+unified_diff_highlight()
+{
+    # Check if there's no stdin
+    if [ -t 0 ]; then
+        return
+    fi
+
+    if [ -e /usr/share/doc/git/contrib/diff-highlight/diff-highlight ]; then
+        cat - | perl /usr/share/doc/git/contrib/diff-highlight/diff-highlight | less
+    fi
+
+    less -
+}
 alias gl='git log --oneline --decorate'
 alias gs='git status --short --branch && gl -10'
-alias gd='git diff'
-alias gdc='gd --cached'
+alias gd='git diff --color | unified_diff_highlight'
+alias gdc='git diff --color --cached | unified_diff_highlight'
 
 red_msg()
 {
