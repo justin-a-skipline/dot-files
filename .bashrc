@@ -381,6 +381,12 @@ else
   echo "rt_graph support missing: need script command" >&2
 fi
 
+start_runProcessWithoutNetwork()
+{
+	echo "ip link set dev lo up; $*"
+	unshare -r --net -- sh -c "ip link set dev lo up; $*"
+}
+
 if [ -e "${HOME}/.cargo/env" ]; then
 	# shellcheck source=../.cargo/env
 	source "${HOME}/.cargo/env"
