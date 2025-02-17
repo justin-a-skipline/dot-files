@@ -579,3 +579,15 @@ define Qt4PrintQString
    set $ca=$d->data
    _printUTF16String $ca $d->size
 end
+
+# Allows looping through and running a command $arg0 number
+# of times. The loop index $_i can be referenced in the command
+# Example: LoopDo 5 "p g_pfnVectors[$_i+1]"
+# prints out the vectors at indexes 1 through 6
+define LoopDo
+  set $_i=0
+  while ( $_i < $arg0 )
+    eval $arg1
+    set $_i++
+  end
+end
