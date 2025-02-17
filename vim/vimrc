@@ -104,10 +104,6 @@ set wildignore+=*.lst
 
 set virtualedit=block " allow visual mode block editing to extend past EOL
 
-" use :find to search through all files under the current working directory
-" followed by the directory of the file loaded in the current buffer
-set path=**,.
-
 " search for tag file relative to current working directory rather than
 " current file's directory
 set cpoptions+=d
@@ -813,6 +809,23 @@ function! SetLocalDir(islocal)
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 
+function! AdjustPath()
+ " Get the current file's directory
+ let l:current_file_dir = expand('%:p:h')
+
+ " Get the current working directory
+ let l:current_working_dir = getcwd()
+
+ " Check if the current file's directory is a subdirectory of the current working directory
+ if l:current_file_dir =~ '^' . escape(l:current_working_dir, '\') . '/'
+   " Set path to prioritize the current file's directory
+   setlocal path=.,**
+ else
+   " Otherwise use the current working directory and then fall back to
+   " the current file's directory.
+   setlocal path=**,.
+ endif
+endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -839,6 +852,7 @@ augroup vimrc
   au FileType make setlocal noexpandtab
   "netrw keeps setting nohidden!
   autocmd BufEnter * if index(ftToNotSetHidden, &ft) < 0 | set hidden
+  autocmd BufEnter,DirChanged * call AdjustPath()
 augroup END
 
 let g:onedark_termcolors=256
