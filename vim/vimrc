@@ -874,6 +874,11 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+" Source the mylint plugin file
+let vimrc_dir = fnamemodify(expand($MYVIMRC), ':p:h')
+let mylint_path = vimrc_dir . '/mylint.vim'
+execute 'source' mylint_path
+
 " Only load plugin info if we haven't done it yet. This is to prevent some of
 " the ai plugin settings from being overriden if VIMRC is sourced again
 if !exists('s:already_loaded_plugin_info')
@@ -991,7 +996,7 @@ END
      let g:ale_javascript_eslint_executable = 'eslint_d'
      let g:ale_javascript_eslint_use_global = 1
   
-     let g:ale_fix_on_save = 1
-     Plug 'w0rp/ale'
+"     let g:ale_fix_on_save = 1
+"     Plug 'w0rp/ale'
   call plug#end()
 endif
