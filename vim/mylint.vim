@@ -31,13 +31,24 @@ function! CollectGCCWarningsAndErrors(channel, output)
   " Parse the output for errors and warnings
   let l:lines = split(a:output, "\n")
   let l:match_str = '\v^(.+):(\d+):(\d+): (error|warning): (.+)$'
+  let l:match_header_error = '\v^(.+):(\d+):(\d+):\s+required from here.*$'
   for l:line in l:lines
+    if l:line =~ l:match_header_error
+      let b:multi_line_match_list = matchlist(l:line, l:match_header_error)
+      return
     " Match lines with errors or warnings
-    if l:line =~ l:match_str
+    elseif l:line =~ l:match_str
       let l:match_list = matchlist(l:line, l:match_str)
-      let l:file = l:match_list[1]
-      let l:lnum = l:match_list[2]
-      let l:col = l:match_list[3]
+      if exists('b:multi_line_match_list')
+        let l:file = b:multi_line_match_list[1]
+        let l:lnum = b:multi_line_match_list[2]
+        let l:col = b:multi_line_match_list[3]
+        unlet b:multi_line_match_list
+      else
+        let l:file = l:match_list[1]
+        let l:lnum = l:match_list[2]
+        let l:col = l:match_list[3]
+      endif
       let l:type = l:match_list[4]
       let l:text = l:match_list[5]
 
