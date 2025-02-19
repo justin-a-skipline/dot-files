@@ -134,9 +134,12 @@ function! RunCompilerCommand()
   " Use jq to find the compiler command and directory for the current file
   let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . l:latest_compile_commands)
 
-  " If no command is found, return
-  if empty(l:command)
-    return
+  " If no command is found, try bear output
+  if l:command->match("null") == 0
+    let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . l:latest_compile_commands)
+    if l:command->match("null") == 0
+      return
+    endif
   endif
 
   let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . l:command . ' 2>&1 && touch /tmp/vim.txt']
