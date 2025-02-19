@@ -55,7 +55,7 @@ function! ParseGCCWarningsAndErrors(channel, output)
   " Clear all signs in the current buffer
   execute 'sign unplace * buffer=' . bufnr('%')
   " Display errors and warnings using quickfix
-  if !empty(b:lint_errors)
+  if !empty('b:lint_errors')
     execute 'sign define WarningSign text=W texthl=WarningMsg'
     execute 'sign define ErrorSign text=E texthl=ErrorMsg'
 
