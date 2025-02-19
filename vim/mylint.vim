@@ -111,35 +111,47 @@ function! RunCompilerCommand()
   endif
 
   " Find the most recently updated compile_commands.json
-  let l:latest_compile_commands = ''
-  let l:latest_time = 0
+  " and update our cached value for it
+  if !exists('b:latest_compile_commands')
+    let b:latest_compile_commands = ''
+  endif
+  let l:recalculate_file_path_map = 0
+  if !exists('b:latest_time')
+    let b:latest_time = 0
+    let l:recalculate_file_path_map = 1
+  endif
   for l:file in l:compile_files
     let l:file_time = getftime(l:file)
-    if l:file_time > l:latest_time
-      let l:latest_time = l:file_time
-      let l:latest_compile_commands = l:file
+    if l:file_time > b:latest_time
+      let b:latest_time = l:file_time
+      let l:recalculate_file_path_map = 1
+      let b:latest_compile_commands = l:file
     endif
   endfor
 
   " Get the current file path
   let l:current_file = resolve(expand('%:p'))
 
-  " Get the file path map
-  let l:file_map = GetFilePathMap(l:latest_compile_commands)
+  " Get the file path map if we have marked that there is a new file to get or
+  " the timestamp was updated from a compile
+  if l:recalculate_file_path_map > 0
+    let b:file_map = GetFilePathMap(b:latest_compile_commands)
+  endif
+
   " Find the symlink path using the resolved current file path
-  if has_key(l:file_map, l:current_file)
-    let l:cc_file_path = l:file_map[l:current_file]['file']
-    let l:cc_dir_path = l:file_map[l:current_file]['directory']
+  if has_key(b:file_map, l:current_file)
+    let l:cc_file_path = b:file_map[l:current_file]['file']
+    let l:cc_dir_path = b:file_map[l:current_file]['directory']
   else
     return
   endif
 
   " Use jq to find the compiler command and directory for the current file
-  let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . l:latest_compile_commands)
+  let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . b:latest_compile_commands)
 
   " If no command is found, try bear output
   if l:command->match("null") == 0
-    let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . l:latest_compile_commands)
+    let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . b:latest_compile_commands)
     if l:command->match("null") == 0
       return
     endif
