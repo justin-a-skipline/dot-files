@@ -106,6 +106,9 @@ endfunction
 function! RunCompilerCommand()
   " Find all compile_commands.json files one level down
   let l:compile_files = systemlist('find . -mindepth 2 -maxdepth 2 -name "compile_commands.json"')
+  if l:compile_files->len() <= 0
+    return
+  endif
 
   " Find the most recently updated compile_commands.json
   let l:latest_compile_commands = ''
