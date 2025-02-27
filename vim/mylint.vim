@@ -115,8 +115,9 @@ endfunction
 " This function is run when the buffer is re-read or written and calls the
 " compiler, kicking off the linting process
 function! RunCompilerCommand()
-  " Find all compile_commands.json files one level down
-  let l:compile_files = systemlist('find . -mindepth 2 -maxdepth 2 -name "compile_commands.json"')
+  " Find all compile_commands.json files at this level and one level down
+  " Exclude files in . directories like what qt produces
+  let l:compile_files = systemlist('find . -maxdepth 2 -name compile_commands.json -a ! -iregex ".*/\..*" -prune')
   if l:compile_files->len() <= 0
     return
   endif
