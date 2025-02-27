@@ -159,17 +159,17 @@ function! RunCompilerCommand()
   endif
 
   " Use jq to find the compiler command and directory for the current file
-  let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . b:latest_compile_commands)
+  let b:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . b:latest_compile_commands)
 
   " If no command is found, try bear output
-  if l:command->match("null") == 0
-    let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . b:latest_compile_commands)
-    if l:command->match("null") == 0
+  if b:command->match("null") == 0
+    let b:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . b:latest_compile_commands)
+    if b:command->match("null") == 0
       return
     endif
   endif
 
-  let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . l:command . ' 2>&1 && touch /tmp/vim.txt']
+  let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . b:command . ' 2>&1 && touch /tmp/vim.txt']
   let b:lint_errors = []
   let s:cc_job = job_start(cmd, {'callback': 'CollectGCCWarningsAndErrors', 'out_mode': 'nl', 'exit_cb': 'ParseGCCWarningsAndErrors'})
 endfunction
