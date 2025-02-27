@@ -103,7 +103,7 @@ function! ShowSignMessage()
     for l:error in b:lint_errors
         if l:error.lnum == lnum
             echohl WarningMsg
-            echo l:error.text
+            echomsg l:error.text
             echohl None
             return
         endif
