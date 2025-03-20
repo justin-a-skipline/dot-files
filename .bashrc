@@ -1029,6 +1029,21 @@ start_setupVCan()
 	sudo ip link set up "can$num"
 }
 
+# This should work with allow-hotplug in /etc/network/interfaces
+# but sometimes it wigs out after a suspension and there is a bus
+# error light on the hub. In that case, running this clears the
+# condition.
+start_setupCANAdapter()
+{
+	local num=0
+	if [ $# -eq 1 ]; then
+		num=$1
+	fi
+
+	sudo ip link set "can$num" down
+	sudo ip link set "can$num" up txqueuelen 1000 type can bitrate 250000 sample-point 0.7 restart-ms 500
+}
+
 start_startWireguard()
 {
 	sudo wg-quick up /etc/wireguard/wg0.conf
@@ -1063,4 +1078,35 @@ start_SVN_most_recent_changed()
 
   echo "The most recently modified file is: $most_recent_file at $most_recent_date"
 }
+
+start_ORGDownload()
+{
+    # ex: start_ORGDownload CVO_1261 2025/03/15 '*.sklData' /tmp/output_folder/
+    # requires key added to skipline account on ORG
+    local cvo_id="$1"
+    local YYslashMMslashDD="$2"
+    local pattern="$3"
+    local output_location="$4"
+
+    scp -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYslashMMslashDD"/"$pattern" "$output_location"
+}
+
+_select_system_completions()
+{
+   local cur opts base_dir
+   COMPREPLY=()
+   cur="${COMP_WORDS[COMP_CWORD]}"
+   base_dir="$HOME/skiprepo/production/systems"
+
+   # Check if the command ends with systems/select_system.py
+   if [[ "${COMP_WORDS[0]}" == */select_system.py ]]; then
+	   # List system directories in skiprepo
+	   opts=$(find "$base_dir" -maxdepth 1 -type d \! -regex '.*_MANUAL.*' -printf "%f\n")
+	   # Also list manual system files
+	   opts+=" $(find "$(dirname ${COMP_WORDS[0]})" -maxdepth 1 -mindepth 1 -iregex '.*_MANUAL.h' -printf "%f\n")"
+	   COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+   fi
+}
+complete -F _select_system_completions -o default select_system.py
+
 ######## END WORK SECTION #########
