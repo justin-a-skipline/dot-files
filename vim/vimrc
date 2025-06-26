@@ -894,7 +894,18 @@ if !exists('s:already_loaded_plugin_info')
      Plug 'skywind3000/asyncrun.vim'
      Plug 'peterhoeg/vim-qml'
      Plug 'artoj/qmake-syntax-vim'
-  
+
+     Plug 'rickhowe/diffchar.vim'
+     Plug 'rickhowe/spotdiff.vim'
+     Plug 'rickhowe/diffunitsyntax'
+
+     if exists('$CLAUDE_API_KEY')
+       let g:claude_api_key = $CLAUDE_API_KEY
+     endif
+     Plug 'pasky/claude.vim'
+
+     Plug 'DanBradbury/copilot-chat.vim'
+
      Plug 'madox2/vim-ai'
   let s:initial_chat_prompt =<< trim END
 >>> system
