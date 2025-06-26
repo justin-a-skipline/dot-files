@@ -1091,6 +1091,34 @@ start_ORGDownload()
     scp -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYYYslashMMslashDD"/"$pattern" "$output_location"
 }
 
+start_ORGCatLatestUIConfig()
+{
+    # ex: start_ORGCatLatestUIConfig CVO_1849
+    # requires key added to skipline account on ORG
+    if [ $# -lt 1 ]; then
+        echo "Usage: start_ORGCatLatestUIConfig [cvo_id]" >&2
+        return 1
+    fi
+    local cvo_id="$1"
+
+    ssh -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com "
+    for file in \$(find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | sort -n --reverse | cut -d' ' -f2-); do
+        zcat \$file | grep --max-count=1 'UIConfig' && break
+    done" | jq -j '."70"."UIConfig"'
+}
+
+start_MongoEquipmentInfo()
+{
+    if [ $# -lt 1 ]; then
+        echo "Usage: start_MongoEquipmentInfo CVO_ID" 1>&2;
+        return 1;
+    fi;
+    local cvo_id="$1";
+    mongosh "mongodb+srv://srp-prod.4yw3k.mongodb.net/Skip-Line" --apiVersion 1 --username "$MONGO_USERNAME" --password "$MONGO_PASSWORD" --eval "
+    printjson(db.equipment.find({ \"serial_number\": \"$cvo_id\" }).toArray())
+    "
+}
+
 _select_system_completions()
 {
    local cur opts base_dir
