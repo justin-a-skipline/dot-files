@@ -1084,11 +1084,11 @@ start_ORGDownload()
     # ex: start_ORGDownload CVO_1261 2025/03/15 '*.sklData' /tmp/output_folder/
     # requires key added to skipline account on ORG
     local cvo_id="$1"
-    local YYslashMMslashDD="$2"
+    local YYYYslashMMslashDD="$2"
     local pattern="$3"
     local output_location="$4"
 
-    scp -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYslashMMslashDD"/"$pattern" "$output_location"
+    scp -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYYYslashMMslashDD"/"$pattern" "$output_location"
 }
 
 _select_system_completions()
