@@ -538,7 +538,7 @@ canutils_build()
 	export PATH=${HOME}/qt_versions/5.15.2/gcc_64/bin/:"$PATH"
 	# -k flag keeps going when CANDisplay fails to build correctly
 	# Building with qt4 is desired now because stax viewer has janky colors at the moment with qt5
-	mkdir -p build && cd build/ && qmake .. CONFIG+=debug && bear --append make -j8 -k
+	mkdir -p build && cd build/ && qmake .. CONFIG+=debug && bear --append -- make -j"$(nproc)" -k
 	) 2>&1 > /dev/null | sed -e 's;^../../;;'
 }
 
