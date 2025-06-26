@@ -407,6 +407,7 @@ let s:comment_characters = {
       \"dosbatch": "REM ",
       \"python" : "# ",
       \"vhdl" : "--",
+      \"tex" : "%",
       \}
 command! -range Comment <line1>,<line2>call s:Comment()
 function! s:Comment()
