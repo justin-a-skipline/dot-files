@@ -156,7 +156,7 @@ alias gdc='git diff --color --cached | unified_diff_highlight'
 red_msg()
 {
 	echo -en "\e[0;31m"
-	echo "$@"
+	echo "$@" >&2
 	echo -en "\e[0m"
 }
 
