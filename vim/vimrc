@@ -904,7 +904,7 @@ if !exists('s:already_loaded_plugin_info')
      endif
      Plug 'pasky/claude.vim'
 
-     Plug 'DanBradbury/copilot-chat.vim'
+     Plug 'justinbalexander/copilot-chat.vim'
 
      Plug 'madox2/vim-ai'
   let s:initial_chat_prompt =<< trim END
