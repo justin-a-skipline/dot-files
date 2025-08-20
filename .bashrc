@@ -957,19 +957,6 @@ start_SetupNewGrinderHDVO()
 	# Then copy any gc configs from another system
 }
 
-start_DownloadSnapshots()
-{
-	# 1. Have to jump through different IP as org server limits access based on IP address
-	# 2. Using skipline account after Doug added my public key under the skip-line account
-	#
-	# Example start_DownloadSnapshots 'CVO_1706/2024/04/17/*' .
-	if [ $# -eq 0 ]; then
-		echo 'Usage start_DownloadSnapshots '\''CVO_1706/2024/04/17/*'\'' /directory/to/place/files'
-		return 1
-	fi
-	scp -J burner@192.168.3.6 -oPort=5754 "skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/$1" "$2"
-}
-
 start_mountUSBBinFile()
 {
 	binfile="_Release_PC/master/usbfat.bin"
