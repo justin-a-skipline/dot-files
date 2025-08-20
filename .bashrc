@@ -1001,7 +1001,7 @@ start_activate_sim_card()
 	local HOLOGRAM_ZONE=global
 	local HOLOGRAM_TAG=8995
 
-	curl -f --header "Content-Type: application/json" --data "{\"username\":\"hdvoDeployScript\",\"password\":\"hFVWvSX7DTLu\",\"truck_id\":\"${CVO_ID}\",\"serial_num\":\"${PROGSERNUM}\",\"sim\":\"${SIMID}\"}" https://reportgen2.skip-line.com/trucks/append_sim/
+	curl -f --header "Content-Type: application/json" --data "{\"username\":\"hdvoDeployScript\",\"password\":\"hFVWvSX7DTLu\",\"truck_id\":\"${CVO_ID}\",\"serial_num\":\"${PROGSERNUM}\",\"sim\":\"${SIMID}\"}" https://reportgen2-online.skip-line.com/trucks/append_sim/
 
 	ACTIVATION_RESPONSE=$(curl -f --request POST --header "Content-Type: application/json" --data-binary "{\"plan\":${HOLOGRAM_PLAN_ID},\"zone\":\"${HOLOGRAM_ZONE}\",\"orgid\":${HOLOGRAM_ORG_ID},\"tagid\":${HOLOGRAM_TAG}}" "https://dashboard.hologram.io/api/1/links/cellular/sim_${SIMID}/claim" -u apikey:${HOLOGRAM_API_KEY})
 
@@ -1088,7 +1088,7 @@ start_ORGDownload()
     local pattern="$3"
     local output_location="$4"
 
-    scp -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYYYslashMMslashDD"/"$pattern" "$output_location"
+    scp -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYYYslashMMslashDD"/"$pattern" "$output_location"
 }
 
 start_ORGCatLatestUIConfig()
@@ -1101,7 +1101,7 @@ start_ORGCatLatestUIConfig()
     fi
     local cvo_id="$1"
 
-    ssh -J burner@apollo.skip-line.com -oPort=5754 skipline@reportgen2.skip-line.com "
+    ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "
     for file in \$(find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | sort -n --reverse | cut -d' ' -f2-); do
         zcat \$file | grep --max-count=1 'UIConfig' && break
     done" | jq -j '."70"."UIConfig"'
