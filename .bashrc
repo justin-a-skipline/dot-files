@@ -1068,9 +1068,13 @@ start_SVN_most_recent_changed()
 
 start_ORGDownload()
 {
-    # ex: start_ORGDownload CVO_1261 2025/03/15 '*.sklData' /tmp/output_folder/
+    # ex: start_ORGDownload SC12_ECODOTDistrict2 2025/03/15 '*.sklData' /tmp/output_folder/
     # requires key added to skipline account on ORG
-    local cvo_id="$1"
+    local cvo_id="$(extract_cvo_id "$1")"
+    if [ -z "$cvo_id" ]; then
+        echo "Failed to extract cvo_id"
+        return 1
+    fi
     local YYYYslashMMslashDD="$2"
     local pattern="$3"
     local output_location="$4"
@@ -1080,13 +1084,16 @@ start_ORGDownload()
 
 start_ORGCatLatestUIConfig()
 {
-    # ex: start_ORGCatLatestUIConfig CVO_1849
     # requires key added to skipline account on ORG
     if [ $# -lt 1 ]; then
-        echo "Usage: start_ORGCatLatestUIConfig [cvo_id]" >&2
+        echo "Usage: start_ORGCatLatestUIConfig system_name" >&2
         return 1
     fi
-    local cvo_id="$1"
+    local cvo_id="$(extract_cvo_id "$1")"
+    if [ -z "$cvo_id" ]; then
+        echo "Failed to extract cvo_id"
+        return 1
+    fi
 
     ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "
     for file in \$(find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | sort -n --reverse | cut -d' ' -f2-); do
@@ -1097,13 +1104,39 @@ start_ORGCatLatestUIConfig()
 start_MongoEquipmentInfo()
 {
     if [ $# -lt 1 ]; then
-        echo "Usage: start_MongoEquipmentInfo CVO_ID" 1>&2;
+        echo "Usage: start_MongoEquipmentInfo system_name" 1>&2;
         return 1;
     fi;
-    local cvo_id="$1";
+    local cvo_id="$(extract_cvo_id "$1")"
+    if [ -z "$cvo_id" ]; then
+        echo "Failed to extract cvo_id"
+        return 1
+    fi
     mongosh "mongodb+srv://srp-prod.4yw3k.mongodb.net/Skip-Line" --apiVersion 1 --username "$MONGO_USERNAME" --password "$MONGO_PASSWORD" --eval "
     printjson(db.equipment.find({ \"serial_number\": \"$cvo_id\" }).toArray())
     "
+}
+
+extract_cvo_id() {
+    local folder_name="$(basename $1)"
+    local base_dir="$HOME/skiprepo/production/systems"
+    local target_dir="$base_dir/$folder_name/variants"
+    local cvo_id=""
+
+    if [[ -d "$target_dir" ]]; then
+        # Check for logging folder first
+        if [[ -f "$target_dir/logging/loggingconfig.json" ]]; then
+            cvo_id=$(jq -r '.truckID' "$target_dir/logging/loggingconfig.json")
+        elif [[ -f "$target_dir/cellular_hdvo/logging/loggingconfig.json" ]]; then
+            cvo_id=$(jq -r '.truckID' "$target_dir/cellular_hdvo/logging/loggingconfig.json")
+        fi
+    fi
+
+    if [[ -n "$cvo_id" ]]; then
+        echo "$cvo_id"
+    else
+        return 1
+    fi
 }
 
 _select_system_completions()
