@@ -1176,6 +1176,20 @@ start_MongoEquipmentInfo()
     "
 }
 
+start_MongoFindRecordWithDeviceSerialNumber()
+{
+    if [ $# -lt 1 ]; then
+        echo "Usage: start_MongoEquipmentInfo serial" 1>&2;
+        return 1;
+    fi;
+
+    local serial_number="$1"
+
+    mongosh "mongodb+srv://srp-prod.4yw3k.mongodb.net/Skip-Line" --apiVersion 1 --username "$MONGO_USERNAME" --password "$MONGO_PASSWORD" --eval "
+    printjson(db.equipment.find({ \"devices\": { \$elemMatch: { \"serial_number\": \"$serial_number\" } } }).toArray())
+    "
+}
+
 extract_cvo_id() {
     local folder_name="$(basename $1)"
     local base_dir="$HOME/skiprepo/production/systems"
