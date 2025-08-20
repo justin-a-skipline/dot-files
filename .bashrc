@@ -1079,7 +1079,7 @@ start_ORGDownload()
     local pattern="$3"
     local output_location="$4"
 
-    scp -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com:/var/www/rg2web/media/datafiles/"$cvo_id"/"$YYYYslashMMslashDD"/"$pattern" "$output_location"
+    ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "tar --transform 's|.*/||' -czf - /var/www/rg2web/media/datafiles/$cvo_id/$YYYYslashMMslashDD/$pattern" | tar -xzvf - -C "$output_location"
 }
 
 start_ORGCatLatestUIConfig()
