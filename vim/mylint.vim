@@ -70,7 +70,7 @@ function! CollectGCCWarningsAndErrors(channel, output)
 
   " Parse the output for errors and warnings
   let l:lines = split(a:output, "\n")
-  let l:match_str = '\v^(.+):(\d+):(\d+): (error|warning): (.+)$'
+  let l:match_str = '\v^(.+):(\d+):(\d+): (fatal error|error|warning): (.+)$'
   let l:match_header_error = '\v^(.+):(\d+):(\d+):\s+required from here.*$'
   let l:match_header_error2 = '\v^In file included from (.+):(\d+):\s*$'
   for l:line in l:lines
