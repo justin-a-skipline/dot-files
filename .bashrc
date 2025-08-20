@@ -1101,6 +1101,65 @@ start_ORGCatLatestUIConfig()
     done" | jq -j '."70"."UIConfig"'
 }
 
+generate_bead_flow_xml()
+{
+    local json_data=$(cat)
+
+    echo '<?xml version="1.0" encoding="UTF-8"?>'
+    echo '<BeadFlowRateSettings>'
+
+    # Get the count of BeadFlowMeters
+    local count=$(echo "$json_data" | jq '.BeadFlowMeters | length')
+
+    # Process each BeadFlowMeter entry by index
+    for ((i=0; i<count; i++)); do
+        name=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].Name")
+        low_reading=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].LowCal.RawReading")
+        low_rate=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].LowCal.BeadFlowRate")
+        high_reading=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].HighCal.RawReading")
+        high_rate=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].HighCal.BeadFlowRate")
+
+        # Generate XML for this entry
+        printf '    <Input Address="%s" AddedToSetupScreen="1">\n' "$name"
+        printf '        <Calibration Reading="%s" Rate="%.7f"/>\n' "$low_reading" "$low_rate"
+        printf '        <Calibration Reading="%s" Rate="%.7f"/>\n' "$high_reading" "$high_rate"
+
+        # Get count of GunLines for this BeadFlowMeter
+        local gunlines_count=$(echo "$json_data" | jq ".BeadFlowMeters[$i].GunLines | length")
+
+        # Process each GunLine entry
+        for ((j=0; j<gunlines_count; j++)); do
+            side=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].GunLines[0].Side")
+            gunline=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].GunLines[0].Index")
+            tandem_rank=$(echo "$json_data" | jq -r ".BeadFlowMeters[$i].GunLines[0].Type")
+
+            printf '        <BeadGun Side="%s" GunLine="%s" TandemRank="%s"/>\n' "$side" "$gunline" "$tandem_rank"
+        done
+        printf '    </Input>\n'
+    done
+
+    echo '</BeadFlowRateSettings>'
+}
+
+start_ORGCatLatestBeadFlowSettingsXML()
+{
+    # requires key added to skipline account on ORG
+    if [ $# -lt 1 ]; then
+        echo "Usage: start_ORGCatLatestBeadFlowSettingsXML system_name" >&2
+        return 1
+    fi
+    local cvo_id="$(extract_cvo_id "$1")"
+    if [ -z "$cvo_id" ]; then
+        echo "Failed to extract cvo_id"
+        return 1
+    fi
+
+    ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "
+    for file in \$(find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | sort -n --reverse | cut -d' ' -f2-); do
+        zcat \$file | grep --max-count=1 '\"194\"' && break
+    done" | ~/workspace/skipline/projects/skl_core/scripts/snapshotToHumanReadableKeys.bash | jq -j '.Config' | generate_bead_flow_xml
+}
+
 start_MongoEquipmentInfo()
 {
     if [ $# -lt 1 ]; then
