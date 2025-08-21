@@ -621,6 +621,12 @@ remote_connect_start_ssh()
 	ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ~/Documents/hdvo_ssh/hdvo_access_key -p 1234 root@localhost
 	red_msg "DON'T FORGET TO CLOSE THE REMOTE CONNECTION IN ORG"
 }
+remote_connect_ssh_mount_device()
+{
+    mkdir -p /tmp/remote_system
+	sshfs root@localhost:/data /tmp/remote_system -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oIdentityFile=~/Documents/hdvo_ssh/hdvo_access_key -p 1234
+	red_msg "DON'T FORGET TO CLOSE THE REMOTE CONNECTION IN ORG"
+}
 
 remote_connect_kill_ssh()
 {
