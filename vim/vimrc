@@ -876,7 +876,7 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 " Source the mylint plugin file
-let vimrc_dir = fnamemodify(expand($MYVIMRC), ':p:h')
+let vimrc_dir = fnamemodify(expand('<sfile>'), ':p:h')
 let mylint_path = vimrc_dir . '/mylint.vim'
 execute 'source' mylint_path
 
