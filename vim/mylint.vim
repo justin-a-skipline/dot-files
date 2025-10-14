@@ -230,7 +230,20 @@ function! RunCompilerCommand()
     endif
   endif
 
-  let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . l:command . ' 2>&1 && touch /tmp/vim.txt']
+  " Modify the command to add .mylint suffix to output files
+  let l:modified_command = l:command
+
+  " Find -o output file patterns and add .mylint suffix
+  " This handles patterns like: -o file.o or -ofile.o
+  let l:o_pattern = '\v(-o\s+)([^\s]+)'
+  let l:o_combined_pattern = '\v(-o)([^\s]+)'
+
+  " First, handle -o followed by space
+  let l:modified_command = substitute(l:modified_command, l:o_pattern, '\1\2.mylint.', 'g')
+  " Then handle -o directly attached to filename
+  let l:modified_command = substitute(l:modified_command, l:o_combined_pattern, '-o\2.mylint.', 'g')
+
+  let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . l:modified_command . ' 2>&1 && touch /tmp/vim.txt']
   let l:buf_dict["lint_errors"] = []
   let l:cc_job = job_start(cmd, {'callback': 'CollectGCCWarningsAndErrors', 'out_mode': 'nl', 'exit_cb': 'ParseGCCWarningsAndErrors'})
   " Store the job object with the key being the job channel for accessing in
