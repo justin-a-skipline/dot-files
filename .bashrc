@@ -734,7 +734,7 @@ start_EatonOutput()
 }
 start_SupportSimUtil()
 {
-	python3 ~/workspace/SupportSimUtil/mainwindow.py &>/dev/null &
+	~/workspace/SupportSimUtil/mainwindow.py &>/dev/null &
 }
 start_BootloaderGUI()
 {
@@ -1113,6 +1113,52 @@ start_ORGCatLatestUIConfig()
     done" | jq -j '."70"."UIConfig"'
 }
 
+start_ORGGetMultiplePastUIConfigs()
+{
+    # requires key added to skipline account on ORG
+    if [ $# -lt 2 ]; then
+        echo "Usage: start_ORGGetMultiplePastUIConfigs system_name numUIConfigs" >&2
+        return 1
+    fi
+    local cvo_id="$(extract_cvo_id "$1")"
+    if [ -z "$cvo_id" ]; then
+        echo "Failed to extract cvo_id"
+        return 1
+    fi
+    local numUIConfigs="$2"
+
+    ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "
+    count=0
+    find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | \
+    sort -n --reverse | cut -d' ' -f2- | \
+    while read file && [ \$count -lt $numUIConfigs ]; do
+        if zcat \"\$file\" | grep --max-count=1 'UIConfig' >/dev/null; then
+            zcat \"\$file\" | grep --max-count=1 'UIConfig'
+            count=\$((count + 1))
+        fi
+    done
+    " | jq -c '."70"."UIConfig"' | while IFS= read -r line; do
+    file="UIConfig_$((++count)).xml"
+        # This line is weird. I have to unstringify the json string after
+        # I separate them out by line.
+        echo "$line" | jq -r > "$file"
+        echo "Wrote $file"
+    done
+
+    # janky double search to get filenames for display
+    ssh -J burner@apollo.skip-line.com -oPort=22 skipline@reportgen2-online.skip-line.com "
+    count=0
+    find /var/www/rg2web/media/datafiles/$cvo_id -type f -iregex '.*\.sklData' -printf '%T@ %p\n' | \
+    sort -n --reverse | cut -d' ' -f2- | \
+    while read file && [ \$count -lt $numUIConfigs ]; do
+        if zcat \"\$file\" | grep --max-count=1 'UIConfig' >/dev/null; then
+            echo \"\$file\"
+            count=\$((count + 1))
+        fi
+    done
+    "
+}
+
 generate_bead_flow_xml()
 {
     local json_data=$(cat)
@@ -1183,6 +1229,11 @@ start_MongoEquipmentInfo()
         echo "Failed to extract cvo_id"
         return 1
     fi
+    echo '====== SRO ORGS ======'
+    mongosh "mongodb+srv://srp-prod.4yw3k.mongodb.net/Skip-Line" --apiVersion 1 --username "$MONGO_USERNAME" --password "$MONGO_PASSWORD" --eval "
+    printjson(db.organizations.find({ \"equipment\": \"$cvo_id\" }).toArray())
+    " | grep -E '^\s+name: '
+    echo '====== EQUIPMENT INFO ======'
     mongosh "mongodb+srv://srp-prod.4yw3k.mongodb.net/Skip-Line" --apiVersion 1 --username "$MONGO_USERNAME" --password "$MONGO_PASSWORD" --eval "
     printjson(db.equipment.find({ \"serial_number\": \"$cvo_id\" }).toArray())
     "
@@ -1241,5 +1292,32 @@ _select_system_completions()
    fi
 }
 complete -F _select_system_completions -o default select_system.py
+
+start_IndentFileToSkipLineFormat()
+{
+	indent -kr -ts4 -l135 -br -ce -cli4 -nut -sob -fca -i4 -bad -bap -bbb -sc -cp1 $1
+}
+
+diff_series_of_files()
+{
+    local files=("$@")
+    local num_files=${#files[@]}
+
+    if (( num_files < 2 )); then
+        echo "Please provide at least two files to compare, newest files first. The diffs will be listed like a git log -p"
+        return 1
+    fi
+
+    for ((i=0; i<num_files-1; i++)); do
+        local file1="${files[i]}"
+        local file2="${files[i+1]}"
+        git diff -U30 --no-index "$file2" "$file1"
+    done | unified_diff_highlight
+}
+
+start_AsanifyCopilotOutputOnClipboard()
+{
+	xclip -o -sel clip | python3 ~/workspace/personal/test/format_asana.py -u justin-a-skipline | xclip -sel clip
+}
 
 ######## END WORK SECTION #########
