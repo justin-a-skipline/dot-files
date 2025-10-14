@@ -150,8 +150,12 @@ unified_diff_highlight()
 }
 alias gl='git log --oneline --decorate'
 alias gs='git status --short --branch && gl -10'
-alias gd='git diff --color | unified_diff_highlight'
-alias gdc='git diff --color --cached | unified_diff_highlight'
+alias gd='git diff --color'
+alias gdc='git diff --color --cached'
+if [ -e /usr/share/doc/git/contrib/diff-highlight/diff-highlight ]; then
+	git config --global core.pager 'perl /usr/share/doc/git/contrib/diff-highlight/diff-highlight | less'
+	git config --global interactive.difffilter 'perl /usr/share/doc/git/contrib/diff-highlight/diff-highlight'
+fi
 
 red_msg()
 {
