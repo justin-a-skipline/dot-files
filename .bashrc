@@ -405,6 +405,8 @@ export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[01;4;31m'
 
+export FZF_DEFAULT_OPTS="--bind=ctrl-k:half-page-up,ctrl-j:half-page-down"
+
 ##### Custom Prompt ###############
 function __setprompt
 {
