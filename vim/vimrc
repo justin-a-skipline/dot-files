@@ -424,33 +424,6 @@ function! s:Uncomment()
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -range -nargs=1 MassReplace <line1>,<line2>call s:MassReplace(<args>)
-function! s:MassReplace(dict)
-    for [regex,replacement] in items(a:dict)
-        exe "silent! s;\\v".regex.";".replacement.";g"
-    endfor
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -complete=file_in_path -nargs=1 FindLine call s:FindLine(<q-args>)
-function! s:FindLine(file_line)
-  let split_path = split(a:file_line,':')
-  let split_path_len = len(split_path)
-  if split_path_len == 0 || split_path_len > 2
-    echo "FindLine - Invalid Parameter"
-  else
-    let found_file = findfile(split_path[0])
-    if filereadable(expand(found_file))
-      exe "edit ".found_file
-      if split_path_len == 2 && !(split_path[1] =~ '\D')
-        exe "silent! normal! ".split_path[1]."gg"
-        normal! z.
-      endif
-    else
-      echo "Findline - File Not Readable"
-    endif
-  endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -range -complete=tag -nargs=+ S <line1>,<line2>call s:SearchAndReplaceKeepCase(<f-args>)
 function! s:SearchAndReplaceKeepCase(word, replacement, ...)
   " This function takes camelCase or PascalCase search and replace string and also does replace on
@@ -566,23 +539,6 @@ endfunction
 command! ClaudeCodeTerminalToggle call s:ClaudeCodeTerminalToggle()
 function! s:ClaudeCodeTerminalToggle()
   call s:SimpleTerminalToggle('claude_code_terminal_win_num', 'claude_code_terminal_buf_num', 'local', 'CLAUDE', 'botright vnew', 85)
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -nargs=? -complete=tag Match1 call s:MyMatch1(<q-args>)
-function! s:MyMatch1(...)
-  if a:1 == ""
-    match none
-  else
-    execute "match wildmenu `\\v".a:1."`"
-  endif
-endfunction
-command! -nargs=? -complete=tag Match2 call s:MyMatch2(<q-args>)
-function! s:MyMatch2(...)
-  if a:1 == ""
-    2match none
-  else
-    execute "2match statuslineterm `\\v".a:1."`"
-  endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! CleanEmptyBuffers call s:CleanEmptyBuffers()
