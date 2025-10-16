@@ -220,16 +220,16 @@ nnoremap <c-Bslash>n :VerticalSplitNoteToggle<CR>
 tnoremap <c-Bslash>n <c-w>:VerticalSplitNoteToggle<CR>
 nnoremap <c-Bslash>gn :GlobalVerticalSplitNoteToggle<CR>
 tnoremap <c-Bslash>gn <c-w>:GlobalVerticalSplitNoteToggle<CR>
-nnoremap <c-Bslash>t :GlobalTerminalToggle<CR>
-nnoremap <c-Bslash>vt :GlobalVerticalTerminalToggle<CR>
-tnoremap <c-Bslash>t <c-w>:GlobalTerminalToggle<CR>
-tnoremap <c-Bslash>vt <c-w>:GlobalVerticalTerminalToggle<CR>
-nnoremap <c-Bslash>lt :TerminalToggle<CR>
-nnoremap <c-Bslash>lvt :VerticalTerminalToggle<CR>
-tnoremap <c-Bslash>lt <c-w>:TerminalToggle<CR>
-tnoremap <c-Bslash>lvt <c-w>:VerticalTerminalToggle<CR>
-nnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
-tnoremap <c-Bslash>dt <c-w>:DebuggingTerminalToggle<CR>
+nnoremap <c-Bslash>gt :GlobalTerminalToggle<CR>
+nnoremap <c-Bslash>gvt :GlobalVerticalTerminalToggle<CR>
+tnoremap <c-Bslash>gt <c-w>:GlobalTerminalToggle<CR>
+tnoremap <c-Bslash>gvt <c-w>:GlobalVerticalTerminalToggle<CR>
+nnoremap <c-Bslash>t :TerminalToggle<CR>
+nnoremap <c-Bslash>vt :VerticalTerminalToggle<CR>
+tnoremap <c-Bslash>t <c-w>:TerminalToggle<CR>
+tnoremap <c-Bslash>vt <c-w>:VerticalTerminalToggle<CR>
+nnoremap <c-Bslash>ct :ClaudeCodeTerminalToggle<CR>
+tnoremap <c-Bslash>ct <c-w>:ClaudeCodeTerminalToggle<CR>
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 nnoremap <c-w>M <c-w>\|<c-w>_
@@ -545,111 +545,55 @@ function! s:MakeNewTermTab(...)
   call TermStart(l:term_name)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is specific to each tab
+function! s:SimpleTerminalToggle(win_var, buf_var, scope, term_name, split_cmd, size)
+  let l:win_var_name = a:scope == 'global' ? 't:'.a:win_var : 't:'.a:win_var
+  let l:buf_var_name = a:scope == 'global' ? 'g:'.a:buf_var : 't:'.a:buf_var
+
+  if exists(l:win_var_name)
+    let l:win_id = {l:win_var_name}
+    if win_id2win(l:win_id)
+      execute win_id2win(l:win_id)."wincmd w"
+      hide
+    endif
+    unlet {l:win_var_name}
+  else
+    execute a:split_cmd
+    if a:size > 0
+      if a:split_cmd =~# 'vnew'
+        execute 'vertical resize '.a:size
+      else
+        execute 'resize '.a:size
+      endif
+    endif
+    let {l:win_var_name} = win_getid(winnr())
+    if exists(l:buf_var_name) && bufexists({l:buf_var_name})
+      execute "buf ".{l:buf_var_name}
+    else
+      call TermStart(a:term_name)
+      let {l:buf_var_name} = bufnr("%")
+    endif
+  endif
+endfunction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! TerminalToggle call s:TerminalToggle()
 function! s:TerminalToggle()
-  if exists("t:terminal_win_num")
-    if win_id2win(t:terminal_win_num)
-      execute win_id2win(t:terminal_win_num)."wincmd w"
-      hide
-    endif
-    unlet t:terminal_win_num
-  else
-    botright new
-    resize 16 "16 lines tall
-    let t:terminal_win_num = win_getid(winnr())
-    if exists("t:terminal_buf_num") && bufexists(t:terminal_buf_num)
-      execute "buf ".t:terminal_buf_num
-    else
-      call TermStart(s:local_terminal_name)
-      let t:terminal_buf_num = bufnr("%")
-    endif
-  endif
+  call s:SimpleTerminalToggle('terminal_win_num', 'terminal_buf_num', 'local', s:local_terminal_name, 'botright new', 16)
 endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is specific to each tab
 command! VerticalTerminalToggle call s:VerticalTerminalToggle()
 function! s:VerticalTerminalToggle()
-  if exists("t:vertical_terminal_win_num")
-    if win_id2win(t:vertical_terminal_win_num)
-      execute win_id2win(t:vertical_terminal_win_num)."wincmd w"
-      hide
-    endif
-    unlet t:vertical_terminal_win_num
-  else
-    botright vnew
-    let t:vertical_terminal_win_num = win_getid(winnr())
-    if exists("t:vertical_terminal_buf_num") && bufexists(t:vertical_terminal_buf_num)
-      execute "buf ".t:vertical_terminal_buf_num
-    else
-      call TermStart(s:local_terminal_name)
-      let t:vertical_terminal_buf_num = bufnr("%")
-    endif
-  endif
+  call s:SimpleTerminalToggle('vertical_terminal_win_num', 'vertical_terminal_buf_num', 'local', s:local_terminal_name, 'botright vnew', 0)
 endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is global and shared amongst all tabs
 command! GlobalTerminalToggle call s:GlobalTerminalToggle()
 function! s:GlobalTerminalToggle()
-  if exists("t:global_terminal_win_num")
-    if win_id2win(t:global_terminal_win_num)
-      execute win_id2win(t:global_terminal_win_num)."wincmd w"
-      hide
-    endif
-    unlet t:global_terminal_win_num
-  else
-    botright new
-    resize 16 "16 lines tall
-    let t:global_terminal_win_num = win_getid(winnr())
-    if exists("g:global_terminal_buf_num") && bufexists(g:global_terminal_buf_num)
-      execute "buf ".g:global_terminal_buf_num
-    else
-      call TermStart(s:global_terminal_name)
-      let g:global_terminal_buf_num = bufnr("%")
-    endif
-  endif
+  call s:SimpleTerminalToggle('global_terminal_win_num', 'global_terminal_buf_num', 'global', s:global_terminal_name, 'botright new', 16)
 endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is global and shared amongst all tabs
 command! GlobalVerticalTerminalToggle call s:GlobalVerticalTerminalToggle()
 function! s:GlobalVerticalTerminalToggle()
-  if exists("t:global_vertical_terminal_win_num")
-    if win_id2win(t:global_vertical_terminal_win_num)
-      execute win_id2win(t:global_vertical_terminal_win_num)."wincmd w"
-      hide
-    endif
-    unlet t:global_vertical_terminal_win_num
-  else
-    botright vnew
-    let t:global_vertical_terminal_win_num = win_getid(winnr())
-    if exists("g:global_vertical_terminal_buf_num") && bufexists(g:global_vertical_terminal_buf_num)
-      execute "buf ".g:global_vertical_terminal_buf_num
-    else
-      call TermStart(s:global_terminal_name)
-      let g:global_vertical_terminal_buf_num = bufnr("%")
-    endif
-  endif
+  call s:SimpleTerminalToggle('global_vertical_terminal_win_num', 'global_vertical_terminal_buf_num', 'global', s:global_terminal_name, 'botright vnew', 0)
 endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Toggleable terminal is global and shared amongst all tabs
-command! DebuggingTerminalToggle call s:DebuggingTerminalToggle()
-function! s:DebuggingTerminalToggle()
-  if exists("t:debugging_terminal_win_num")
-    if win_id2win(t:debugging_terminal_win_num)
-      execute win_id2win(t:debugging_terminal_win_num)."wincmd w"
-      hide
-    endif
-    unlet t:debugging_terminal_win_num
-  else
-    botright vnew
-    let t:debugging_terminal_win_num = win_getid(winnr())
-    if exists("g:debugging_terminal_buf_num") && bufexists(g:debugging_terminal_buf_num)
-      execute "buf ".g:debugging_terminal_buf_num
-    else
-      call TermStart('GDB')
-      let g:debugging_terminal_buf_num = bufnr("%")
-    endif
-  endif
+command! ClaudeCodeTerminalToggle call s:ClaudeCodeTerminalToggle()
+function! s:ClaudeCodeTerminalToggle()
+  call s:SimpleTerminalToggle('claude_code_terminal_win_num', 'claude_code_terminal_buf_num', 'local', 'CLAUDE', 'botright vnew', 85)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -nargs=? -complete=tag Match1 call s:MyMatch1(<q-args>)
