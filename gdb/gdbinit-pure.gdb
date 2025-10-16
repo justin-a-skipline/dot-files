@@ -18,6 +18,8 @@ set $_list_on_up = 1
 set $_list_on_down = 1
 set $_list_on_until = 1
 
+set $_disassemble_raw_on_stepi = 0
+
 set $print_symbol_filename = 1
 
 define SetListLocals
@@ -261,6 +263,26 @@ Display arg1 * 16 number of bytes of memory at address arg0
 Usage: HexDump address [num rows = 4]
 end
 
+define DisassembleBySetting
+  if $_disassemble_raw_on_stepi == 0
+    if $argc == 1
+      DisassembleSource $arg0
+    else
+      DisassembleSource
+    end
+  else
+    if $argc == 1
+      DisassembleRaw $arg0
+    else
+      DisassembleRaw
+    end
+  end
+end
+document DisassembleBySetting
+Disassembles current context plus next num instructions, according to last DisassembleSource or DisassembleRaw call
+Usage: DisassembleSetting [num instructions = 8]
+end
+
 define DisassembleSource
   set print symbol-filename off
   if $argc == 0
@@ -369,7 +391,7 @@ end
 
 define iskip
   set $pc=$pc+4
-  DisassembleRaw
+  DisassembleBySetting
 end
 document iskip
 Jump past 4 byte instruction.
@@ -421,12 +443,12 @@ end
 
 define si
   stepi
-  DisassembleRaw
+  DisassembleBySetting
 end
 
 define ni
   nexti
-  DisassembleRaw
+  DisassembleBySetting
 end
 
 define f
