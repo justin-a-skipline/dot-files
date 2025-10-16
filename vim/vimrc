@@ -259,9 +259,6 @@ tnoremap <c-g>t     <c-w>:normal gT<CR>
 nnoremap <c-g><c-t> <c-w>:normal gt<CR>
 nnoremap <c-g>t     <c-w>:normal gT<CR>
 
-tnoremap <c-\>N <c-w>:NewTermTab<CR>
-nnoremap <c-\>N <c-w>:NewTermTab<CR>
-
 " Command line history completion
 cnoremap <c-j> <Down>
 cnoremap <c-k> <Up>
@@ -530,19 +527,6 @@ function! s:GlobalVerticalSplitNoteToggle()
     let t:global_notes_win_number = win_getid(winnr())
     vertical resize 85
   endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! -nargs=? NewTermTab call s:MakeNewTermTab(<q-args>)
-let s:term_num = 0
-function! s:MakeNewTermTab(...)
-  if a:0 > 0 && (match(a:000, '^.\+$') == 0)
-    let l:term_name = a:1
-  else
-    let l:term_name = 'Terminal_'.s:term_num
-    let s:term_num += 1
-  endif
-  $tabnew
-  call TermStart(l:term_name)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:SimpleTerminalToggle(win_var, buf_var, scope, term_name, split_cmd, size)
