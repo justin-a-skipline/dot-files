@@ -541,18 +541,6 @@ function! s:ClaudeCodeTerminalToggle()
   call s:SimpleTerminalToggle('claude_code_terminal_win_num', 'claude_code_terminal_buf_num', 'local', 'CLAUDE', 'botright vnew', 85)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! CleanEmptyBuffers call s:CleanEmptyBuffers()
-function! s:CleanEmptyBuffers()
-  let l:filter = 'buflisted(v:val)
-                     \  && empty(bufname(v:val))
-                     \  && bufwinnr(v:val)<0
-                     \  && !getbufvar(v:val, "&mod")'
-  let l:buffers = filter(range(1, bufnr('$')), l:filter)
-  if !empty(l:buffers)
-    exe 'bd ' . join(l:buffers, ' ')
-  endif
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -complete=file_in_path -nargs=1 Find call s:Find(<q-args>)
 function! s:Find(...)
   if a:0 < 1
@@ -755,13 +743,6 @@ if !exists('s:already_loaded_plugin_info')
      Plug 'rickhowe/spotdiff.vim'
      Plug 'rickhowe/diffunitsyntax'
 
-     if exists('$CLAUDE_API_KEY')
-       let g:claude_api_key = $CLAUDE_API_KEY
-     endif
-     Plug 'pasky/claude.vim'
-
-     Plug 'justinbalexander/copilot-chat.vim'
-
      Plug 'madox2/vim-ai'
   let s:initial_chat_prompt =<< trim END
 >>> system
@@ -798,73 +779,5 @@ END
                   \  },
                   \}
   
-     let g:ale_set_loclist = 0
-     let g:ale_set_quickfix = 0
-     let g:ale_c_cc_executable = 'gcc'
-     let g:ale_c_build_dir_names = ['build', '_Release_PC']
-     " A dash in front of the name removes the check
-     let g:ale_c_clangtidy_checks = [
-                 \ '-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling',
-                 \ '-clang-analyzer-security.insecureAPI.strcpy',
-                 \ ]
-     let g:ale_cpp_clazy_checks = [
-                 \ '-clazy-fully-qualified-moc-types',
-                 \ ]
-     let g:ale_cpp_cc_executable = 'gcc'
-     let g:ale_sh_shellcheck_exclusions = 'SC2030,SC2031,SC2069'
-     let g:ale_sh_shellcheck_options = '-x'
-     let g:ale_lint_on_text_changed = 'never'
-     let g:ale_lint_on_insert_leave = 0
-     let g:ale_lint_on_enter = 1
-     let g:ale_lint_on_save = 1
-     let g:ale_lint_on_filetype_changed = 0
-     let g:ale_linters = {
-                 \ 'json': [
-                 \   'jq',
-                 \ ],
-                 \}
-     let g:ale_fixers = {
-                 \ 'python': [
-                 \   'black',
-                 \   'autoflake',
-                 \ ],
-                 \ 'javascriptreact': [
-                 \   'prettier',
-                 \ ],
-                 \ 'javascript': [
-                 \   'prettier',
-                 \ ],
-                 \}
-     let g:ale_linters_ignore = {
-                 \ 'javascriptreact': [
-                 \   'cspell',
-                 \   'deno',
-                 \   'fecs',
-                 \   'flow',
-                 \   'flow_ls',
-                 \   'jscs',
-                 \   'jshint',
-                 \   'standard',
-                 \   'tsserver',
-                 \   'xo'
-                 \ ],
-                 \ 'javascript': [
-                 \   'cspell',
-                 \   'deno',
-                 \   'fecs',
-                 \   'flow',
-                 \   'flow_ls',
-                 \   'jscs',
-                 \   'jshint',
-                 \   'standard',
-                 \   'tsserver',
-                 \   'xo'
-                 \ ],
-                 \}
-     let g:ale_javascript_eslint_executable = 'eslint_d'
-     let g:ale_javascript_eslint_use_global = 1
-  
-"     let g:ale_fix_on_save = 1
-"     Plug 'w0rp/ale'
   call plug#end()
 endif
