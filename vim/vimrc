@@ -215,7 +215,6 @@ vnoremap <Bslash>/ :Comment<CR>
 vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
 nnoremap <Bslash>\ :Uncomment<CR>
-nnoremap <Bslash>] :TogglePreview<CR>
 nnoremap <c-Bslash>n :VerticalSplitNoteToggle<CR>
 tnoremap <c-Bslash>n <c-w>:VerticalSplitNoteToggle<CR>
 nnoremap <c-Bslash>gn :GlobalVerticalSplitNoteToggle<CR>
@@ -489,17 +488,6 @@ function! s:SearchAndReplaceKeepCase(word, replacement, ...)
   execute 'silent! s;\C\v<' . tolower(a:word)                 . '>;' . tolower(a:replacement)                        . ';g' . sub_mod
   " original changed to ALLUPPERCASE
   execute 'silent! s;\C\v<' . toupper(a:word)                 . '>;' . toupper(a:replacement)                        . ';g' . sub_mod
-endfunction
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! TogglePreview call s:TogglePreview()
-function! s:TogglePreview()
-  if exists("t:pwin")
-    unlet t:pwin
-    pclose
-  else
-    let t:pwin = 1
-    wincmd }
-  endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! VerticalSplitNoteToggle call s:VerticalSplitNoteToggle()
