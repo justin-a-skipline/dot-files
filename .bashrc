@@ -506,6 +506,30 @@ PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 
 ######## WORK SECTION #########
 
+work_happy_regular()
+{
+	# Run the command
+	if command -v happy &>/dev/null; then
+		happy "$@"
+	elif command -v claude &>/dev/null; then
+		claude "$@"
+	else
+		echo "Install happy or claude"
+	fi
+}
+
+work_happy()
+{
+	# Run the command
+	if command -v happy &>/dev/null; then
+		ANTHROPIC_MODEL=claude-haiku-4-5 ANTHROPIC_DEFAULT_OPUS_MODEL=claude-haiku-4-5 ANTHROPIC_DEFAULT_SONNET_MODEL=claude-haiku-4-5 CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5 happy "$@"
+	elif command -v claude &>/dev/null; then
+		ANTHROPIC_MODEL=claude-haiku-4-5 ANTHROPIC_DEFAULT_OPUS_MODEL=claude-haiku-4-5 ANTHROPIC_DEFAULT_SONNET_MODEL=claude-haiku-4-5 CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5 claude "$@"
+	else
+		echo "Install happy or claude"
+	fi
+}
+
 gc_build()
 {
 	(
