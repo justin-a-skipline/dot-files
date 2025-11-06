@@ -36,9 +36,9 @@ function __set_ls_colors
   # symbolic links - color as item pointed to
   LS_COLORS+=":ln=target"
   # named pipe
-  LS_COLORS+=":pi=${LIGHTGREEN}"
+  LS_COLORS+=":pi=${RED}"
   # socket
-  LS_COLORS+=":so=${LIGHTMAGENTA}"
+  LS_COLORS+=":so=${BROWN}"
   # block device
   LS_COLORS+=":bd=${LIGHTRED}"
   # character device
@@ -46,7 +46,7 @@ function __set_ls_colors
   # orphan symbolic link (broken)
   LS_COLORS+=":or=${BROWN}"
   # executable file
-  LS_COLORS+=":ex=${LIGHTGREEN}"
+  LS_COLORS+=":ex=${RED}"
   # extensions
   LS_COLORS+=":*.tar=${RED}"
   LS_COLORS+=":*.tgz=${RED}"
@@ -460,7 +460,7 @@ function __setprompt
 	if [[ $LAST_COMMAND != 0 ]]; then
 		PS1+="\[${LIGHTRED}\]"
 	else
-		PS1+="\[${LIGHTGREEN}\]"
+		PS1+="\[${NOCOLOR}\]"
 	fi
 	PS1+="[${LAST_COMMAND}]"
 
@@ -468,7 +468,7 @@ function __setprompt
 	PS1+="\[${CYAN}\][\A]"
 
 	# Current directory
-	PS1+=" \[${DARKGRAY}\](\[${BROWN}\]\w\[${DARKGRAY}\])"
+	PS1+=" \[${DARKGRAY}\](\[${NOCOLOR}\]\w\[${DARKGRAY}\])"
 
 	# Git branch
 	local git_branch="$(git branch --show-current 2> /dev/null)"

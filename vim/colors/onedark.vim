@@ -242,7 +242,7 @@ let s:light_colors = {
       \ 'CursorLine': { "gui": "fg", "cterm": "NONE", "cterm16": "15" },
       \ 'CursorColumn': { "gui": "fg", "cterm": "NONE", "cterm16": "15" },
       \ 'Directory': { "gui": "Blue", "cterm": "21", "cterm16": "4" },
-      \ 'DiffAdd': { "gui": "White", "cterm": "231", "cterm16": "15" },
+      \ 'DiffAdd': { "gui": "SeaGreen", "cterm": "29", "cterm16": "3" },
       \ 'DiffChange': { "gui": "#8B4513", "cterm": "130", "cterm16": "11" },
       \ 'DiffDelete': { "gui": "#ff8060", "cterm": "203", "cterm16": "1" },
       \ 'DiffText': { "gui": "SeaGreen", "cterm": "29", "cterm16": "3" },
@@ -390,10 +390,10 @@ call s:h("TabLine", { "fg": s:get_color_for("Comment") }) " tab pages line, not 
 call s:h("TabLineFill", { "fg": s:get_color_for("TabLineFill") }) " tab pages line, where there are no labels
 call s:h("TabLineSel", { "fg": s:get_color_for("Foreground") }) " tab pages line, active tab page label
 call s:h("Title", { "fg": s:get_color_for("String") }) " titles for output from ":set all", ":autocmd" etc.
-call s:h("Visual", { "fg": s:get_color_for("VisualBlack"), "bg": s:get_color_for("VisualGrey") }) " Visual mode selection
+call s:h("Visual", { "bg": s:get_color_for("VisualGrey") }) " Visual mode selection
 call s:h("VisualNOS", { "bg": s:get_color_for("VisualGrey") }) " Visual mode selection when vim is "Not Owning the Selection". Only X11 Gui's gui-x11 and xterm-clipboard supports this.
 call s:h("WarningMsg", { "fg": s:get_color_for("PreProc") }) " warning messages
-call s:h("WildMenu", { "fg": s:get_color_for("Background"), "bg": s:get_color_for("Function") }) " current match in 'wildmenu' completion
+call s:h("WildMenu", { "bg": s:get_color_for("VisualGrey") }) " current match in 'wildmenu' completion
 
 " }}}
 
