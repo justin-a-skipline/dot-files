@@ -868,11 +868,6 @@ start_RebuildTDAndGC()
 
 start_TruckDesigner()
 {
-	(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg &>/dev/null) &
-}
-
-start_TruckDesignerNoSVN()
-{
 	(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
 }
 
