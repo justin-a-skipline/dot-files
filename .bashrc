@@ -738,7 +738,7 @@ start_GrinderTester()
 }
 start_CANDisplayV2()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/CANDisplayV2/CANDisplayV2 &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/build/CANDisplayV2/CANDisplayV2 "$@" &
 }
 start_BerendsenSim()
 {
