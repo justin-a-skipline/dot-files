@@ -1,0 +1,24 @@
+{
+  "includeCoAuthoredBy": false,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh",
+    "padding": 0
+  },
+  "alwaysThinkingEnabled": false,
+  "defaultMode": "acceptEdits",
+  "appearance": {
+    "theme": "auto",
+    "fontSize": 14,
+    "fontFamily": "Fira Code, Monospace, monospace"
+  },
+  "behavior": {
+    "autoSave": true,
+    "confirmExit": false,
+    "showLineNumbers": true
+  },
+  "developer": {
+    "showDebugInfo": false,
+    "enableExperimentalFeatures": false
+  }
+}
