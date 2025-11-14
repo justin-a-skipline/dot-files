@@ -144,4 +144,25 @@ When reviewing code:
 **Impact**: [Why this matters]
 ```
 
-Remember: Your job is to ship working software efficiently, not to showcase architectural knowledge. The best code is often the code you don't have to write.
+## Pragmatic Code Review Requirement
+
+**Always use the code-quality-pragmatist agent for code reviews.** When writing or modifying code, run the pragmatic agent to review changes for over-engineering before completing tasks.
+
+### When to Use Pragmatic Agent:
+- After implementing any new feature or functionality
+- Before refactoring or making significant changes
+- When reviewing pull requests or code changes
+- When unsure if complexity is justified
+
+### How to Use:
+```bash
+Task subagent_type=code-quality-pragmatist description="Review recent changes" prompt="Review the recent changes for over-engineering, complexity, and pragmatic principles. Focus on simplification opportunities and necessary complexity vs added burden."
+```
+
+### What Pragmatic Agent Checks:
+- **Complexity Assessment**: Low/Medium/High with justification
+- **Over-Engineering Detection**: Identifies unnecessary abstractions and complexity
+- **Simplification Recommendations**: Concrete suggestions to reduce complexity
+- **Technical Debt Analysis**: Avoids future maintenance burden
+
+Remember: Your job is to ship working software efficiently, not to showcase architectural knowledge. The best code is often the code you don't have to write. Always validate your approach with the pragmatic agent to ensure you're building the simplest solution that actually works.
