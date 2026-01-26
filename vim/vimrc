@@ -701,7 +701,7 @@ augroup vimrc
 augroup END
 
 let g:onedark_termcolors=256
-set background=dark
+set background=light
 silent! colorscheme onedark
 
 call s:GuiFont('=')
