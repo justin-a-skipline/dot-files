@@ -166,6 +166,165 @@ function! ShowSignMessage()
     echo
 endfunction
 
+" Function to add .mylint suffix to output files
+function! s:AddMylintSuffix(command)
+  let l:modified_command = a:command
+
+  " Only add .mylint if not already present
+  if l:modified_command !~ '\.mylint\>'
+    " Simple approach: split command into words and find -o flags
+    let l:words = split(l:modified_command, ' ')
+    let l:new_words = []
+    let l:i = 0
+
+    while l:i < len(l:words)
+      if l:words[l:i] ==# '-o' && l:i + 1 < len(l:words)
+        " Handle -o filename (space separated)
+        call add(l:new_words, '-o')
+        call add(l:new_words, l:words[l:i + 1] . '.mylint')
+        let l:i += 2
+      elseif l:words[l:i][:1] ==# '-o' && len(l:words[l:i]) > 2
+        " Handle -ofilename (directly attached)
+        call add(l:new_words, '-o' . l:words[l:i][2:] . '.mylint')
+        let l:i += 1
+      else
+        " Leave other words unchanged (including -O flags)
+        call add(l:new_words, l:words[l:i])
+        let l:i += 1
+      endif
+    endwhile
+
+    let l:modified_command = join(l:new_words, ' ')
+  endif
+
+  return l:modified_command
+endfunction
+
+" Function to generate objdump -l command for assembly with source info
+function! s:GenerateObjdumpCommand(object_file)
+  " Use objdump -l to show assembly with source file and line info
+  " This is exactly what Compiler Explorer uses
+  return 'objdump -d -l --demangle ' . shellescape(a:object_file)
+endfunction
+
+" Function to extract output file from compile command
+function! s:ExtractOutputFile(command)
+  " Extract output file from compile command
+  " Handles patterns like: -o file.o or -ofile.o
+  let l:words = split(a:command, ' ')
+  let l:i = 0
+
+  while l:i < len(l:words)
+    if l:words[l:i] ==# '-o' && l:i + 1 < len(l:words)
+      " Handle -o filename (space separated)
+      return l:words[l:i + 1]
+    elseif l:words[l:i][:1] ==# '-o' && len(l:words[l:i]) > 2
+      " Handle -ofilename (directly attached)
+      return l:words[l:i][2:]
+    endif
+    let l:i += 1
+  endwhile
+
+  return ''
+endfunction
+
+" Test function for the suffix modification
+function! s:TestMylintSuffix()
+  echo "Testing MyLint Suffix Function..."
+  echo ""
+
+  let l:tests = [
+    \ {'input': 'gcc -g -c file.c -o file.o', 'expected': 'gcc -g -c file.c -o file.o.mylint'},
+    \ {'input': 'gcc -g -c file.c -ofile.o', 'expected': 'gcc -g -c file.c -ofile.o.mylint'},
+    \ {'input': 'gcc -O2 -g -c file.c -o file.o', 'expected': 'gcc -O2 -g -c file.c -o file.o.mylint'},
+    \ {'input': 'gcc -Wno-overflow -g -c file.c -o file.o', 'expected': 'gcc -Wno-overflow -g -c file.c -o file.o.mylint'},
+    \ {'input': 'gcc -g -c file.c -O2 -o file.o', 'expected': 'gcc -g -c file.c -O2 -o file.o.mylint'},
+    \ {'input': 'gcc -g -c file.c -o file.o -O2', 'expected': 'gcc -g -c file.c -o file.o.mylint -O2'},
+    \ {'input': 'gcc -g -c file.c', 'expected': 'gcc -g -c file.c'},
+    \ {'input': 'gcc -g -c file.c -o file.o.mylint', 'expected': 'gcc -g -c file.c -o file.o.mylint'},
+  \]
+
+  let l:passed = 0
+  let l:total = len(l:tests)
+
+  for l:i in range(len(l:tests))
+    let l:test = l:tests[l:i]
+    let l:result = s:AddMylintSuffix(l:test.input)
+
+    if l:result ==# l:test.expected
+      echo "✅ Test " . (l:i + 1) . ": PASSED"
+      let l:passed += 1
+    else
+      echo "❌ Test " . (l:i + 1) . ": FAILED"
+      echo "   Input:    " . l:test.input
+      echo "   Expected: " . l:test.expected
+      echo "   Got:      " . l:result
+    endif
+  endfor
+
+  echo ""
+  echo "Results: " . l:passed . "/" . l:total . " tests passed"
+
+  if l:passed == l:total
+    echo "🎉 All tests passed!"
+  else
+    echo "⚠️  Some tests failed"
+  endif
+endfunction
+
+" Test function for objdump command generation
+function! s:TestObjdumpCommand()
+  echo "Testing Objdump Command Generation..."
+  echo ""
+
+  let l:tests = [
+    \ {'input': 'file.o', 'expected_contains': ['objdump', '-d', '-l', '--demangle', 'file.o']},
+    \ {'input': 'path/to/file.o', 'expected_contains': ['objdump', '-d', '-l', '--demangle', 'path/to/file.o']},
+    \ {'input': 'file.o.mylint', 'expected_contains': ['objdump', '-d', '-l', '--demangle', 'file.o.mylint']},
+  \]
+
+  let l:passed = 0
+  let l:total = len(l:tests)
+
+  for l:i in range(len(l:tests))
+    let l:test = l:tests[l:i]
+    let l:result = s:GenerateObjdumpCommand(l:test.input)
+
+    let l:all_found = 1
+    for l:expected in l:test.expected_contains
+      if l:result !~ l:expected
+        let l:all_found = 0
+        break
+      endif
+    endfor
+
+    if l:all_found
+      echo "✅ Objdump Test " . (l:i + 1) . ": PASSED"
+      let l:passed += 1
+    else
+      echo "❌ Objdump Test " . (l:i + 1) . ": FAILED"
+      echo "   Input:    " . l:test.input
+      echo "   Result:   " . l:result
+      echo "   Expected to contain: " . join(l:test.expected_contains, ', ')
+    endif
+  endfor
+
+  echo ""
+  echo "Objdump Results: " . l:passed . "/" . l:total . " tests passed"
+
+  if l:passed == l:total
+    echo "🎉 All objdump command tests passed!"
+  else
+    echo "⚠️  Some objdump command tests failed"
+  endif
+endfunction
+
+" Run tests when this file is sourced (only in debug mode)
+if exists('g:mylint_debug_test')
+  call s:TestMylintSuffix()
+  call s:TestObjdumpCommand()
+endif
+
 " This function is run when the buffer is re-read or written and calls the
 " compiler, kicking off the linting process
 function! RunCompilerCommand()
@@ -231,19 +390,15 @@ function! RunCompilerCommand()
   endif
 
   " Modify the command to add .mylint suffix to output files
-  let l:modified_command = l:command
+  let l:modified_command = s:AddMylintSuffix(l:command)
 
-  " Find -o output file patterns and add .mylint suffix
-  " This handles patterns like: -o file.o or -ofile.o
-  let l:o_pattern = '\v(-o\s+)([^\s]+)'
-  let l:o_combined_pattern = '\v(-o)([^\s]+)'
-
-  " First, handle -o followed by space
-  let l:modified_command = substitute(l:modified_command, l:o_pattern, '\1\2.mylint.', 'g')
-  " Then handle -o directly attached to filename
-  let l:modified_command = substitute(l:modified_command, l:o_combined_pattern, '-o\2.mylint.', 'g')
+  " DEBUG: Log mylint command
 
   let cmd = ['/bin/sh', "-c", 'cd ' . shellescape(l:cc_dir_path) . ' && ' . l:modified_command . ' 2>&1 && touch /tmp/vim.txt']
+
+  let l:log_entry = "[" . strftime("%Y-%m-%d %H:%M:%S") . "] MYLINE: File=" . l:current_file . " Dir=" . l:cc_dir_path . " CMD=" . cmd[-1]
+  call writefile([l:log_entry], "/tmp/mylint_debug.log", "a")
+
   let l:buf_dict["lint_errors"] = []
   let l:cc_job = job_start(cmd, {'callback': 'CollectGCCWarningsAndErrors', 'out_mode': 'nl', 'exit_cb': 'ParseGCCWarningsAndErrors'})
   " Store the job object with the key being the job channel for accessing in
