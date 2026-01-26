@@ -799,13 +799,66 @@ start_meldSystemFiles()
 {
 	(
 	cd ~/skiprepo/production/systems || return 1
+
+	files=( "permissions/permissions.json" "factorydefaults/IOConfig.xml" "factorydefaults/DefaultUIConfig.xml" "loggingconfig.json" )
+
+	# Two-system comparison mode
+	if [ $# -eq 2 ]; then
+		if ! [ -d "$1" ]; then
+			red_msg "First system directory doesn't exist: $1"
+			return 1
+		fi
+		if ! [ -d "$2" ]; then
+			red_msg "Second system directory doesn't exist: $2"
+			return 1
+		fi
+
+		# Helper function to find the folder to compare
+		_get_compare_folder()
+		{
+			local system="$1"
+			# Try variants subfolders first
+			if [ -d "$system/variants/cellular_hdvo" ]; then
+				echo "$system/variants/cellular_hdvo"
+			elif [ -d "$system/variants/logging" ]; then
+				echo "$system/variants/logging"
+			elif [ -d "$system/variants/non_logging" ]; then
+				echo "$system/variants/non_logging"
+			# Fall back to td_variants
+			elif [ -d "$system/td_variants/logging" ]; then
+				echo "$system/td_variants/logging"
+			elif [ -d "$system/td_variants/non_logging" ]; then
+				echo "$system/td_variants/non_logging"
+			else
+				echo ""
+			fi
+		}
+
+		local folder1="$(_get_compare_folder "$1")"
+		local folder2="$(_get_compare_folder "$2")"
+
+		if [ -z "$folder1" ]; then
+			red_msg "No variants or td_variants folder found in $1"
+			return 1
+		fi
+		if [ -z "$folder2" ]; then
+			red_msg "No variants or td_variants folder found in $2"
+			return 1
+		fi
+
+		for file in "${files[@]}"; do
+			echo meld "$folder1/$file" "$folder2/$file" -n
+			meld "$folder1/$file" "$folder2/$file" -n &>/dev/null &
+		done
+		return 0
+	fi
+
+	# Single-system mode (original behavior)
 	if ! [ -d "$1" ]; then
 		echo "system directory doesn't exist"
 		return 1
 	fi
 	cd "$1" || return 1
-
-	files=( "permissions/permissions.json" "factorydefaults/IOConfig.xml" "factorydefaults/DefaultUIConfig.xml" "loggingconfig.json" )
 
 	td_folder="td_variants/logging"
 	if ! [ -d "$td_folder" ]; then
@@ -1282,6 +1335,12 @@ start_MongoFindRecordWithDeviceSerialNumber()
 }
 
 extract_cvo_id() {
+    # If input is already a raw CVO/PDG/UST ID (format: XXX_nnnn, exactly 4 digits), return it directly
+    if [[ "$1" =~ ^(CVO|PDG|UST)_[0-9]{4}$ ]]; then
+        echo "$1"
+        return 0
+    fi
+
     local folder_name="$(basename $1)"
     local base_dir="$HOME/skiprepo/production/systems"
     local target_dir="$base_dir/$folder_name/variants"
@@ -1291,8 +1350,8 @@ extract_cvo_id() {
         # Check for logging folder first
         if [[ -f "$target_dir/logging/loggingconfig.json" ]]; then
             cvo_id=$(jq -r '.truckID' "$target_dir/logging/loggingconfig.json")
-        elif [[ -f "$target_dir/cellular_hdvo/logging/loggingconfig.json" ]]; then
-            cvo_id=$(jq -r '.truckID' "$target_dir/cellular_hdvo/logging/loggingconfig.json")
+        elif [[ -f "$target_dir/cellular_hdvo/loggingconfig.json" ]]; then
+            cvo_id=$(jq -r '.truckID' "$target_dir/cellular_hdvo/loggingconfig.json")
         fi
     fi
 
