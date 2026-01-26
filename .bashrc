@@ -401,9 +401,18 @@ export LESS_TERMCAP_mb=$'\e[01;32m'
 export LESS_TERMCAP_md=$'\e[01;32m'
 export LESS_TERMCAP_me=$'\e[0m'
 export LESS_TERMCAP_se=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[01;33m'
+# Give search in less a blue background, and keep color of text within
+# for visibility in dark and light modes
+export LESS_TERMCAP_so=$'\e[47m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[01;4;31m'
+
+# Override bright yellow (93) with orange (208) - better for light backgrounds
+export YELLOW='\033[208m'
+# Override bright cyan (96) with blue (39)
+export CYAN='\033[39m'
+# Override bright blue (94) with dark blue (34)
+export BLUE='\033[34m'
 
 export FZF_DEFAULT_OPTS="--bind=ctrl-k:half-page-up,ctrl-j:half-page-down"
 
