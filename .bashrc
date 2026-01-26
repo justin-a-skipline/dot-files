@@ -513,6 +513,27 @@ function __setprompt
 
 PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 
+z_claude()
+{
+	( # open new shell
+	if [ -z "$Z_AUTH_TOKEN" ]; then
+		echo "FAILED TO SET ANTHROPIC_AUTH_TOKEN"
+		return 1
+	fi
+
+	export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
+	export ANTHROPIC_AUTH_TOKEN="$Z_AUTH_TOKEN"
+	unset ANTHROPIC_API_KEY
+
+	# Run the command
+	if command -v claude &>/dev/null; then
+		claude "$@"
+	else
+		echo "Install claude"
+	fi
+	)
+}
+
 ######## WORK SECTION #########
 
 work_happy_regular()
