@@ -602,6 +602,47 @@ define Qt4PrintQString
    _printUTF16String $ca $d->size
 end
 
+define Qt4QStringMatches
+  if $argc < 2
+    printf "Usage: Qt4QStringMatches qstring \"comparison_string\"\n"
+    set $_qstring_match = 0
+  else
+    set $d = $arg0.d
+    set $qsize = $d->size
+    set $qdata = (const unsigned short *)$d->data
+    set $str = $arg1
+    set $_qstring_match = 0
+
+    # Calculate string length by finding null terminator
+    set $strlen = 0
+    while $str[$strlen] != 0
+      set $strlen = $strlen + 1
+    end
+
+    # Quick length check
+    if $qsize == $strlen
+      set $_qstring_match = 1
+      set $i = 0
+      while $i < $qsize && $_qstring_match == 1
+        set $qc = $qdata[$i]
+        set $sc = (unsigned short)$str[$i]
+        if $qc != $sc
+          set $_qstring_match = 0
+        end
+        set $i = $i + 1
+      end
+    end
+  end
+end
+document Qt4QStringMatches
+Compares a Qt4 QString to a string literal.
+Sets convenience variable $_qstring_match to 1 if match, 0 if not.
+Usage: Qt4QStringMatches myQString "string_to_match"
+       if $_qstring_match == 0
+         continue # inside breakpoint if you want it to keep going
+       end
+end
+
 # Allows looping through and running a command $arg0 number
 # of times. The loop index $_i can be referenced in the command
 # Example: LoopDo 5 "p g_pfnVectors[$_i+1]"
