@@ -636,11 +636,8 @@ define Qt4QStringMatches
 end
 document Qt4QStringMatches
 Compares a Qt4 QString to a string literal.
-Sets convenience variable $_qstring_match to 1 if match, 0 if not.
-Usage: Qt4QStringMatches myQString "string_to_match"
-       if $_qstring_match == 0
-         continue # inside breakpoint if you want it to keep going
-       end
+Sets convenience variable _qstring_match to 1 if match, 0 if not.
+Usage: Qt4QStringMatches myQString "string_to_match" if _qstring_match == 0 continue end
 end
 
 # Allows looping through and running a command $arg0 number
