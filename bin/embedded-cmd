@@ -1,0 +1,59 @@
+#!/bin/bash
+# Send command to embedded device via FIFO and read response from log
+
+CMD_FIFO=/tmp/embedded-cmd-fifo
+LOG_FILE=/tmp/embedded-serial.log
+PID_FILE=/tmp/embedded-serial.pid
+RESPONSE_DELAY=1  # seconds to wait for response
+
+if [ ! -p "$CMD_FIFO" ]; then
+    echo "Error: Command FIFO not found at $CMD_FIFO"
+    echo "Start the serial session first with: embedded-serial"
+    exit 1
+fi
+
+if [ ! -f "$PID_FILE" ]; then
+    echo "Error: embedded-serial not running (no PID file)"
+    exit 1
+fi
+
+if ! kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    echo "Error: embedded-serial process not running"
+    exit 1
+fi
+
+if [ ! -f "$LOG_FILE" ]; then
+    echo "Error: Log file not found at $LOG_FILE"
+    echo "Make sure embedded-serial is running with logging enabled"
+    exit 1
+fi
+
+if [ $# -eq 0 ]; then
+    echo "Usage: embedded-cmd <command>"
+    echo "Example: embedded-cmd 'ls -la'"
+    exit 1
+fi
+
+COMMAND="$*"
+
+# Get the size of the log file before we send our command
+LOG_SIZE_BEFORE=$(stat -c%s "$LOG_FILE" 2>/dev/null || stat -f%z "$LOG_FILE" 2>/dev/null || echo 0)
+
+# Send command to device via FIFO
+echo "Sending: $COMMAND"
+# Use printf to safely write command (avoids shell injection)
+printf '%s\n' "$COMMAND" > "$CMD_FIFO"
+
+# Wait for response
+sleep "$RESPONSE_DELAY"
+
+# Get the log file size after
+LOG_SIZE_AFTER=$(stat -c%s "$LOG_FILE" 2>/dev/null || stat -f%z "$LOG_FILE" 2>/dev/null || echo 0)
+
+# Extract only the new content (what was added since we started)
+if [ "$LOG_SIZE_AFTER" -gt "$LOG_SIZE_BEFORE" ]; then
+    # Tail shows everything new since we started
+    tail -c +"$((LOG_SIZE_BEFORE + 1))" "$LOG_FILE" | grep -v "^<<< " | grep -v "^>>> " | grep -v "^CMD "
+else
+    echo "(No new output detected)"
+fi

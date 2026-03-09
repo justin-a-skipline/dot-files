@@ -1,0 +1,83 @@
+#!/bin/bash
+# Serial connection to embedded device
+# Starts the daemon, then launches minicom
+
+VIRTUAL_PORT=/tmp/embedded-virtual
+PID_FILE=/tmp/embedded-serial.pid
+BAUD_RATE=115200
+
+# Function to cleanup on exit
+cleanup() {
+    echo "Cleaning up..."
+    if [ -f "$PID_FILE" ]; then
+        PID=$(cat "$PID_FILE")
+        if kill -0 "$PID" 2>/dev/null; then
+            kill "$PID"
+            # Wait for daemon to terminate (up to 2 seconds)
+            for i in {1..20}; do
+                if ! kill -0 "$PID" 2>/dev/null; then
+                    break
+                fi
+                sleep 0.1
+            done
+        fi
+        rm -f "$PID_FILE"
+    fi
+    [ -e "$VIRTUAL_PORT" ] && rm -f "$VIRTUAL_PORT"
+    echo "Done."
+}
+
+# Set up trap to cleanup on exit
+trap cleanup EXIT INT TERM
+
+# Check if already running
+if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    echo "Error: embedded-serial already running (PID: $(cat "$PID_FILE"))"
+    exit 1
+fi
+
+# Check if serial device exists
+if [ ! -e "/dev/ttyUSB0" ]; then
+    echo "Error: /dev/ttyUSB0 not found"
+    echo "Is your device connected?"
+    exit 1
+fi
+
+# Start the daemon in background
+echo "Starting serial daemon..."
+~/dot-files/bin/embedded-serial-daemon &
+DAEMON_PID=$!
+
+# Wait for daemon to initialize
+sleep 1
+
+# Check if daemon started successfully
+if ! kill -0 "$DAEMON_PID" 2>/dev/null; then
+    echo "Error: Daemon failed to start or crashed during initialization"
+    echo "Check for error messages above"
+    exit 1
+fi
+
+# Wait for virtual port to be created
+for i in {1..10}; do
+    if [ -e "$VIRTUAL_PORT" ]; then
+        break
+    fi
+    sleep 0.2
+done
+
+if [ ! -e "$VIRTUAL_PORT" ]; then
+    echo "Error: Virtual port not created at $VIRTUAL_PORT"
+    exit 1
+fi
+
+echo "Virtual port ready: $VIRTUAL_PORT"
+echo "Starting minicom..."
+echo "Press Ctrl+A Q to quit minicom"
+echo ""
+
+# Start minicom on the virtual port
+minicom -C /tmp/embedded-serial.log -D "$VIRTUAL_PORT" -b "$BAUD_RATE"
+
+# Cleanup happens here when minicom exits (trap triggers)
+exit 0
