@@ -1,10 +1,16 @@
 {
   "includeCoAuthoredBy": false,
+  "permissions": {
+    "defaultMode": "dontAsk"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-command.sh",
     "padding": 0
   },
+  "skipDangerousModePermissionPrompt": true,
+  "editorMode": "vim",
+  "fileCheckpointingEnabled": false,
   "defaultMode": "acceptEdits",
   "appearance": {
     "theme": "auto",
@@ -19,5 +25,6 @@
   "developer": {
     "showDebugInfo": false,
     "enableExperimentalFeatures": false
-  }
+  },
+  "effortLevel": "medium"
 }
