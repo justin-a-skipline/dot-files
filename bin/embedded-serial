@@ -5,6 +5,28 @@
 VIRTUAL_PORT=/tmp/embedded-virtual
 PID_FILE=/tmp/embedded-serial.pid
 BAUD_RATE=115200
+SERIAL_PORT=/dev/ttyUSB0
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p|--port)
+            SERIAL_PORT="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: $0 [-p|--port SERIAL_PORT]"
+            echo "  -p, --port    Serial port to use (default: /dev/ttyUSB0)"
+            echo "  -h, --help    Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use -h or --help for usage"
+            exit 1
+            ;;
+    esac
+done
 
 # Function to cleanup on exit
 cleanup() {
@@ -37,15 +59,15 @@ if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
 fi
 
 # Check if serial device exists
-if [ ! -e "/dev/ttyUSB0" ]; then
-    echo "Error: /dev/ttyUSB0 not found"
+if [ ! -e "$SERIAL_PORT" ]; then
+    echo "Error: $SERIAL_PORT not found"
     echo "Is your device connected?"
     exit 1
 fi
 
 # Start the daemon in background
-echo "Starting serial daemon..."
-~/dot-files/bin/embedded-serial-daemon &
+echo "Starting serial daemon on $SERIAL_PORT..."
+~/dot-files/bin/embedded-serial-daemon --port "$SERIAL_PORT" &
 DAEMON_PID=$!
 
 # Wait for daemon to initialize

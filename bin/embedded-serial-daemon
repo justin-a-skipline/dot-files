@@ -14,6 +14,7 @@ import pty
 import select
 import signal
 import fcntl
+import argparse
 from pathlib import Path
 
 try:
@@ -22,7 +23,6 @@ except ImportError:
     print("Error: pyserial not installed. Install with: sudo apt install python3-serial")
     sys.exit(1)
 
-SERIAL_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 115200
 VIRTUAL_PORT = '/tmp/embedded-virtual'
 CMD_FIFO = '/tmp/embedded-cmd-fifo'
@@ -81,6 +81,13 @@ def setup_signals():
 def main():
     global running
 
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Serial terminal daemon for embedded device')
+    parser.add_argument('--port', '-p', default='/dev/ttyUSB0',
+                        help='Serial port to use (default: /dev/ttyUSB0)')
+    args = parser.parse_args()
+    serial_port = args.port
+
     setup_signals()
 
     # Write PID file
@@ -99,11 +106,11 @@ def main():
 
     # Open serial port
     try:
-        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=0)
-        print(f"Opened {SERIAL_PORT} at {BAUD_RATE} baud")
+        ser = serial.Serial(serial_port, BAUD_RATE, timeout=0)
+        print(f"Opened {serial_port} at {BAUD_RATE} baud")
     except serial.SerialException as e:
         print(f"Error opening serial port: {e}")
-        print(f"Is {SERIAL_PORT} connected?")
+        print(f"Is {serial_port} connected?")
         cleanup()
         sys.exit(1)
 
