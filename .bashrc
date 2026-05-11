@@ -513,6 +513,19 @@ function __setprompt
 
 PROMPT_COMMAND="__setprompt;$PROMPT_COMMAND"
 
+start_resetAllUSBControllers()
+{
+	for dev in /sys/bus/pci/drivers/xhci_hcd/*:*; do
+		if [ -d "$dev" ]; then
+			pci=$(basename "$dev")
+			echo "Resetting $pci..."
+			echo -n "$pci" | sudo tee /sys/bus/pci/drivers/xhci_hcd/unbind
+			sleep 1
+			echo -n "$pci" | sudo tee /sys/bus/pci/drivers/xhci_hcd/bind
+		fi
+	done
+}
+
 z_claude()
 {
 	( # open new shell
