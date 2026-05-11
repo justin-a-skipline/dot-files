@@ -1440,6 +1440,13 @@ diff_series_of_files()
     done | unified_diff_highlight
 }
 
+start_scpToHDVONG()
+{
+	ssh -i "$HOME"/Documents/hdvo_ssh/hdvo_access_key root@192.168.2.10 "mount -o remount,rw /"
+	scp -i "$HOME"/Documents/hdvo_ssh/hdvo_access_key "$@"
+	ssh -i "$HOME"/Documents/hdvo_ssh/hdvo_access_key root@192.168.2.10 "mount -o remount,ro /"
+}
+
 start_AsanifyCopilotOutputOnClipboard()
 {
 	xclip -o -sel clip | python3 ~/workspace/personal/test/format_asana.py -u justin-a-skipline | xclip -sel clip
