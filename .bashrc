@@ -1417,7 +1417,10 @@ complete -F _select_system_completions -o default select_system.py
 
 start_IndentFileToSkipLineFormat()
 {
-	indent -kr -ts4 -l135 -br -ce -cli4 -nut -sob -fca -i4 -bad -bap -bbb -sc -cp1 $1
+	indent -kr -ts4 -l135 -br -ce -cli4 -ut -sob -fca -i4 -bad -bap -bbb -sc -cp1 $1
+	# At this point if and else statements will be on their own lines but with opening braces
+	# on the same line. We will handle the specific cases manually.
+	"$HOME"/dot-files/bin/split_braces.py "$1" --in-place
 }
 
 diff_series_of_files()
