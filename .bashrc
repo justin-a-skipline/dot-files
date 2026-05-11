@@ -773,31 +773,31 @@ kiwi_stream_to_video4()
 
 start_StaxViewer()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/StaxViewer/StaxViewer --truck "$@" &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/StaxViewer/StaxViewer --truck "$@" &>/dev/null &
 }
 start_GrinderTester()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/GrinderTester/GrinderTester &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/GrinderTester/GrinderTester &>/dev/null &
 }
 start_CANDisplayV2()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/CANDisplayV2/CANDisplayV2 "$@" &
+	~/workspace/skipline-pristine/projects/canutils/CANDisplayV2/CANDisplayV2 "$@" &
 }
 start_BerendsenSim()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/BerendsenSim/BerendsenSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/BerendsenSim/BerendsenSim &>/dev/null &
 }
 start_LaserSimulator()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/LaserSimulator/LaserSimulator &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/LaserSimulator/LaserSimulator &>/dev/null &
 }
 start_EatonKeypad()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/EatonJ1939KeypadSim/EatonJ1939KeypadSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/EatonJ1939KeypadSim/EatonJ1939KeypadSim &>/dev/null &
 }
 start_EatonOutput()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/EatonJ1939OutputSim/EatonJ1939OutputSim &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/EatonJ1939OutputSim/EatonJ1939OutputSim &>/dev/null &
 }
 start_SupportSimUtil()
 {
@@ -805,7 +805,7 @@ start_SupportSimUtil()
 }
 start_BootloaderGUI()
 {
-	~/workspace/skipline-pristine/projects/canutils/build/BootloaderGUI/BootloaderGUI &>/dev/null &
+	~/workspace/skipline-pristine/projects/canutils/BootloaderGUI/BootloaderGUI &>/dev/null &
 }
 start_MakeSystemUpdate()
 {
@@ -960,6 +960,7 @@ start_RebuildTDAndGC()
 	(cd ~/workspace/skipline-pristine && git pull --rebase)
 	(cd ~/workspace/skipline-pristine/projects/can-cfg && touch can-cfg.qrc && scripts/command_line_dev_build --quiet)
 	(cd ~/workspace/skipline-pristine/projects/GlassCockpit && scripts/command_line_dev_build --release-pc --quiet)
+	(cd ~/workspace/skipline-pristine/projects/canutils && qmake CONFIG+=ccache . && make -j8 &>/dev/null || echo "failed canutils build" )
 }
 
 start_TruckDesigner()
