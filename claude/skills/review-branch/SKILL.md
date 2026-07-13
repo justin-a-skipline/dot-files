@@ -55,9 +55,18 @@ Structure, in order:
    - A heading with the short hash and subject line.
    - The **relevant diff hunks** in fenced ```` ```diff ```` blocks, with your commentary **heavily dispersed throughout** — break the diff where you have something to say and drop the comment inline, right next to the lines it's about. Don't dump the whole diff then comment at the end; interleave. Trim genuinely uninteresting hunks (whitespace, mechanical renames) but note that you trimmed them.
    - A short **commit summary**: what it does, whether it's correct, and any findings.
-3. **Overall summary** at the end:
-   - A ranked **findings list** (bugs first, most severe first; in junior mode, smells/architecture concerns grouped and prioritized). For each: file:line, what's wrong, and a concrete fix or simpler alternative.
-   - A one-paragraph verdict on the branch as a whole.
+3. **Findings — this is the part the user actually reads, so make it carry its own weight.** A ranked list (bugs first, most severe first; in junior mode, smells/architecture concerns grouped and prioritized). The commit walkthrough above is the record; this section is where the reader decides what to do. Each finding must be **self-contained** — the reader should be able to understand it, judge whether it's real, and act on it *without scrolling back to the commit sections or opening the code themselves*. They'll go look when they choose to, not because your writeup forced them to.
+
+   For each finding, write a few short paragraphs in the user's voice (prose, not a filled-in form — don't literally print these as labeled fields), covering:
+   - **What and where**, with `file:line` — then **quote the actual offending code inline** in a tight ```` ```diff ```` / ```` ```cpp ```` block. Don't make them go find it. If two spots interact (a caller and a callee, a flag set here and read there), show both.
+   - **Why it's a problem, concretely.** For a bug, give the specific input/state that triggers it and what actually breaks — the failure scenario, traced through — not just "this is wrong." For a smell, name the real maintenance or misuse-by-design cost in plain terms.
+   - **What you verified vs. what's still open.** If you traced callers, checked the header, or confirmed a neighbor does the same thing differently, say what you found so they can trust it. If the finding hinges on a fact you couldn't pin down, state exactly what you checked and the single question that remains — so they know the one thing to confirm, and don't have to re-derive the whole thing.
+   - **The fix** — concrete and specific enough to hand off or apply, with the shape of the corrected code when that clarifies it. If there's a simpler alternative to the whole approach, lead with that.
+   - **A severity/effort read** — merge-blocker vs. should-fix vs. nit, and roughly how big the fix is.
+
+   Err toward more context, not less. A finding that reads "file:line — X is wrong, do Y" has failed the point of this section. Depth scales with severity: a merge-blocking bug earns a full walkthrough; a nit can be a sentence or two.
+
+4. **Verdict** — a one-paragraph honest take on the branch as a whole: is it close, and what must happen before it merges.
 
 Write commentary in the user's voice per the global CLAUDE.md: direct, conversational, opinionated but open — "I think X would be simpler because Y", not a formal rubric. Prioritize simplicity and flag unnecessary complexity as high priority.
 
