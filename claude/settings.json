@@ -8,8 +8,11 @@
     "command": "~/.claude/statusline-command.sh",
     "padding": 0
   },
+  "effortLevel": "medium",
+  "tui": "default",
   "skipDangerousModePermissionPrompt": true,
-  "editorMode": "vim",
+  "editorMode": "normal",
+  "verbose": true,
   "fileCheckpointingEnabled": false,
   "defaultMode": "acceptEdits",
   "appearance": {
@@ -25,6 +28,5 @@
   "developer": {
     "showDebugInfo": false,
     "enableExperimentalFeatures": false
-  },
-  "effortLevel": "medium"
+  }
 }
