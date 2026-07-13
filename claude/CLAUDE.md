@@ -49,3 +49,7 @@ special casing."
 - Recommend deletions over additions
 - Suggest concrete simplifications
 - Use the code-quality-pragmatist agent for code reviews when writing or modifying code
+
+## Commit Discipline
+
+Commits should be logically ordered and do one thing at a time. The order of implementation should tell a story to the reviewer. Review and testing is the bottleneck, not writing code. Optimize for the reviewer.
