@@ -961,7 +961,11 @@ start_RebuildTDAndGC()
 
 start_TruckDesigner()
 {
-	(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
+	if [ "$#" -eq 0 ]; then
+		(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg --svntestonly &>/dev/null) &
+	else
+		(cd ~/workspace/skipline-pristine/projects/can-cfg && ./build/can-cfg --svntestonly "$@")
+	fi
 }
 
 start_DeployHDVO()
