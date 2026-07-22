@@ -654,6 +654,7 @@ gc_system()
 		SKLCORE_ROOT="${2:-/}"
 		rm -rf --preserve-root "$SKLCORE_ROOT"/data/* "$SKLCORE_ROOT"/factorydefaults/*
 		cp "$system"/factorydefaults/*.xml "$SKLCORE_ROOT"/factorydefaults/
+		cp "$system"/factorydefaults/*.json "$SKLCORE_ROOT"/factorydefaults/
 		cp "$system"/permissions/permissions.json "$SKLCORE_ROOT"/factorydefaults/
 		# Woops! These should be per dev becasue DataTransmit could be generating SRO data on the dev PC.
 		cp "$system"/loggingconfig.json "$SKLCORE_ROOT"/factorydefaults/
