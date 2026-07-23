@@ -28,5 +28,6 @@
   "developer": {
     "showDebugInfo": false,
     "enableExperimentalFeatures": false
-  }
+  },
+  "remoteControlAtStartup": true
 }
