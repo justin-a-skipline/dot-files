@@ -547,6 +547,21 @@ z_claude()
 	)
 }
 
+start_claude()
+{
+	# claude-pty.py owns the pty master so claude can inject /compact into its own
+	# input box (see ~/.claude/skills/self-input), and relays bytes without parsing
+	# them, so truecolor survives. screen 4.x mangles 24-bit SGR, hence not screen.
+	local relay="$HOME/dot-files/bin/claude-pty.py"
+	if [ ! -x "$relay" ]; then
+		echo "start_claude: $relay missing or not executable, running claude bare" >&2
+		claude "$@"
+		return
+	fi
+
+	COLORTERM=truecolor "$relay" claude "$@"
+}
+
 ######## WORK SECTION #########
 
 work_happy_regular()
