@@ -89,3 +89,4 @@ vim/swap/*
 vim/undo/*
 vim/autoload/plug.vim
 vim/plugged
+vim/undo-nvim/*

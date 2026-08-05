@@ -1,3 +1,14 @@
+" Shared by vim and neovim -- ~/.config/nvim/init.vim only sources this file.
+" Everything that genuinely differs between the two is guarded with has('nvim').
+
+" Neovim does not look in ~/.vim, so send it there for colors/, syntax/, indent/,
+" ftdetect/, after/ and pack/ rather than keeping a second copy of all of it.
+if has('nvim')
+  set runtimepath^=~/.vim
+  set runtimepath+=~/.vim/after
+  let &packpath = &runtimepath
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Indentation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -41,9 +52,35 @@ let g:markdown_folding = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Code Navigation
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-if has('nvim-0.1.5')
+if has('termguicolors')
   set termguicolors
-  set shada="NONE"
+  if !has('nvim')
+    " t_8f/t_8b must be spelled out because screen/xterm terminfo does not advertise
+    " 24-bit color, and without them termguicolors emits nothing vim's :terminal can use.
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  endif
+endif
+
+" mate-terminal's Tango palette, so a :terminal buffer looks like the real terminal.
+" Vim reads g:terminal_ansi_colors and neovim reads g:terminal_color_0..15; onedark
+" only ever sets the neovim names, so without this vim falls back to its own
+" fluorescent defaults (#E0E000 for yellow).
+let s:tango_normal = ['#2E3436', '#CC0000', '#4E9A06', '#C4A000', '#3465A4', '#75507B', '#06989A', '#D3D7CF']
+let s:tango_bright = ['#555753', '#EF2929', '#8AE234', '#FCE94F', '#729FCF', '#AD7FA8', '#34E2E2', '#EEEEEC']
+if has('nvim')
+  function! s:ApplyTerminalColors()
+    let l:palette = s:tango_normal + s:tango_bright
+    for i in range(16)
+      let g:terminal_color_{i} = l:palette[i]
+    endfor
+  endfunction
+else
+  " Vim brightens bold ANSI colors where mate-terminal does not, so the bright half
+  " repeats the normal half. Otherwise every \e[1;3Xm came out glowing.
+  function! s:ApplyTerminalColors()
+    let g:terminal_ansi_colors = s:tango_normal + s:tango_normal
+  endfunction
 endif
 
 set completeopt+=longest
@@ -55,7 +92,6 @@ set ignorecase
 set smartcase
 set lazyredraw
 set hlsearch
-nohl
 
 " Disable mouse or it keeps clicking accidentally in terminal
 set mouse=
@@ -72,17 +108,23 @@ set nowritebackup
 set undofile
 set noswapfile
 
-if has("win32")
-  set directory=~/dot-files/.vim/swap//
-  set undodir=~/dot-files/.vim/undo//
-else
-  set directory=~/.vim/swap//
-  set undodir=~/.vim/swap//
-endif
+" mkdir because vim silently writes no undo file at all when 'undodir' does not
+" exist, and neovim's undo format is not interchangeable with vim's so the two
+" need separate directories.
+" expand() because vim does not expand a leading ~ in 'undodir' and then silently
+" writes no undo file at all.
+let s:vim_dir = expand(has('win32') ? '~/dot-files/vim' : '~/.vim')
+let s:undo_dir = s:vim_dir . (has('nvim') ? '/undo-nvim' : '/undo')
+call mkdir(s:undo_dir, 'p')
+let &undodir = s:undo_dir . '//'
+let &directory = s:vim_dir . '/swap//'
 
 if has("gui_running")
   set lines=30 columns=120
-  set guioptions=c
+  " Neovim has no 'guioptions'.
+  if exists('+guioptions')
+    set guioptions=c
+  endif
 endif
 
 set history=500
@@ -108,19 +150,14 @@ set virtualedit=block " allow visual mode block editing to extend past EOL
 " current file's directory
 set cpoptions+=d
 
-function StatusLineColor()
+" Called on ColorScheme rather than from inside 'statusline', which ran this :hi
+" on every single redraw.
+function! s:StatusLineColor()
   hi! User9 term=bold cterm=bold ctermfg=red guifg=red
 endfunction
-function AleFixOnSaveDisabledText()
-	if exists('g:ale_fix_on_save') && g:ale_fix_on_save == 0
-		return '[F]'
-	endif
-	return ''
-endfunction
 set laststatus=2    " always display statusline
-set statusline=%{StatusLineColor()}%<%F " file name and path
+set statusline=%<%F " file name and path
 set statusline+=\ %9*%m%*%r%* " modified in red (User9), read-only flags
-set statusline+=\ %9*%{AleFixOnSaveDisabledText()}%* " disabled fixer in Red
 set statusline+=\ %y  " filetype according to vim
 set statusline+=\ %n  " buffer number
 set statusline+=\ [%{&ff}] " show detected line endings for file
@@ -160,8 +197,9 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:local_terminal_name = 'LOCAL'
 let s:global_terminal_name = 'GLOBAL'
-let s:windows_default_term = 'C:\Program Files\Git\bin\bash.exe'
-let s:linux_default_term = '/usr/bin/env bash'
+" Lists, not strings, so neither editor puts an extra shell in the way.
+let s:windows_default_term = ['C:\Program Files\Git\bin\bash.exe']
+let s:linux_default_term = ['/usr/bin/env', 'bash']
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Key maps
 """""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -215,29 +253,37 @@ vnoremap <Bslash>/ :Comment<CR>
 vnoremap <Bslash>\ :Uncomment<CR>
 nnoremap <Bslash>/ :Comment<CR>
 nnoremap <Bslash>\ :Uncomment<CR>
-nnoremap <c-Bslash>n :VerticalSplitNoteToggle<CR>
-tnoremap <c-Bslash>n <c-w>:VerticalSplitNoteToggle<CR>
-nnoremap <c-Bslash>gn :GlobalVerticalSplitNoteToggle<CR>
-tnoremap <c-Bslash>gn <c-w>:GlobalVerticalSplitNoteToggle<CR>
-nnoremap <c-Bslash>gt :GlobalTerminalToggle<CR>
-nnoremap <c-Bslash>gvt :GlobalVerticalTerminalToggle<CR>
-tnoremap <c-Bslash>gt <c-w>:GlobalTerminalToggle<CR>
-tnoremap <c-Bslash>gvt <c-w>:GlobalVerticalTerminalToggle<CR>
-nnoremap <c-Bslash>t :TerminalToggle<CR>
-nnoremap <c-Bslash>vt :VerticalTerminalToggle<CR>
-tnoremap <c-Bslash>t <c-w>:TerminalToggle<CR>
-tnoremap <c-Bslash>vt <c-w>:VerticalTerminalToggle<CR>
-nnoremap <c-Bslash>ct :ClaudeCodeTerminalToggle<CR>
-tnoremap <c-Bslash>ct <c-w>:ClaudeCodeTerminalToggle<CR>
+" Terminal mode reaches the command line with <c-w> in vim, <c-\><c-n> in neovim.
+let s:term_cmd = has('nvim') ? '<c-\><c-n>:' : '<c-w>:'
+
+let s:toggle_commands = {
+      \ 'n'   : 'VerticalSplitNoteToggle',
+      \ 'gn'  : 'GlobalVerticalSplitNoteToggle',
+      \ 't'   : 'TerminalToggle',
+      \ 'vt'  : 'VerticalTerminalToggle',
+      \ 'gt'  : 'GlobalTerminalToggle',
+      \ 'gvt' : 'GlobalVerticalTerminalToggle',
+      \ 'ct'  : 'ClaudeCodeTerminalToggle',
+      \ }
+for [s:key, s:command] in items(s:toggle_commands)
+  execute 'nnoremap <c-Bslash>' . s:key . ' :' . s:command . '<CR>'
+  execute 'tnoremap <c-Bslash>' . s:key . ' ' . s:term_cmd . s:command . '<CR>'
+endfor
+
 nnoremap <c-w>] yiw:vert stag! <c-r>"<CR>
 nnoremap <c-w>g] yiw:vert stselect! <c-r>"<CR>
 nnoremap <c-w>M <c-w>\|<c-w>_
-tnoremap <c-w>M <c-w>\|<c-w>_
 vnoremap <c-w>M <c-w>\|<c-w>_
+if has('nvim')
+  " Trailing i goes back to terminal mode after the resize.
+  tnoremap <c-w>M <c-\><c-n><c-w>\|<c-w>_i
+else
+  tnoremap <c-w>M <c-w>\|<c-w>_
+endif
 vnoremap <Bslash>= c<c-R>=<c-R>"<CR><ESC>
 " yank inside visual selection, cursor returns to where it was, can specify any register
 " from https://ddrscott.github.io/blog/2016/yank-without-jank/
-vnoremap <expr>y "my\"" . v:register . "y`y"
+vnoremap <expr> y "my\"" . v:register . "y`y"
 vnoremap /  y/<c-R>"<CR>
 " * key doesn't auto jump
 " Also put the *'d text into the search history buffer by
@@ -253,10 +299,10 @@ vnoremap <Bslash>s "my:Lgrep<SPACE>"<c-R>m"<SPACE>
 nnoremap <Bslash>f :let @m=expand('<cfile>')<CR>:Find<SPACE><c-R>m
 vnoremap <Bslash>f "my:Find<SPACE><c-R>m
 
-tnoremap <c-g><c-t> <c-w>:normal gt<CR>
-tnoremap <c-g>t     <c-w>:normal gT<CR>
-nnoremap <c-g><c-t> <c-w>:normal gt<CR>
-nnoremap <c-g>t     <c-w>:normal gT<CR>
+execute 'tnoremap <c-g><c-t> ' . s:term_cmd . 'tabnext<CR>'
+execute 'tnoremap <c-g>t     ' . s:term_cmd . 'tabprevious<CR>'
+nnoremap <c-g><c-t> :tabnext<CR>
+nnoremap <c-g>t     :tabprevious<CR>
 
 " Command line history completion
 cnoremap <c-j> <Down>
@@ -266,7 +312,7 @@ vnoremap g] "my:tjump<SPACE><c-R>m
 nnoremap g] :let @m=expand('<cword>')<CR>:tjump<SPACE><c-R>m
 
 " GDB mappings
-tnoremap <c-Bslash>R <c-w>:RegisterTerminalBuffer<CR>
+execute 'tnoremap <c-Bslash>R ' . s:term_cmd . 'RegisterTerminalBuffer<CR>'
 nnoremap <Bslash>E :let @m=expand('<cexpr>')<CR>:Evaluate<SPACE><c-R>m
 " join lines together by removing newlines (null bytes in register)
 " also shrink excess spaces down to just one space, removing tabs
@@ -303,10 +349,7 @@ function MyTabLine()
 endfunction
 
 function! MyTabLabel(n)
-  let buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  return getcwd(winnr, a:n)
-  "return bufname(buflist[winnr - 1])
+  return getcwd(tabpagewinnr(a:n), a:n)
 endfunction
 
 set tabline=%!MyTabLine()
@@ -315,15 +358,39 @@ if !exists('s:terminal_counter')
   let s:terminal_counter = 0
 endif
 function! TermStart(term_name)
-  if has("win32")
-    call term_start(s:windows_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter,'norestore':1})
-    set termwinscroll=100000
+  let l:cmd = has('win32') ? s:windows_default_term : s:linux_default_term
+  let l:name = a:term_name . s:terminal_counter
+  if has('nvim')
+    " termopen() takes over the current buffer the way term_start()'s curwin did.
+    " There is no term_name equivalent, so the buffer gets renamed afterwards.
+    if has('nvim-0.11')
+      call jobstart(l:cmd, {'term': v:true})
+    else
+      call termopen(l:cmd)
+    endif
+    setlocal scrollback=100000
+    execute 'keepalt file' fnameescape(l:name)
   else
-    call term_start(s:linux_default_term,{'curwin':1,'term_name':a:term_name.s:terminal_counter})
-    set termwinscroll=100000
+    call term_start(l:cmd, {'curwin': 1, 'term_name': l:name, 'norestore': 1})
+    setlocal termwinscroll=100000
   endif
   let s:terminal_counter += 1
-  execute 'setlocal nonumber'
+  setlocal nonumber
+endfunction
+
+" Vim addresses a running terminal by buffer number, neovim by the job id it
+" stores on that buffer.
+function! s:TermSendKeys(bufnr, keys)
+  if !has('nvim')
+    call term_sendkeys(a:bufnr, a:keys)
+    return
+  endif
+  let l:job = getbufvar(a:bufnr, 'terminal_job_id', 0)
+  if l:job == 0
+    echoerr 'buffer ' . a:bufnr . ' is not a terminal'
+    return
+  endif
+  call chansend(l:job, a:keys)
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:SetupPlugins()
@@ -491,7 +558,10 @@ function! s:GlobalVerticalSplitNoteToggle()
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! s:SimpleTerminalToggle(win_var, buf_var, scope, term_name, split_cmd, size)
-  let l:win_var_name = a:scope == 'global' ? 't:'.a:win_var : 't:'.a:win_var
+  " The window variable is always tab-local -- each tab needs its own window onto
+  " the terminal. It is the buffer variable going global that makes a global
+  " terminal the same terminal in every tab.
+  let l:win_var_name = 't:'.a:win_var
   let l:buf_var_name = a:scope == 'global' ? 'g:'.a:buf_var : 't:'.a:buf_var
 
   if exists(l:win_var_name)
@@ -520,26 +590,11 @@ function! s:SimpleTerminalToggle(win_var, buf_var, scope, term_name, split_cmd, 
   endif
 endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-command! TerminalToggle call s:TerminalToggle()
-function! s:TerminalToggle()
-  call s:SimpleTerminalToggle('terminal_win_num', 'terminal_buf_num', 'local', s:local_terminal_name, 'botright new', 16)
-endfunction
-command! VerticalTerminalToggle call s:VerticalTerminalToggle()
-function! s:VerticalTerminalToggle()
-  call s:SimpleTerminalToggle('vertical_terminal_win_num', 'vertical_terminal_buf_num', 'local', s:local_terminal_name, 'botright vnew', 0)
-endfunction
-command! GlobalTerminalToggle call s:GlobalTerminalToggle()
-function! s:GlobalTerminalToggle()
-  call s:SimpleTerminalToggle('global_terminal_win_num', 'global_terminal_buf_num', 'global', s:global_terminal_name, 'botright new', 16)
-endfunction
-command! GlobalVerticalTerminalToggle call s:GlobalVerticalTerminalToggle()
-function! s:GlobalVerticalTerminalToggle()
-  call s:SimpleTerminalToggle('global_vertical_terminal_win_num', 'global_vertical_terminal_buf_num', 'global', s:global_terminal_name, 'botright vnew', 0)
-endfunction
-command! ClaudeCodeTerminalToggle call s:ClaudeCodeTerminalToggle()
-function! s:ClaudeCodeTerminalToggle()
-  call s:SimpleTerminalToggle('claude_code_terminal_win_num', 'claude_code_terminal_buf_num', 'local', 'CLAUDE', 'botright vnew', 85)
-endfunction
+command! TerminalToggle               call s:SimpleTerminalToggle('terminal_win_num', 'terminal_buf_num', 'local', s:local_terminal_name, 'botright new', 16)
+command! VerticalTerminalToggle       call s:SimpleTerminalToggle('vertical_terminal_win_num', 'vertical_terminal_buf_num', 'local', s:local_terminal_name, 'botright vnew', 0)
+command! GlobalTerminalToggle         call s:SimpleTerminalToggle('global_terminal_win_num', 'global_terminal_buf_num', 'global', s:global_terminal_name, 'botright new', 16)
+command! GlobalVerticalTerminalToggle call s:SimpleTerminalToggle('global_vertical_terminal_win_num', 'global_vertical_terminal_buf_num', 'global', s:global_terminal_name, 'botright vnew', 0)
+command! ClaudeCodeTerminalToggle     call s:SimpleTerminalToggle('claude_code_terminal_win_num', 'claude_code_terminal_buf_num', 'local', 'CLAUDE', 'botright vnew', 85)
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 command! -complete=file_in_path -nargs=1 Find call s:Find(<q-args>)
 function! s:Find(...)
@@ -567,11 +622,11 @@ function! s:SendGDBLineCommand(termBuf, command, appendedText)
   let l:file = expand("%:.:")
   let l:line = line(".")
   let pos = l:file.':'.l:line
-  call term_sendkeys(a:termBuf, a:command . " " . pos . " " . a:appendedText . "\<cr>")
+  call s:TermSendKeys(a:termBuf, a:command . " " . pos . " " . a:appendedText . "\<cr>")
 endfunction
 
 function! s:SendGDBCommand(termBuf, command)
-  call term_sendkeys(a:termBuf, a:command."\<cr>")
+  call s:TermSendKeys(a:termBuf, a:command."\<cr>")
 endfunction
 
 command! -nargs=* Break call s:BreakGDB(<q-args>)
@@ -674,7 +729,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 "Auto Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-let ftToNotSetHidden = ['netrw']
+let s:ftToNotSetHidden = ['netrw']
 augroup vimrc
   autocmd! vimrc
   au VimEnter * call s:SetupPlugins()
@@ -696,13 +751,16 @@ augroup vimrc
   au BufNewFile,BufRead *.xaml set ft=xml
   au FileType make setlocal noexpandtab
   "netrw keeps setting nohidden!
-  autocmd BufEnter * if index(ftToNotSetHidden, &ft) < 0 | set hidden
+  autocmd BufEnter * if index(s:ftToNotSetHidden, &ft) < 0 | set hidden
   autocmd BufEnter,DirChanged * call AdjustPath()
+  " A colorscheme clears User9, and in neovim it also reassigns the terminal palette
+  autocmd ColorScheme * call s:StatusLineColor() | call s:ApplyTerminalColors()
 augroup END
 
-let g:onedark_termcolors=256
 set background=light
 silent! colorscheme onedark
+call s:StatusLineColor()
+call s:ApplyTerminalColors()
 
 call s:GuiFont('=')
 
@@ -712,72 +770,30 @@ let g:netrw_banner = 0
 " Also applies to make command for example
 let $BASH_ENV = "~/.bashrc"
 
-" Auto install vim-plug and then set it up
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+" Auto install vim-plug and then set it up. globpath() rather than a fixed path so
+" neovim, whose runtimepath already includes ~/.vim, does not download a second copy.
+let s:data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(globpath(&runtimepath, 'autoload/plug.vim'))
+  silent execute '!curl -fLo '.s:data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 " Source the mylint plugin file
-let vimrc_dir = fnamemodify(expand('<sfile>'), ':p:h')
-let mylint_path = vimrc_dir . '/mylint.vim'
-execute 'source' mylint_path
+execute 'source' fnamemodify(expand('<sfile>'), ':p:h') . '/mylint.vim'
 
-" Only load plugin info if we haven't done it yet. This is to prevent some of
-" the ai plugin settings from being overriden if VIMRC is sourced again
-if !exists('s:already_loaded_plugin_info')
-  let s:already_loaded_plugin_info = 1
+call plug#begin('~/.vim/plugged')
+   Plug 'godlygeek/tabular'
+   Plug 'preservim/vim-markdown'
+   let g:vim_markdown_no_default_key_mappings = 1
+   let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'c', 'python']
+   Plug 'ziglang/zig.vim'
+   Plug 'skywind3000/asyncrun.vim'
+   " mylint.vim calls async#job#start so the one file runs under vim and neovim
+   Plug 'prabirshrestha/async.vim'
+   Plug 'peterhoeg/vim-qml'
+   Plug 'artoj/qmake-syntax-vim'
 
-  call plug#begin('~/.vim/plugged')
-     Plug 'godlygeek/tabular'
-     Plug 'preservim/vim-markdown'
-     let g:vim_markdown_no_default_key_mappings = 1
-     let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'c', 'python']
-     Plug 'ziglang/zig.vim'
-     Plug 'skywind3000/asyncrun.vim'
-     Plug 'peterhoeg/vim-qml'
-     Plug 'artoj/qmake-syntax-vim'
-
-     Plug 'rickhowe/diffchar.vim'
-     Plug 'rickhowe/spotdiff.vim'
-     Plug 'rickhowe/diffunitsyntax'
-
-     Plug 'madox2/vim-ai'
-  let s:initial_chat_prompt =<< trim END
->>> system
-
-You are a general assistant. When asked to edit code, only respond with the edited code without syntax brackets.
-END
-      let g:vim_ai_complete = {
-                  \ "engine": "chat",
-                  \  "options": {
-                  \    "model": "gpt-4o",
-                  \    "temperature": 0.1,
-                  \    "max_tokens": 0,
-                  \    "enable_auth": 1,
-                  \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
-                  \    "initial_prompt": ">>> system\n\nYou are a general assistant. When asked to edit code, only respond with the edited code without syntax brackets.\n",
-                  \  },
-                  \  "ui": {
-                  \    "paste_mode": 0,
-                  \  },
-                  \}
-      let g:vim_ai_edit = g:vim_ai_complete
-      let g:vim_ai_chat = {
-                  \ "engine": "chat",
-                  \  "options": {
-                  \    "model": "gpt-4o",
-                  \    "temperature": 0.1,
-                  \    "max_tokens": 0,
-                  \    "enable_auth": 1,
-                  \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
-                  \    "initial_prompt": ">>> system\n\nYou are a general assistant.\n",
-                  \  },
-                  \  "ui": {
-                  \    "paste_mode": 0,
-                  \  },
-                  \}
-  
-  call plug#end()
-endif
+   Plug 'rickhowe/diffchar.vim'
+   Plug 'rickhowe/spotdiff.vim'
+   Plug 'rickhowe/diffunitsyntax'
+call plug#end()

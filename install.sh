@@ -1,12 +1,41 @@
 #!/bin/sh
+# Put the dotfiles in place. Everything real lives in ~/dot-files -- this only
+# creates the symlinks, the stub rc files, and the directories vim needs.
+
+set -e
+
+DOT_FILES="$HOME/dot-files"
+
+Link()
+{
+  target="$1"
+  link_name="$2"
+
+  if [ -L "$link_name" ] || [ ! -e "$link_name" ]; then
+    ln -sfn "$target" "$link_name"
+    echo "linked $link_name -> $target"
+  else
+    echo "SKIPPED $link_name: already exists and is not a symlink" >&2
+  fi
+}
+
+# vim finds ~/.vim/vimrc on its own, so there is no ~/.vimrc stub. A leftover one
+# would take priority over it, so report it rather than deleting it.
+if [ -e "$HOME/.vimrc" ]; then
+  echo "WARNING: $HOME/.vimrc exists and overrides ~/.vim/vimrc -- remove it" >&2
+fi
+
+Link "$DOT_FILES/vim" "$HOME/.vim"
+
+mkdir -p "$HOME/.config"
+Link "$DOT_FILES/nvim" "$HOME/.config/nvim"
+
+# vim writes no undo file at all when 'undodir' does not exist, and neovim's undo
+# format is not interchangeable with vim's, hence two directories.
+mkdir -p "$DOT_FILES/vim/undo" "$DOT_FILES/vim/undo-nvim"
 
 cat << EOF > ~/.screenrc
 source ~/dot-files/.screenrc
-EOF
-
-cat << EOF > ~/.vimrc
-set rtp+=~/dot-files/.vim
-source ~/dot-files/.vim/vimrc
 EOF
 
 cat << EOF > ~/.bashrc
@@ -24,9 +53,16 @@ EOF
 ExtraInstructions()
 {
   cat << EOF
-  Vimrc requires installation of:
+
+  Install these before using the vimrc:
     universal-ctags
     ripgrep
+    jq             mylint.vim reads compile_commands.json with it
+
+  Then start vim and run :PlugInstall
+
+  Optional:
+    neovim         shares the same vimrc through ~/.config/nvim/init.vim
 EOF
 }
 
