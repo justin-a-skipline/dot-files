@@ -27,8 +27,10 @@ fi
 
 Link "$DOT_FILES/vim" "$HOME/.vim"
 
-mkdir -p "$HOME/.config"
-Link "$DOT_FILES/nvim" "$HOME/.config/nvim"
+# Neovim needs nothing of its own: point its init.vim straight at the vimrc, which
+# guards the differences with has('nvim').
+mkdir -p "$HOME/.config/nvim"
+Link "$DOT_FILES/vim/vimrc" "$HOME/.config/nvim/init.vim"
 
 # vim writes no undo file at all when 'undodir' does not exist, and neovim's undo
 # format is not interchangeable with vim's, hence two directories.

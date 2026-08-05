@@ -778,8 +778,9 @@ if empty(globpath(&runtimepath, 'autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-" Source the mylint plugin file
-execute 'source' fnamemodify(expand('<sfile>'), ':p:h') . '/mylint.vim'
+" Source the mylint plugin file. resolve() because neovim reaches this file through
+" a symlinked init.vim, where <sfile> is ~/.config/nvim/init.vim.
+execute 'source' fnamemodify(resolve(expand('<sfile>')), ':p:h') . '/mylint.vim'
 
 call plug#begin('~/.vim/plugged')
    Plug 'godlygeek/tabular'
