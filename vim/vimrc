@@ -728,7 +728,11 @@ endfunction
 "Custom Netrw Functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SetLocalDir(islocal)
-    return "lcd %:p:h|pwd"
+  " b:netrw_curdir rather than %:p:h. Netrw frequently reuses an unnamed buffer for a
+  " directory listing, and %:p:h then expands to the current directory instead of the
+  " one on screen, so the lcd silently does nothing. netrw#UserMaps guarantees
+  " b:netrw_curdir is set before it calls this.
+  return 'lcd ' . fnameescape(b:netrw_curdir) . '|pwd'
 endfunction
 let g:Netrw_UserMaps=[["l","SetLocalDir"]]
 
