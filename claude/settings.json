@@ -16,7 +16,7 @@
   "fileCheckpointingEnabled": false,
   "defaultMode": "acceptEdits",
   "appearance": {
-    "theme": "auto",
+    "theme": "light",
     "fontSize": 14,
     "fontFamily": "Fira Code, Monospace, monospace"
   },
@@ -29,5 +29,6 @@
     "showDebugInfo": false,
     "enableExperimentalFeatures": false
   },
-  "remoteControlAtStartup": true
+  "remoteControlAtStartup": true,
+  "theme": "light"
 }
