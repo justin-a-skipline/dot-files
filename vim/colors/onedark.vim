@@ -286,7 +286,7 @@ let s:light_colors = {
       \ 'LessIntenseRed': { "gui": "#ff8060", "cterm": "203", "cterm16": "1" },
       \ 'VisualBlack': { "gui": "Grey80", "cterm": "252", "cterm16": "7" },
       \ 'GutterFgGrey': { "gui": "Red3", "cterm": "160", "cterm16": "8" },
-      \ 'CursorGrey': { "gui": "fg", "cterm": "NONE", "cterm16": "15" },
+      \ 'CursorGrey': { "gui": "Grey80", "cterm": "252", "cterm16": "15" },
       \ 'VisualGrey': { "gui": "Grey80", "cterm": "252", "cterm16": "7" },
       \ 'MenuGrey': { "gui": "Yellow", "cterm": "226", "cterm16": "11" },
       \ 'SpecialGrey': { "gui": "SlateBlue", "cterm": "62", "cterm16": "8" },
