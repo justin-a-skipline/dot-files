@@ -15,12 +15,8 @@ function! P(name)
     endif
 endfunction
 
-" Vim is really stupid and the job_getchannel() function doesn't
-" just return a channel number, it returns a string that also
-" contains the failed versus running status. Wow.
-function! ParseChannelNumber(info)
-    return matchlist(a:info, '\v\cchannel (\d+)(.*)')[1]
-endfunction
+" async#job#start() returns a plain job id in both vim and neovim, so
+" s:channel_info is keyed on that and there is no channel string to unpick.
 
 function! GetOrCreateSubDict(map, key)
   if !has_key(a:map, a:key)
@@ -55,38 +51,28 @@ function! GetFilePathMap(compile_file)
   return l:file_map
 endfunction
 
-" This function collects each line of stdout which has the compiler warnings
-" sent to it. The lines are parsed for warning and error messages and what was
-" found is appended to the list of lint errors for the buffer
-function! CollectGCCWarningsAndErrors(channel, output)
-  if !has_key(s:channel_info, ParseChannelNumber(a:channel))
-      " something went wrong, return
-      return
-  endif
-
-  let l:channel_dict = s:channel_info[ParseChannelNumber(a:channel)]
-  let l:bufnr = l:channel_dict["bufnr"]
-  let l:buf_dict = s:buf_info[l:bufnr]
-
-  " Parse the output for errors and warnings
-  let l:lines = split(a:output, "\n")
+" This function parses complete compiler output lines for warning and error
+" messages and appends what was found to the list of lint errors for the buffer
+function! s:ParseLintLines(buf_dict, lines)
   let l:match_str = '\v^(.+):(\d+):(\d+): (fatal error|error|warning): (.+)$'
   let l:match_header_error = '\v^(.+):(\d+):(\d+):\s+required from here.*$'
   let l:match_header_error2 = '\v^In file included from (.+):(\d+):\s*$'
-  for l:line in l:lines
+  for l:line in a:lines
+    " continue, not return: one call carries many lines now, so returning here
+    " would discard the rest of the compiler output
     if l:line =~ l:match_header_error
-      let l:buf_dict["multi_line_match_list"] = matchlist(l:line, l:match_header_error)
-      return
+      let a:buf_dict["multi_line_match_list"] = matchlist(l:line, l:match_header_error)
+      continue
     elseif l:line =~ l:match_header_error2
-      let l:buf_dict["multi_line_match_list"] = matchlist(l:line, l:match_header_error2)
-      return
+      let a:buf_dict["multi_line_match_list"] = matchlist(l:line, l:match_header_error2)
+      continue
     " Match lines with errors or warnings
     elseif l:line =~ l:match_str
       let l:match_list = matchlist(l:line, l:match_str)
-      if has_key(l:buf_dict, "multi_line_match_list")
-        let l:file = l:buf_dict["multi_line_match_list"][1]
-        let l:lnum = l:buf_dict["multi_line_match_list"][2]
-        let l:throwaway = remove(l:buf_dict, "multi_line_match_list")
+      if has_key(a:buf_dict, "multi_line_match_list")
+        let l:file = a:buf_dict["multi_line_match_list"][1]
+        let l:lnum = a:buf_dict["multi_line_match_list"][2]
+        let l:throwaway = remove(a:buf_dict, "multi_line_match_list")
       else
         let l:file = l:match_list[1]
         let l:lnum = l:match_list[2]
@@ -96,23 +82,57 @@ function! CollectGCCWarningsAndErrors(channel, output)
 
       let l:type = l:type == "warning" ? "W" : "E"
 
-      call add(l:buf_dict["lint_errors"], { "filename": l:file, "lnum": l:lnum, "type": l:type, "text": l:text })
+      call add(a:buf_dict["lint_errors"], { "filename": l:file, "lnum": l:lnum, "type": l:type, "text": l:text })
     endif
   endfor
+endfunction
+
+" This function collects the compiler warnings from stdout and stderr. A chunk
+" can end part way through a line, so the trailing fragment is held back until
+" the next chunk completes it. The two streams are independent and each keeps
+" its own fragment.
+function! CollectGCCWarningsAndErrors(job, data, event)
+  if !has_key(s:channel_info, a:job) || empty(a:data)
+      " something went wrong, return
+      return
+  endif
+
+  let l:channel_dict = s:channel_info[a:job]
+  let l:buf_dict = s:buf_info[l:channel_dict["bufnr"]]
+
+  let l:fragment_key = a:event . "_fragment"
+  let l:fragment = get(l:channel_dict, l:fragment_key, '') . a:data[0]
+  let l:complete = []
+  for l:i in range(1, len(a:data) - 1)
+    call add(l:complete, l:fragment)
+    let l:fragment = a:data[l:i]
+  endfor
+  let l:channel_dict[l:fragment_key] = l:fragment
+
+  call s:ParseLintLines(l:buf_dict, l:complete)
 endfunction
 
 " This function is called after the compiler exits. That is the condition when
 " finally all of the compiler errors are turned into warning and error signs
 " in the margin
-function! ParseGCCWarningsAndErrors(job, output)
-  if !has_key(s:channel_info, ParseChannelNumber(a:job->job_getchannel()))
+" a:status is the exit code here, not compiler text.
+function! ParseGCCWarningsAndErrors(job, status, event)
+  if !has_key(s:channel_info, a:job)
       " something went wrong, return
       return
   endif
 
-  let l:channel_dict = s:channel_info[ParseChannelNumber(a:job->job_getchannel())]
+  let l:channel_dict = s:channel_info[a:job]
   let l:bufnr = l:channel_dict["bufnr"]
   let l:buf_dict = s:buf_info[l:bufnr]
+
+  " A last line without a terminating newline is still a real warning
+  for l:fragment_key in ['stdout_fragment', 'stderr_fragment']
+    if !empty(get(l:channel_dict, l:fragment_key, ''))
+      call s:ParseLintLines(l:buf_dict, [l:channel_dict[l:fragment_key]])
+      let l:channel_dict[l:fragment_key] = ''
+    endif
+  endfor
 
   " Clear all signs in the current buffer
   execute 'sign unplace * buffer=' . l:bufnr
@@ -378,12 +398,15 @@ function! RunCompilerCommand()
     return
   endif
 
-  " Use jq to find the compiler command and directory for the current file
-  let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . l:dir_dict["latest_compile_commands"])
+  " Use jq to find the compiler command and directory for the current file.
+  " trim() matters: the trailing newline from system() would otherwise end up
+  " inside the -o argument, which both breaks the .mylint suffix and cuts the
+  " 2>&1 onto a second shell line.
+  let l:command = trim(system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .command'' ' . l:dir_dict["latest_compile_commands"]))
 
   " If no command is found, try bear output
   if l:command->match("null") == 0
-    let l:command = system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . l:dir_dict["latest_compile_commands"])
+    let l:command = trim(system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . l:dir_dict["latest_compile_commands"]))
     if l:command->match("null") == 0
       return
     endif
@@ -400,10 +423,17 @@ function! RunCompilerCommand()
   call writefile([l:log_entry], "/tmp/mylint_debug.log", "a")
 
   let l:buf_dict["lint_errors"] = []
-  let l:cc_job = job_start(cmd, {'callback': 'CollectGCCWarningsAndErrors', 'out_mode': 'nl', 'exit_cb': 'ParseGCCWarningsAndErrors'})
-  " Store the job object with the key being the job channel for accessing in
+  " async#job#start so this file works unchanged under vim and neovim. gcc writes
+  " warnings to stderr, and neovim keeps the streams separate, so both are wired
+  " to the same collector.
+  let l:cc_job = async#job#start(cmd, {
+        \ 'on_stdout': function('CollectGCCWarningsAndErrors'),
+        \ 'on_stderr': function('CollectGCCWarningsAndErrors'),
+        \ 'on_exit': function('ParseGCCWarningsAndErrors'),
+        \ })
+  " Store the job object with the key being the job id for accessing in
   " the callback
-  let l:channel_dict = GetOrCreateSubDict(s:channel_info, ParseChannelNumber(l:cc_job->job_getchannel()))
+  let l:channel_dict = GetOrCreateSubDict(s:channel_info, l:cc_job)
   let l:channel_dict["job"] = l:cc_job
   let l:channel_dict["bufnr"] = l:bufnr
 endfunction
