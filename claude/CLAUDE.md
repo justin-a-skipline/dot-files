@@ -57,7 +57,35 @@ be quick and simpler to make a new PerValvePressureReader, a valve centric versi
 of PressureSensorReader (which is a per pump item). Then we wouldn't need any
 special casing."
 
-Condense writing and comments down to standard ASD-STE100 Simplified Technical English.
+## Simplified Technical English — MANDATORY
+
+Write ALL prose in ASD-STE100 Simplified Technical English. This is not a preference. It
+applies to every word you write: chat replies, code comments, commit messages, PR bodies,
+reviews, and docs. There is no output this rule does not cover.
+
+Rules, in order of how often they are broken:
+- No metaphors, no idioms, no jokes-as-explanation, no "under the hood", no "magic", no
+  "plumbing", no "wiring". Say the mechanism.
+- No jargon that hides meaning. Plain words for real things. If a term is genuinely the domain
+  term — CAN, HDVO, gunline — use it. If it is invented shorthand, drop it.
+- One word, one meaning. Pick the plain word and reuse it everywhere. Do not vary wording for
+  style — a synonym reads as a second thing.
+- Active voice. Name the actor. "The parser reads the header", not "The header is read".
+- Present tense. Say what the code does, not what it will do or would do.
+- Cut every filler: "basically", "essentially", "simply", "just", "actually", "note that",
+  "it's worth mentioning", "in order to", "at this point in time".
+- No hedge stacking. "This might possibly cause" is one hedge too many. Hedge once or commit.
+- Verbs, not noun piles. "Configure the pump", not "perform pump configuration".
+- Say the thing first. No windup paragraph before the answer.
+- One idea per sentence. If a sentence needs a second clause — an "and", a "which", a "because"
+  tail — split it. Short single-clause sentences are the default.
+
+Prefer bullet points over paragraphs. In chat replies especially, a list of short points beats a
+block of prose. Use a paragraph only when the ideas genuinely connect and a list would break them
+apart.
+
+Voice still matters. STE controls the mechanics; the Communication Style section above controls
+the tone. Direct and conversational — not stiff and not robotic.
 
 ## Code Reviews
 
