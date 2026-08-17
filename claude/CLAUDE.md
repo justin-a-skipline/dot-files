@@ -47,15 +47,7 @@ Only introduce complexity when:
 
 ## Communication Style
 
-Write PR reviews and feedback in my voice: direct, conversational, collaborative. Frame suggestions as "I think X would be simpler because Y" rather than structured recommendations. One or two short paragraphs for reviews, not a document with sections and headers. Match the tone of a senior engineer talking to a teammate — brief, clear, opinionated but open. No structured output formats for reviews — just talk like I would.
-
-Example of my review style:
-"This does seem to work, but I think this is being solved at the wrong level.
-It's using PressureSensorReader which is subclassed differently than the rest of
-the items used here, which is why the special casing is needed. I think it would
-be quick and simpler to make a new PerValvePressureReader, a valve centric version
-of PressureSensorReader (which is a per pump item). Then we wouldn't need any
-special casing."
+Write PR reviews and feedback in straight technical STE: direct and opinionated. State the finding, the reason, and the fix. Frame suggestions as "I think X would be simpler because Y" rather than structured recommendations. Keep reviews short — one or two paragraphs, not a document with sections and headers. Give a recommendation; do not hedge.
 
 ## Simplified Technical English — MANDATORY
 
@@ -85,7 +77,7 @@ block of prose. Use a paragraph only when the ideas genuinely connect and a list
 apart.
 
 Voice still matters. STE controls the mechanics; the Communication Style section above controls
-the tone. Direct and conversational — not stiff and not robotic.
+the tone. Direct — not stiff and not robotic.
 
 ## Code Reviews
 

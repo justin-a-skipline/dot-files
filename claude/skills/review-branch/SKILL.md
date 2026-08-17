@@ -61,26 +61,31 @@ Structure, in order:
    - A short **commit summary**: what it does, whether it's correct, and any findings.
 3. **Findings — this is the part the user actually reads, so make it carry its own weight.** A single ranked list ordered by severity — bugs and smells interleaved, most severe first, categorized per finding (e.g. a short "correctness" / "architecture" / "nit" tag) but not segregated into separate mode-based sections. The commit walkthrough above is the record; this section is where the reader decides what to do. Each finding must be **self-contained** — the reader should be able to understand it, judge whether it's real, and act on it *without scrolling back to the commit sections or opening the code themselves*. They'll go look when they choose to, not because your writeup forced them to.
 
-   For each finding, write a few short paragraphs in the user's voice (prose, not a filled-in form — don't literally print these as labeled fields), covering:
+   For each finding, cover the points below. Use short sentences and bullet lists, not blocks of prose and not a filled-in form — don't literally print these as labeled `What:` / `Why:` fields:
    - **What and where**, with `file:line` — then **quote the actual offending code inline** in a tight ```` ```diff ```` / ```` ```cpp ```` block. Don't make them go find it. If two spots interact (a caller and a callee, a flag set here and read there), show both.
    - **Why it's a problem, concretely.** For a bug, give the specific input/state that triggers it and what actually breaks — the failure scenario, traced through — not just "this is wrong." For a smell, name the real maintenance or misuse-by-design cost in plain terms.
    - **What you verified vs. what's still open.** If you traced callers, checked the header, or confirmed a neighbor does the same thing differently, say what you found so they can trust it. If the finding hinges on a fact you couldn't pin down, state exactly what you checked and the single question that remains — so they know the one thing to confirm, and don't have to re-derive the whole thing.
    - **The fix** — concrete and specific enough to hand off or apply, with the shape of the corrected code when that clarifies it. If there's a simpler alternative to the whole approach, lead with that.
    - **A severity/effort read** — merge-blocker vs. should-fix vs. nit, and roughly how big the fix is.
 
-   Err toward more context, not less. A finding that reads "file:line — X is wrong, do Y" has failed the point of this section. Depth scales with severity: a merge-blocking bug earns a full walkthrough; a nit can be a sentence or two.
+   Err toward more facts, not fewer — but deliver them as short sentences and bullets, never a longer paragraph. A finding that reads "file:line — X is wrong, do Y" has failed the point of this section. Depth scales with severity: a merge-blocking bug earns a full walkthrough; a nit can be a line or two.
 
    **Verify every finding against the working tree before you write it — grep or read the current file, don't reason from the diff.** The Findings section describes the branch *as it will merge* (final-tree state at `HEAD`), so every finding must still be true of the current code. A defect an earlier commit introduced and a later commit in the range then fixed is **transient**: it belongs in the commit walkthrough (noted as resolved in commit M), never in Findings. This is the same "a problem in one commit may be fixed in a later one" rule from above, applied one more time at the moment you write the finding — it's the last gate. If you catch yourself describing duplication, a bug, or a smell that a later commit already cleaned up, that's a walkthrough note, not a finding. When in doubt, run the grep and cite what `HEAD` actually contains.
 
-4. **Verdict** — a one-paragraph honest take on the branch as a whole: is it close, and what must happen before it merges.
+4. **Verdict** — an honest take on the branch as a whole: is it close, and what must happen before it merges. A few short sentences or bullets, not a paragraph.
 
-**Every code and diff block — everywhere in the report — must name the function (or class member / method) it lives in**, so the reader can jump straight to it. `git show -W` already shows the enclosing function, so you have it. Put the function name in the prose right before the block, or as a comment on the block's first line (e.g. `// FactorySettingsScreen::initCalNumberChange()`). A bare `file:line` is not enough on its own — pair it with the function name. If a snippet spans two functions, label both.
+**Every code and diff block — everywhere in the report — must name the function (or class member / method) it lives in**, so the reader can jump straight to it. `git show -W` already shows the enclosing function, so you have it. Name the function right before the block, or as a comment on the block's first line (e.g. `// FactorySettingsScreen::initCalNumberChange()`). A bare `file:line` is not enough on its own — pair it with the function name. If a snippet spans two functions, label both.
 
-Write commentary in the user's voice per the global CLAUDE.md: direct, conversational, opinionated but open — "I think X would be simpler because Y", not a formal rubric. Prioritize simplicity and flag unnecessary complexity as high priority.
+Write every word — the file and the spoken summary — in straight technical STE per the global CLAUDE.md. The mechanics that matter most here:
+- Prefer bullet lists over paragraphs. Any enumeration of two or more items — conditions, facts, causes, steps, options — becomes a bullet list, never a sentence with the items trailing after a colon or comma.
+- One idea per sentence. If a sentence needs a second clause — an "and", a "which", a "because" tail — split it.
+- A claim and its evidence are two ideas. Put the claim on one line and the evidence on its own line or bullet, not joined with a dash.
+- Stay direct and opinionated — "I think X would be simpler because Y", not a formal rubric. Flag unnecessary complexity as high priority.
+- Do not write blocks of prose. Short sentences and bullet lists only.
 
 ## After writing
 
-Report the file path and give a 2-3 sentence spoken summary of the headline findings so the user knows what they're walking into before they open the file.
+Report the file path, then give a short spoken summary of the headline findings so the user knows what they're walking into before they open the file. Same rules as the file: bullet the findings, one idea per sentence, no prose block.
 
 **Do not apply fixes unless the user asks.** The review's job is to report.
 
