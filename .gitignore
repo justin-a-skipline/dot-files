@@ -90,3 +90,5 @@ vim/undo/*
 vim/autoload/plug.vim
 vim/plugged
 vim/undo-nvim/*
+__pycache__/
+tools/rtt/rtt_bridge
