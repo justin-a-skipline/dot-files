@@ -872,29 +872,50 @@ start_meldSystemFiles()
 			# Fall back to td_variants
 			elif [ -d "$system/td_variants/logging" ]; then
 				echo "$system/td_variants/logging"
-			elif [ -d "$system/td_variants/non_logging" ]; then
+			else # elif [ -d "$system/td_variants/non_logging" ]; then
 				echo "$system/td_variants/non_logging"
-			else
-				echo ""
 			fi
 		}
 
 		local folder1="$(_get_compare_folder "$1")"
 		local folder2="$(_get_compare_folder "$2")"
 
-		if [ -z "$folder1" ]; then
-			red_msg "No variants or td_variants folder found in $1"
-			return 1
-		fi
-		if [ -z "$folder2" ]; then
-			red_msg "No variants or td_variants folder found in $2"
-			return 1
-		fi
-
 		for file in "${files[@]}"; do
 			echo meld "$folder1/$file" "$folder2/$file" -n
 			meld "$folder1/$file" "$folder2/$file" -n &>/dev/null &
 		done
+
+		local skipper_systems_folder="$HOME/workspace/skipline-pristine/projects/skipper/systems"
+
+		# Prefer the hand-written _MANUAL.h, fall back to the generated system.h
+		_get_system_h_file()
+		{
+			local system="$1"
+			local base
+			base="$(basename "${system%%/}")"
+			base="${base%%_MANUAL.h}"
+			base="${base%%_MANUAL}"
+			if [ -f "$skipper_systems_folder/${base}_MANUAL.h" ]; then
+				echo "$skipper_systems_folder/${base}_MANUAL.h"
+			elif [ -f "$system/system.h" ]; then
+				echo "$system/system.h"
+			else
+				echo ""
+			fi
+		}
+
+		local system_h1="$(_get_system_h_file "$1")"
+		local system_h2="$(_get_system_h_file "$2")"
+
+		if [ -z "$system_h1" ]; then
+			red_msg "No system.h or manual .h found for $1"
+		elif [ -z "$system_h2" ]; then
+			red_msg "No system.h or manual .h found for $2"
+		else
+			echo meld "$system_h1" "$system_h2" -n
+			meld "$system_h1" "$system_h2" -n &>/dev/null &
+		fi
+
 		return 0
 	fi
 
