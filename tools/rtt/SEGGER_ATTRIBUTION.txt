@@ -1,0 +1,17 @@
+SEGGER RTT Attribution
+======================
+
+This directory contains software from SEGGER Microcontroller GmbH.
+
+SEGGER Real-Time Transfer (RTT)
+- Copyright (c) 1995 - 2021 SEGGER Microcontroller GmbH
+- Website: https://www.segger.com
+- License: See SEGGER_RTT_V816/LICENSE.md
+- Redistribution permitted with copyright notice
+
+RTT enables real-time data transfer between J-Link debug probe and
+target microcontrollers without requiring UART or other peripherals.
+
+For more information:
+- https://www.segger.com/j-link
+- https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer
