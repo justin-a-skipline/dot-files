@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Reads a .mylint object and writes the assembly of each source line as JSON.
 
-Usage: assembly_viewer.py <source file> <output file>
+Usage: assembly_viewer.py <source file> <output file> [search directory]
 
 The plugin runs this as a job, so the editor never waits. It finds the object
-itself, from compile_commands.json, and writes
+itself, from the compile_commands.json at or just below the search directory,
+and writes
 
   {"lines": {"line number": ["instruction text", ...]},
    "object": path, "object_time": epoch, "source_time": epoch}
@@ -512,30 +513,21 @@ def instruction_text(instruction, index):
     return text
 
 
-def find_compile_commands(source_file):
-    """The newest compile_commands.json at or just below the nearest directory
-    above this file that holds one.
+def find_compile_commands(root):
+    """The newest compile_commands.json at or just below root. A hidden
+    directory holds another tool's build, such as the one qt writes.
 
-    Walking up from the file is the only reliable way there. The working
-    directory is no help: :lcd makes it a property of the window, so a job
-    started from a timer, or from an autocommand while another window is
-    current, runs somewhere else entirely. A hidden directory holds another
-    tool's build, such as the one qt writes."""
-    directory = os.path.dirname(source_file)
+    root comes from the editor, which passes its own working directory. Reading
+    it here instead would get the wrong one: :lcd makes the directory a
+    property of the window, and this runs as a job, which can start while
+    another window is current."""
+    found = [path
+             for pattern in ('compile_commands.json',
+                             os.path.join('*', 'compile_commands.json'))
+             for path in glob.glob(os.path.join(root, pattern))
+             if not os.path.basename(os.path.dirname(path)).startswith('.')]
 
-    while True:
-        found = [path
-                 for pattern in ('compile_commands.json',
-                                 os.path.join('*', 'compile_commands.json'))
-                 for path in glob.glob(os.path.join(directory, pattern))
-                 if not os.path.basename(os.path.dirname(path)).startswith('.')]
-        if found:
-            return max(found, key=os.path.getmtime)
-
-        parent = os.path.dirname(directory)
-        if parent == directory:
-            return ''
-        directory = parent
+    return max(found, key=os.path.getmtime) if found else ''
 
 
 def compile_command(entry):
@@ -593,12 +585,12 @@ def find_objdump(compiler):
     return best or 'objdump'
 
 
-def find_object(source_file):
+def find_object(source_file, root):
     """Reads the compile_commands entry for this file and takes its -o, which
     is what mylint.vim adds .mylint to."""
-    commands = find_compile_commands(source_file)
+    commands = find_compile_commands(root)
     if not commands:
-        raise LookupError('No compile_commands.json above ' + source_file)
+        raise LookupError('No compile_commands.json below ' + root)
 
     with open(commands, encoding='utf-8') as handle:
         entries = json.load(handle)
@@ -622,8 +614,8 @@ def find_object(source_file):
     raise LookupError('No entry for this file in ' + commands)
 
 
-def assembly(source_file):
-    binary, objdump = find_object(source_file)
+def assembly(source_file, root):
+    binary, objdump = find_object(source_file, root)
 
     disassembly = subprocess.run(
         [objdump, '-f', '-t', '-d', '-z', '-l', '-r', '--demangle', binary],
@@ -660,9 +652,10 @@ def assembly(source_file):
 def main():
     source_file = os.path.realpath(sys.argv[1])
     destination = sys.argv[2] if len(sys.argv) > 2 else ''
+    root = sys.argv[3] if len(sys.argv) > 3 else os.getcwd()
 
     try:
-        result = assembly(source_file)
+        result = assembly(source_file, root)
     except LookupError as failure:
         result = {'error': str(failure)}
     except subprocess.CalledProcessError as failure:

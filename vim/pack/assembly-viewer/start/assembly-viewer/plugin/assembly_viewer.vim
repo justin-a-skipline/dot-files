@@ -69,7 +69,9 @@ function! s:ReadAssembly(bufnr, done)
     call s:StopJob(a:bufnr)
 
     let l:answer = tempname()
-    let l:command = ['python3', s:reader, l:file_path, l:answer]
+    " getcwd() is this window's directory, which is the one the user means. The
+    " job would otherwise inherit whichever one the current window last set.
+    let l:command = ['python3', s:reader, l:file_path, l:answer, getcwd()]
 
     " Calling it is what loads it. exists() does not load an autoload script, so
     " it answers no until something else has been through async# already.
