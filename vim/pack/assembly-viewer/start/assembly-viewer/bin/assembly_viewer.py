@@ -55,6 +55,8 @@ DWARF_NUMBER = re.compile(r':\s*(\d+)')
 DWARF_MEMBER_LOCATION = re.compile(r'DW_OP_plus_uconst: (\d+)|:\s*(\d+)$')
 DWARF_TYPE = re.compile(r': <0x([0-9a-fA-F]+)')
 DWARF_NAME = re.compile(r':\s*([^:]*)$')
+DWARF_ORIGIN = re.compile(r'DW_AT_abstract_origin\s*:\s*<0x([0-9a-fA-F]+)>')
+FILE_TABLE_ROW = re.compile(r'^\s*(\d+)\t(\d+)\t.*\t(\S.*?)\s*$')
 
 DWARF_WANTED = {'DW_AT_name', 'DW_AT_type', 'DW_AT_byte_size',
                 'DW_AT_upper_bound', 'DW_AT_data_member_location'}
@@ -529,6 +531,55 @@ def instruction_text(instruction, index):
     return text
 
 
+def source_file_numbers(rawline, source_file):
+    """The numbers the line table gives this source file. A call the compiler
+    inlined inside a header carries a line number too, and that number means
+    nothing in this file."""
+    base = os.path.basename(source_file)
+    return {int(row.group(1))
+            for row in (FILE_TABLE_ROW.match(line)
+                        for line in rawline.splitlines())
+            if row and os.path.basename(row.group(3)) == base}
+
+
+def inline_call_sites(debug, types, source_file):
+    """The functions the compiler inlined, by the line that calls them. The
+    call keeps no instructions of its own, so the line reads as code the
+    compiler dropped until something says the body went inline."""
+    wanted_files = source_file_numbers(debug, source_file)
+    sites = {}
+    site = None
+
+    def keep(site):
+        if not site or site['file'] not in wanted_files:
+            return
+        name = types.dies.get(site['origin'], {}).get('name', '')
+        if name and site['line'] > 0:
+            sites.setdefault(site['line'], set()).add(name)
+
+    for line in debug.splitlines():
+        header = DWARF_HEADER.match(line)
+        if header:
+            keep(site)
+            site = ({'origin': '', 'file': -1, 'line': 0}
+                    if header.group(3) == 'inlined_subroutine' else None)
+            continue
+
+        if site is None:
+            continue
+
+        origin = DWARF_ORIGIN.search(line)
+        if origin:
+            site['origin'] = origin.group(1)
+        elif 'DW_AT_call_file' in line:
+            site['file'] = int(DWARF_NUMBER.search(line).group(1))
+        elif 'DW_AT_call_line' in line:
+            site['line'] = int(DWARF_NUMBER.search(line).group(1))
+
+    keep(site)
+    return sites
+
+
 def line_texts(instructions, index):
     """The instructions of one source line. The compiler copies an inlined
     function into each caller, so one line can have several runs of
@@ -676,10 +727,12 @@ def assembly(source_file, root):
                                                         source_file)
     resolve_addresses(mapping, relocations, constants, is_arm)
 
+    debug = subprocess.run(
+        [objdump, '--dwarf=info', '--dwarf=rawline', binary],
+        capture_output=True, text=True, check=True).stdout
+    types = Types(debug)
+
     if is_arm:
-        types = Types(subprocess.run(
-            [objdump, '--dwarf=info', binary],
-            capture_output=True, text=True, check=True).stdout)
         track_registers(mapping, Symbols(disassembly), types)
 
     index = {}
@@ -687,8 +740,15 @@ def assembly(source_file, root):
         for instruction in instructions:
             index[(instruction['function'], instruction['address'])] = line
 
-    return {'lines': {str(line): line_texts(instructions, index)
-                      for line, instructions in mapping.items()},
+    lines = {str(line): line_texts(instructions, index)
+             for line, instructions in mapping.items()}
+
+    for line, names in inline_call_sites(debug, types,
+                                         source_file).items():
+        notes = ['%5s  %s inlined here' % ('', name) for name in sorted(names)]
+        lines[str(line)] = notes + lines.get(str(line), [])
+
+    return {'lines': lines,
             'object': binary,
             'object_time': int(os.path.getmtime(binary)),
             'source_time': int(os.path.getmtime(source_file))}
