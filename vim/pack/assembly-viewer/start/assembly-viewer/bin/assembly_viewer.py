@@ -37,6 +37,7 @@ READS_ONLY = re.compile(r'^(str|stm|push|cmp|cmn|tst|teq|it)')
 CALL_CLOBBERS = ('r0', 'r1', 'r2', 'r3', 'r12', 'ip', 'lr')
 
 FUNCTION_HEADER = re.compile(r'^[0-9a-f]+ <([^>]+)>:$')
+INLINE_MARKER = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*)\(\):$')
 RELOCATION = re.compile(r'^\s*([0-9a-f]+): R_\S+\s+(\S+)')
 SOURCE_LINE = re.compile(r'^(/.*):(\d+)\s*(\(discriminator|$)')
 INSTRUCTION = re.compile(r'^\s*([0-9a-fA-F]+):')
@@ -307,12 +308,22 @@ def parse_disassembly(output, source_file):
     last_line_of = {}
     pool_words = []
     current_function = ''
+    current_inline = ''
     current_line = 0
 
     for line in output.splitlines():
         header = FUNCTION_HEADER.match(line)
         if header:
             current_function = header.group(1)
+            current_inline = ''
+            continue
+
+        # objdump names the function each run of code was written in. The name
+        # is the enclosing one until the compiler inlines a call, and then the
+        # instructions of another function sit on the line that called it.
+        marker = INLINE_MARKER.match(line)
+        if marker:
+            current_inline = marker.group(1)
             continue
 
         # A relocation names the symbol that objdump could not, and it sits at
@@ -347,7 +358,7 @@ def parse_disassembly(output, source_file):
         instruction = {'address': address, 'mnemonic': mnemonic,
                        'operands': operands, 'function': current_function,
                        'symbol': '', 'relocation': '', 'loaded': '',
-                       'member': ''}
+                       'member': '', 'inlined': ''}
 
         # A .word is a value from the literal pool, not code. It has no line of
         # its own, so it goes under the end of the function that reads it.
@@ -358,6 +369,11 @@ def parse_disassembly(output, source_file):
 
         if not mnemonic or mnemonic.startswith('.') or current_line <= 0:
             continue
+
+        # gcc gives a clone of a function a suffix, such as ".constprop.0".
+        # The marker names the function, so compare against the name alone.
+        if current_inline != current_function.split('.')[0]:
+            instruction['inlined'] = current_inline
 
         mapping.setdefault(current_line, []).append(instruction)
 
@@ -513,6 +529,36 @@ def instruction_text(instruction, index):
     return text
 
 
+def line_texts(instructions, index):
+    """The instructions of one source line. The compiler copies an inlined
+    function into each caller, so one line can have several runs of
+    instructions, each in a different function. Name the function a run sits
+    in, because the addresses alone do not say. A pool word belongs to no run,
+    so it gets no name."""
+    code = [instruction for instruction in instructions
+            if instruction['mnemonic'] != '.word']
+    runs = {(instruction['function'], bool(instruction['inlined']))
+            for instruction in code}
+
+    texts = []
+    context = None
+
+    for instruction in instructions:
+        here = (instruction['function'], bool(instruction['inlined']))
+
+        if instruction['mnemonic'] != '.word' and here != context:
+            context = here
+            host = instruction['function'].split('.')[0]
+            if instruction['inlined']:
+                texts.append('%5s  inlined into %s' % ('', host))
+            elif len(runs) > 1:
+                texts.append('%5s  in %s' % ('', host))
+
+        texts.append(instruction_text(instruction, index))
+
+    return texts
+
+
 def find_compile_commands(root):
     """The newest compile_commands.json at or just below root. A hidden
     directory holds another tool's build, such as the one qt writes.
@@ -641,8 +687,7 @@ def assembly(source_file, root):
         for instruction in instructions:
             index[(instruction['function'], instruction['address'])] = line
 
-    return {'lines': {str(line): [instruction_text(instruction, index)
-                                  for instruction in instructions]
+    return {'lines': {str(line): line_texts(instructions, index)
                       for line, instructions in mapping.items()},
             'object': binary,
             'object_time': int(os.path.getmtime(binary)),
