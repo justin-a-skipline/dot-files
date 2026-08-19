@@ -40,6 +40,11 @@ function! GetFilePathMap(compile_file)
   for l:entry in l:entries_list
     if !empty(l:entry)
       let l:parts = split(l:entry, ' ')
+      " One bad line used to throw and take the whole autocommand with it,
+      " which stopped the compile of a file that was in the list.
+      if l:parts->len() < 2
+        continue
+      endif
       let l:file = l:parts[0]
       let l:directory = l:parts[1]
       let l:resolved_path = resolve(l:file)
@@ -347,11 +352,19 @@ endif
 
 " This function is run when the buffer is re-read or written and calls the
 " compiler, kicking off the linting process
+" Every reason to give up used to be silent, and a silent lint reads exactly
+" like a clean file. The log says which one it was.
+function! s:LogSkip(reason)
+  call writefile(["[" . strftime("%Y-%m-%d %H:%M:%S") . "] SKIP: " . a:reason],
+        \ "/tmp/mylint_debug.log", "a")
+endfunction
+
 function! RunCompilerCommand()
   " Find all compile_commands.json files at this level and one level down
   " Exclude files in . directories like what qt produces
   let l:compile_files = systemlist('find . -maxdepth 2 -name compile_commands.json -a ! -iregex ".*/\..*" -prune')
   if l:compile_files->len() <= 0
+    call s:LogSkip("no compile_commands.json below " . getcwd())
     return
   endif
 
@@ -386,7 +399,19 @@ function! RunCompilerCommand()
 
   " Get the file path map if we have marked that there is a new file to get or
   " the timestamp was updated from a compile
+  if !has_key(l:dir_dict, "file_path_map")
+    let l:dir_dict["file_path_map"] = {}
+    let l:recalculate_file_path_map = 1
+  endif
   if l:recalculate_file_path_map > 0
+    let l:dir_dict["file_path_map"] = GetFilePathMap(l:dir_dict["latest_compile_commands"])
+  endif
+
+  " A compile_commands.json that is half written, or a jq that fails, gives an
+  " empty map. That map used to be kept for the rest of the session, which
+  " turned the linter off for every file in this directory until vim restarted.
+  " So read the list again before believing that the file is not in it.
+  if !has_key(l:dir_dict["file_path_map"], l:current_file)
     let l:dir_dict["file_path_map"] = GetFilePathMap(l:dir_dict["latest_compile_commands"])
   endif
 
@@ -395,6 +420,8 @@ function! RunCompilerCommand()
     let l:cc_file_path = l:dir_dict["file_path_map"][l:current_file]['file']
     let l:cc_dir_path = l:dir_dict["file_path_map"][l:current_file]['directory']
   else
+    call s:LogSkip(l:current_file . " is not in "
+          \ . l:dir_dict["latest_compile_commands"])
     return
   endif
 
@@ -408,6 +435,7 @@ function! RunCompilerCommand()
   if l:command->match("null") == 0
     let l:command = trim(system('jq -r --arg file "' . l:cc_file_path . '" ''.[] | select(.file == $file) | .arguments | join(" ") '' ' . l:dir_dict["latest_compile_commands"]))
     if l:command->match("null") == 0
+      call s:LogSkip("no compile command for " . l:cc_file_path)
       return
     endif
   endif
