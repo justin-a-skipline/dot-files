@@ -58,8 +58,11 @@ function! s:StopJob(bufnr)
     unlet s:jobs[a:bufnr]
 endfunction
 
-" Reads the assembly of a buffer, and calls Done with what it found.
-function! s:ReadAssembly(bufnr, done)
+" Reads the assembly of a buffer, and calls Done with what it found. root is
+" the directory to look in, taken when the request was made. A timer runs in
+" whichever window is current when it fires, so reading it here would follow
+" the user out of the window they wrote in.
+function! s:ReadAssembly(bufnr, root, done)
     let l:file_path = fnamemodify(bufname(a:bufnr), ':p')
     if empty(l:file_path)
         echom 'Assembly viewer: no file name for this buffer'
@@ -69,9 +72,7 @@ function! s:ReadAssembly(bufnr, done)
     call s:StopJob(a:bufnr)
 
     let l:answer = tempname()
-    " getcwd() is this window's directory, which is the one the user means. The
-    " job would otherwise inherit whichever one the current window last set.
-    let l:command = ['python3', s:reader, l:file_path, l:answer, getcwd()]
+    let l:command = ['python3', s:reader, l:file_path, l:answer, a:root]
 
     " Calling it is what loads it. exists() does not load an autoload script, so
     " it answers no until something else has been through async# already.
@@ -186,7 +187,7 @@ function! s:DisplayAssembly(bufnr, result)
 endfunction
 
 function! s:ShowAssemblyForBuffer()
-    call s:ReadAssembly(bufnr('%'), function('s:DisplayAssembly'))
+    call s:ReadAssembly(bufnr('%'), getcwd(), function('s:DisplayAssembly'))
 endfunction
 
 function! s:HideAssemblyForBuffer()
@@ -235,7 +236,7 @@ function! s:FillAssemblyBuffer(bufnr, result)
 endfunction
 
 function! s:ShowAssemblyBuffer()
-    call s:ReadAssembly(bufnr('%'), function('s:FillAssemblyBuffer'))
+    call s:ReadAssembly(bufnr('%'), getcwd(), function('s:FillAssemblyBuffer'))
 endfunction
 
 function! s:FollowArrow()
@@ -250,22 +251,23 @@ endfunction
 
 " mylint.vim compiles after the write, and the build takes as long as it takes.
 " Wait for the object to grow newer than the file, then redraw once.
-function! s:WaitForBuild(bufnr, attempts, timer)
+function! s:WaitForBuild(bufnr, root, attempts, timer)
     if !g:assembly_viewer_enabled || a:attempts <= 0
         return
     endif
 
-    call s:ReadAssembly(a:bufnr, function('s:RedrawWhenBuilt', [a:attempts]))
+    call s:ReadAssembly(a:bufnr, a:root,
+        \ function('s:RedrawWhenBuilt', [a:root, a:attempts]))
 endfunction
 
-function! s:RedrawWhenBuilt(attempts, bufnr, result)
+function! s:RedrawWhenBuilt(root, attempts, bufnr, result)
     if a:result.object_time >= a:result.source_time
         call s:DisplayAssembly(a:bufnr, a:result)
         return
     endif
 
     call timer_start(1000,
-        \ function('s:WaitForBuild', [a:bufnr, a:attempts - 1]))
+        \ function('s:WaitForBuild', [a:bufnr, a:root, a:attempts - 1]))
 endfunction
 
 command! AssemblyShow call s:ShowAssemblyForBuffer()
@@ -282,6 +284,6 @@ nnoremap <silent> <Leader>ab :AssemblyBuffer<CR>
 
 if get(g:, 'assembly_viewer_auto_update', 1)
     augroup AssemblyViewerIntegration
-        autocmd! BufWritePost *.c if g:assembly_viewer_enabled | call timer_start(1000, function('s:WaitForBuild', [bufnr('%'), 30])) | endif
+        autocmd! BufWritePost *.c if g:assembly_viewer_enabled | call timer_start(1000, function('s:WaitForBuild', [bufnr('%'), getcwd(), 30])) | endif
     augroup END
 endif
