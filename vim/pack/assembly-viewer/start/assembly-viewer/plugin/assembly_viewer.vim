@@ -60,11 +60,6 @@ endfunction
 
 " Reads the assembly of a buffer, and calls Done with what it found.
 function! s:ReadAssembly(bufnr, done)
-    if !exists('*async#job#start')
-        echom 'Assembly viewer needs async.vim, the same one mylint.vim uses'
-        return
-    endif
-
     let l:file_path = fnamemodify(bufname(a:bufnr), ':p')
     if empty(l:file_path)
         echom 'Assembly viewer: no file name for this buffer'
@@ -76,8 +71,16 @@ function! s:ReadAssembly(bufnr, done)
     let l:answer = tempname()
     let l:command = ['python3', s:reader, l:file_path, l:answer]
 
-    let s:jobs[a:bufnr] = async#job#start(l:command,
-        \ {'on_exit': function('s:JobFinished', [a:bufnr, l:answer, a:done])})
+    " Calling it is what loads it. exists() does not load an autoload script, so
+    " it answers no until something else has been through async# already.
+    try
+        let s:jobs[a:bufnr] = async#job#start(l:command,
+            \ {'on_exit': function('s:JobFinished', [a:bufnr, l:answer, a:done])})
+    catch /E117/
+        echohl ErrorMsg
+        echom 'Assembly viewer needs async.vim, the same one mylint.vim uses'
+        echohl None
+    endtry
 endfunction
 
 function! s:JobFinished(bufnr, answer, done, job, status, ...)

@@ -512,14 +512,30 @@ def instruction_text(instruction, index):
     return text
 
 
-def find_compile_commands():
-    """The newest compile_commands.json at or just below the working
-    directory. Hidden directories hold other people's builds."""
-    found = [path
-             for depth in ('*/', '')
-             for path in glob.glob(depth + 'compile_commands.json')
-             if not path.startswith('.')]
-    return max(found, key=os.path.getmtime) if found else ''
+def find_compile_commands(source_file):
+    """The newest compile_commands.json at or just below the nearest directory
+    above this file that holds one.
+
+    Walking up from the file is the only reliable way there. The working
+    directory is no help: :lcd makes it a property of the window, so a job
+    started from a timer, or from an autocommand while another window is
+    current, runs somewhere else entirely. A hidden directory holds another
+    tool's build, such as the one qt writes."""
+    directory = os.path.dirname(source_file)
+
+    while True:
+        found = [path
+                 for pattern in ('compile_commands.json',
+                                 os.path.join('*', 'compile_commands.json'))
+                 for path in glob.glob(os.path.join(directory, pattern))
+                 if not os.path.basename(os.path.dirname(path)).startswith('.')]
+        if found:
+            return max(found, key=os.path.getmtime)
+
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return ''
+        directory = parent
 
 
 def compile_command(entry):
@@ -580,15 +596,16 @@ def find_objdump(compiler):
 def find_object(source_file):
     """Reads the compile_commands entry for this file and takes its -o, which
     is what mylint.vim adds .mylint to."""
-    commands = find_compile_commands()
+    commands = find_compile_commands(source_file)
     if not commands:
-        raise LookupError('No compile_commands.json below ' + os.getcwd())
+        raise LookupError('No compile_commands.json above ' + source_file)
 
     with open(commands, encoding='utf-8') as handle:
         entries = json.load(handle)
 
     for entry in entries:
-        if os.path.realpath(entry['file']) != source_file:
+        if os.path.realpath(os.path.join(entry['directory'], entry['file'])) \
+                != source_file:
             continue
 
         words = compile_command(entry)
@@ -602,7 +619,7 @@ def find_object(source_file):
 
         return binary, find_objdump(words[0] if words else '')
 
-    raise LookupError('No compile_commands entry for this file')
+    raise LookupError('No entry for this file in ' + commands)
 
 
 def assembly(source_file):
