@@ -117,6 +117,9 @@ alias rg='rg --no-messages --vimgrep --max-filesize 5M --type-add work:include:c
 
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 
+alias embedded="$HOME/dot-files/claude/skills/embedded-screen/embedded-screen.sh attach"
+alias embedded-log='tail -f /tmp/embedded-serial.log'
+
 alias ls='ls -Fh --color=auto'
 
 alias find='find 2>/dev/null'
